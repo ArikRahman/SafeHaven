@@ -1,0 +1,1 @@
+pip install pygetwindow pyautogui pyscreeze
