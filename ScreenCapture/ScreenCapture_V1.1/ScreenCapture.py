@@ -30,17 +30,17 @@ try:
         # other instanaces it captures VSC
 
         # Half-second delay
-        time.sleep(.5) 
+        time.sleep(.5)
 
         # Capture screenshot of the window
         screenshot = pyautogui.screenshot(region=(win.left, win.top, win.width, win.height))
 
         # Save the screenshot with a correct file path
         # Use forward slashes or raw string
-        screenshot.save(r"C:\Users\vguo9\OneDrive\Desktop\Year 4 and F25\Y4S2\ESET419-932\Software\Samples\Screenshot.png")     # REPLACE USER_HERE WITH COMPUTER USERNAME
+        screenshot.save(r"Output.png")     # REPLACE USER_HERE WITH COMPUTER USERNAME
         # Screenshot save directory can be changed accordingly
 
-        print("Screenshot saved as 'Screenshot.png'")
+        print("Screenshot saved as 'Output.png'")
     else:
         print("Window not found!")
 except IndexError:
