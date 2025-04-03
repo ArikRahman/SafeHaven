@@ -28,7 +28,7 @@ def generate_snake_path(x_min, y_min, x_max, y_max, step_x, step_y):
             y_values = np.arange(y_min, y_max + step_y, step_y)
         
         for y in y_values:
-            path.append((x, y))
+            path.append((x, round(float(y),4)))
         
         # Small step to the right
         x += step_x

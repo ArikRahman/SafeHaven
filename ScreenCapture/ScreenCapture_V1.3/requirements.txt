@@ -1,0 +1,7 @@
+numpy
+opencv-python
+pillow==9.5.0
+pygetwindow
+pywin32
+pyautogui
+pyscreeze
