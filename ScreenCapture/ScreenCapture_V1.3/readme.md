@@ -1,0 +1,46 @@
+What this program does:
+    # Capture and save a screenshot of an active Chrome window
+    # Initialization of window capture is manual and not automatic
+
+Installation:
+# Copy and paste these in the terminal to download packages
+    pip install numpy
+    pip install opencv-python
+    pip install pillow==9.5.0
+    pip install pygetwindow pywin32 pillow
+    pip install --upgrade Pillow
+    pip install pygetwindow pyautogui pyscreeze
+    pip install pyautogui --use-pep517    
+    pip install --upgrade pyautogui pyscreeze pillow
+    pip install pyautogui pygetwindow opencv-python
+
+OR
+
+    Note: replace /full/path/to/ with your path
+    Note: this install method hasn't been verified that it works
+    pip install -r /full/path/to/requirements.txt
+
+    SafeHaven example: pip install -r C:\GitHub\SafeHaven\ScreenCapture\ScreenCapture_V1.3\requirements.txt
+    
+# V1.3 Change Log:
+    # Uses primary approach of window capture from V1.1
+    # Supporting readme.md file is created
+
+# Notes:
+    # V1.2 attempted headless window capture to capture windows in the background
+    # This approach was partially unsuccessful because V1.2 program does not fully capture screen
+    # Part of the bottom and right are cropped in the picture. Example can be seen in       "C:\GitHub\SafeHaven\Samples\SC_V1.2_Failed_Capture\Screenshot.png" 
+    # Speculated reasons as to why this didn't work is rendering issues with background windows or incorrect window size
+
+# How it works:
+    # Find window by title
+    # Use pyautogui to capture window
+    # Save as png
+    # Repeated captures overwrite previous saved screenshot
+
+# How to use it:
+    # Complete the installation and install modules
+    # Execute the program and see available windows in the terminal
+    # Copy desired window title for capture
+    # Paste exact window title inside of "" associated with window_title 
+    # Replace PATH with your desired destination in screenshot.save(r"C:\PATH\Screenshot.png")
