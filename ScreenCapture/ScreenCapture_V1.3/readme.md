@@ -4,22 +4,24 @@ What this program does:
 
 Installation:
 # Copy and paste these in the terminal to download packages
-    # pip install numpy
-    # pip install opencv-python
-    # pip install pillow==9.5.0
-    # pip install pygetwindow pywin32 pillow
-    # pip install --upgrade Pillow
-    # pip install pygetwindow pyautogui pyscreeze
-    # pip install pyautogui --use-pep517    
-    # pip install --upgrade pyautogui pyscreeze pillow
-    # pip install pyautogui pygetwindow opencv-python
+    pip install numpy
+    pip install opencv-python
+    pip install pillow==9.5.0
+    pip install pygetwindow pywin32 pillow
+    pip install --upgrade Pillow
+    pip install pygetwindow pyautogui pyscreeze
+    pip install pyautogui --use-pep517    
+    pip install --upgrade pyautogui pyscreeze pillow
+    pip install pyautogui pygetwindow opencv-python
 
 OR
 
     Note: replace /full/path/to/ with your path
-    Note: this install method hasn't been verified for functionality
+    Note: this install method hasn't been verified that it works
     pip install -r /full/path/to/requirements.txt
 
+    SafeHaven example: pip install -r C:\GitHub\SafeHaven\ScreenCapture\ScreenCapture_V1.3\requirements.txt
+    
 # V1.3 Change Log:
     # Uses primary approach of window capture from V1.1
     # Supporting readme.md file is created
