@@ -15,11 +15,9 @@ OR
 
     SafeHaven example: pip install -r C:\GitHub\SafeHaven\SnakePathAlgorithm\SnakePathAlgorithm_V1.2\requirements.txt
 
-# Snake Path Algorithm V1.2 Changelog:
-    # Fixed y output values showing as np.float(y) and now appears as float values with 4 decimal places
-    # Implemented UART transmission
-    # Implemented scanner procedure to go to starting position and return to origin from destination
-    # Added an origin point
+# Snake Path Algorithm V1.3 Changelog:
+    # Split path into start, snake, and return path for testing and visualization
+    # Fixed missing return path on plot
 
 # Notes
     # Identified problem that if x range is not long enough the path generated will end at the bottom. This problem could be neglected it could just return straight to origin
@@ -28,7 +26,6 @@ OR
     # Implement interrupt function
     # Identified problem that snake path generation doesn't work with all test cases with different dimensions
     # Identified problem that sometimes the points exceed the 0 or 1.5 boundary limits
-    # Identified problems with visualization. Color code the path to starting, snake path, and path back to origin
     # Defined origin is (0 meter, 1.5 meter)
     # IMPORTANT: comment out uart transmission block to test visualization
 

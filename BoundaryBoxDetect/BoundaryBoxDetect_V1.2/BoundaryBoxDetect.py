@@ -1,3 +1,8 @@
+# Object detection in this project is powered by YOLOv5 by Ultralytics
+# GitHub: https://github.com/ultralytics/yolov5
+# DOI: https://doi.org/10.5281/zenodo.3908559
+# Licensed under AGPL-3.0
+
 # Imports
 import torch
 import cv2

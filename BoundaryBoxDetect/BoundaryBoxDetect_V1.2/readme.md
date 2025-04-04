@@ -35,3 +35,7 @@ OR
 # How to use it:
     # Complete installation with provided command. Replace path with complete path to requirements.txt
     # Load saved image into image_path. Replace PATH with your saved image path: image_path = r"C:\PATH\Screenshot.png"
+
+### Acknowledgments
+This project uses [YOLOv5](https://github.com/ultralytics/yolov5) by [Ultralytics](https://ultralytics.com/), licensed under AGPL-3.0.  
+DOI: [10.5281/zenodo.3908559](https://doi.org/10.5281/zenodo.3908559)
