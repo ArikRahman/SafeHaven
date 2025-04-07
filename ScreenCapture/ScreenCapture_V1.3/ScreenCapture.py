@@ -7,7 +7,7 @@ import time
 for window in gw.getAllTitles():
     print(window)
 
-# Window title
+# # Window title
 window_title = "1.jpg (480×270) - Google Chrome"  # PUT WINDOW NAME INSIDE ""
 
 # Get window by title

@@ -1,0 +1,6 @@
+torch
+torchvision
+torchaudio
+pandas
+requests
+opencv-python

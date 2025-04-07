@@ -18,8 +18,6 @@ OR
 
 # V1.2 Changelog:
     # Supported document readme.md is created
-    # Changed pixel to meter conversion. Fixed pixel ratio for both X and Y is not accurate
-    # Created individual pixel to meter conversion for X and Y
 
 # Notes:
     # Processing time can be between 15-75 seconds. Can possibly be reduced by loading model at the beginning when combined or merged with final GPO program

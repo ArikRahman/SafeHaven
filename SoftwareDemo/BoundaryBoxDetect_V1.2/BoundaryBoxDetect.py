@@ -32,13 +32,9 @@ for *box, conf, cls in results.xyxy[0]:  # Loop through detected objects
         print(f"Bounding Box Coordinates in Pixel: ({x1}, {y1}), ({x2}, {y2})")
         
         # Declare variable to store pixel to meter conversion values
-        # X - Pixel to meter conversion ratio 
-        X_Px_to_M = 0.000265
-        xm1, xm2 = x1 * X_Px_to_M, x2 * X_Px_to_M
-
-        # Y - Pixel to meter conversion ratio 
-        Y_Px_to_M = 0.000265
-        ym1, ym2 = y1 * Y_Px_to_M, y2* Y_Px_to_M
+        # Pixel to meter conversion ratio
+        PxToM = 0.000265
+        xm1, ym1, xm2, ym2 = x1 * PxToM, y1 * PxToM, x2 * PxToM, y2* PxToM
         
         # FIXME: from online pixel to meter conversion ratio is 0.000265
         # find out what our relative pixel conversion should be and 
