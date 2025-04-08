@@ -23,9 +23,11 @@ OR
 
     SafeHaven example: pip install -r C:\GitHub\SafeHaven\ScreenCapture\ScreenCapture_V1.3\requirements.txt
     
-# V1.3 Change Log:
+# V1.4 Change Log:
     # Uses primary approach of window capture from V1.1 by bringing window over the IDE and screenshot
     # Supporting readme.md file is created
+    # Capture window with keyword. Keyword is the camera IP address
+    # After window is brought to the front and the screenshot is taken, it is pushed back behind the ID
 
 # Notes:
     # V1.2 attempted headless window capture to capture windows in the background
@@ -34,7 +36,7 @@ OR
     # Speculated reasons as to why this didn't work is rendering issues with background windows or incorrect window size
 
 # How it works:
-    # Find window by title
+    # Find window by keyword in the title
     # Use pyautogui to capture window
     # Save as png
     # Repeated captures overwrite previous saved screenshot
@@ -42,6 +44,5 @@ OR
 # How to use it:
     # Complete the installation and install modules
     # Execute the program and see available windows in the terminal
-    # Copy desired window title for capture
-    # Paste exact window title inside of "" associated with window_title 
+    # Replace keyword with Camera IP address
     # Replace PATH with your desired destination in screenshot.save(r"C:\PATH\Screenshot.png")
