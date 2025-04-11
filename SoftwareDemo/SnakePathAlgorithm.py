@@ -108,7 +108,7 @@ step_y = 3/100  # 2 cm vertical steps
 
 origin_x, origin_y = 0, 1.5  # Origin at (0, 150 cm)
 
-# FIXME: fix the slant. points are shifted up or down 1
+# FIXME: fix the slant. points are shifted up or down 1. Possible fix is remove y_step
 
 # Generate scan path
 path, start_range, snake_range, return_range = generate_snake_path(

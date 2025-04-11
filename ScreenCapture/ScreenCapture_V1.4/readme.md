@@ -27,7 +27,7 @@ OR
     # Uses primary approach of window capture from V1.1 by bringing window over the IDE and screenshot
     # Supporting readme.md file is created
     # Capture window with keyword. Keyword is the camera IP address
-    # After window is brought to the front and the screenshot is taken, it is pushed back behind the ID
+    # After window is brought to the front and the screenshot is taken, VSC/cmd is restored and brought to the front
 
 # Notes:
     # V1.2 attempted headless window capture to capture windows in the background

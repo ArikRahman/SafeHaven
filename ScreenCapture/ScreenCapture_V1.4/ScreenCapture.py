@@ -8,39 +8,54 @@ for window in gw.getAllTitles():
     print(window)
 
 # Keyword to search for in the title
-keyword = "192.168.1.106" # Replace inside of quote with camera IP address
+# keyword = "192.168.1.106" # Replace inside of quote with camera IP address
+keyword1 = "Employee_Theft" # Replace inside of quote with camera IP address
+keyword2 = "Visual Studio Code" # Replace place of quote with VSC or cmd
+
+# Initialize variables to store window titles
+target_window_title = None
+home_window_title = None
 
 # Find window that contains the keyword in title
-target_window = None
 for title in gw.getAllTitles():
-    if keyword.lower() in title.lower():
-        target_window = title
-        break
+    if keyword1.lower() in title.lower():
+        target_window_title = title
+    if keyword2.lower() in title.lower():
+        home_window_title = title
 
-if target_window:
-    print(f"Found window: {target_window}")
+# Print test statement to see if windows are found
+if target_window_title and home_window_title:
+    print(f"Found window: {target_window_title}")
+    print(f"Found window: {home_window_title}")
+    
     try:
-        win = gw.getWindowsWithTitle(target_window)[0]  # Get the first matching window
-        if win:
-            # Bring the window to the front
-            win.activate()
+        # Get the first matching window
+        target_win = gw.getWindowsWithTitle(target_window_title)[0]
+        home_win = gw.getWindowsWithTitle(home_window_title)[0]
+        
+        # Bring the browser window to the front
+        target_win.activate()
 
-            # Delay added incase it's taking screenshot too fast. Sometimes it captures window, sometimes it captures VSC 
-            time.sleep(.5) # Half-second delay
+        # Delay added incase it's taking screenshot too fast. Sometimes it captures window, sometimes it captures VSC 
+        time.sleep(0.5) # Half-second delay
 
-            # Capture screenshot of the window
-            screenshot = pyautogui.screenshot(region=(win.left, win.top, win.width, win.height))
+        # Capture screenshot of the window
+        screenshot = pyautogui.screenshot(region=(target_win.left, target_win.top, target_win.width, target_win.height))
 
-            #FIXME Send window back
-            # bruh 
+        # Restore home window (your VSC/cmd) if minimized
+        home_win.minimize()
+        time.sleep(0.5)
+        home_win.restore()
+        time.sleep(0.5)
 
-            # File path for saved screenshot
-            screenshot.save(r"C:\GitHub\SafeHaven\Samples\HTTP_Test.png")     # REPLACE USER_HERE WITH COMPUTER USERNAME
-            # Screenshot save directory can be changed accordingly
-
-            print("Screenshot saved as 'Screenshot.png'")
+        # File path for saved screenshot
+        screenshot.save(r"C:\GitHub\SafeHaven\Samples\TemporaryTest.png")     # REPLACE USER_HERE WITH COMPUTER USERNAME
+        
+        # Screenshot save directory can be changed accordingly
+        print("Screenshot saved as 'Screenshot.png'")
         
     except Exception as e:
         print("Window not found!", e)
 else:
-    print(f"Window not found with {keyword}!")
+    print(f"Window not found with {keyword1}!")
+    print(f"Window not found with {keyword2}!")
