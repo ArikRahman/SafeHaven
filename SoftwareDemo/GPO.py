@@ -146,8 +146,8 @@ data = {
 file_path = r"coords.json"  # or use full path like "C:/Users/yourname/Desktop/coords.json"
 
 # Make sure the directory exists before saving
-import os
-os.makedirs(os.path.dirname(file_path), exist_ok=True)
+#import os
+#os.makedirs(os.path.dirname(file_path), exist_ok=True)
 
 # Write JSON
 with open(file_path, "w") as f:
