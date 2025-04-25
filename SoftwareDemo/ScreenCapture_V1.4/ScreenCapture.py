@@ -25,21 +25,21 @@ if target_window:
             # Bring the window to the front
             win.activate()
 
-            # Delay added incase it's taking screenshot too fast. Sometimes it captures window, sometimes it captures VSC 
+            # Delay added incase it's taking screenshot too fast. Sometimes it captures window, sometimes it captures VSC
             time.sleep(.5) # Half-second delay
 
             # Capture screenshot of the window
             screenshot = pyautogui.screenshot(region=(win.left, win.top, win.width, win.height))
 
             #FIXME Send window back
-            # bruh 
+            # bruh
 
             # File path for saved screenshot
-            screenshot.save(r"C:\GitHub\SafeHaven\Samples\HTTP_Test.png")     # REPLACE USER_HERE WITH COMPUTER USERNAME
+            screenshot.save(r"HTTP_Test.png")     # REPLACE USER_HERE WITH COMPUTER USERNAME
             # Screenshot save directory can be changed accordingly
 
             print("Screenshot saved as 'Screenshot.png'")
-        
+
     except Exception as e:
         print("Window not found!", e)
 else:

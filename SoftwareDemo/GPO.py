@@ -23,8 +23,8 @@ model = torch.hub.load('ultralytics/yolov5', 'yolov5s', pretrained=True)
 
 # ███████╗ ██████╗██████╗ ███████╗███████╗███╗   ██╗     ██████╗ █████╗ ██████╗ ████████╗██╗   ██╗██████╗ ███████╗
 # ██╔════╝██╔════╝██╔══██╗██╔════╝██╔════╝████╗  ██║    ██╔════╝██╔══██╗██╔══██╗╚══██╔══╝██║   ██║██╔══██╗██╔════╝
-# ███████╗██║     ██████╔╝█████╗  █████╗  ██╔██╗ ██║    ██║     ███████║██████╔╝   ██║   ██║   ██║██████╔╝█████╗  
-# ╚════██║██║     ██╔══██╗██╔══╝  ██╔══╝  ██║╚██╗██║    ██║     ██╔══██║██╔═══╝    ██║   ██║   ██║██╔══██╗██╔══╝  
+# ███████╗██║     ██████╔╝█████╗  █████╗  ██╔██╗ ██║    ██║     ███████║██████╔╝   ██║   ██║   ██║██████╔╝█████╗
+# ╚════██║██║     ██╔══██╗██╔══╝  ██╔══╝  ██║╚██╗██║    ██║     ██╔══██║██╔═══╝    ██║   ██║   ██║██╔══██╗██╔══╝
 # ███████║╚██████╗██║  ██║███████╗███████╗██║ ╚████║    ╚██████╗██║  ██║██║        ██║   ╚██████╔╝██║  ██║███████╗
 # ╚══════╝ ╚═════╝╚═╝  ╚═╝╚══════╝╚══════╝╚═╝  ╚═══╝     ╚═════╝╚═╝  ╚═╝╚═╝        ╚═╝    ╚═════╝ ╚═╝  ╚═╝╚══════╝
 # Print all window titles
@@ -51,16 +51,16 @@ for title in gw.getAllTitles():
 if target_window_title and home_window_title:
     print(f"Found window: {target_window_title}")
     print(f"Found window: {home_window_title}")
-    
+
     try:
         # Get the first matching window
         target_win = gw.getWindowsWithTitle(target_window_title)[0]
         home_win = gw.getWindowsWithTitle(home_window_title)[0]
-        
+
         # Bring the browser window to the front
         target_win.activate()
 
-        # Delay added incase it's taking screenshot too fast. Sometimes it captures window, sometimes it captures VSC 
+        # Delay added incase it's taking screenshot too fast. Sometimes it captures window, sometimes it captures VSC
         time.sleep(0.5) # Half-second delay
 
         # Capture screenshot of the window
@@ -73,26 +73,26 @@ if target_window_title and home_window_title:
         time.sleep(0.5)
 
         # File path for saved screenshot
-        screenshot.save(r"C:\GitHub\SafeHaven\SoftwareDemo\Sample\Screenshot.png")     # REPLACE USER_HERE WITH COMPUTER USERNAME
+        screenshot.save(r"Screenshot.png")     # REPLACE USER_HERE WITH COMPUTER USERNAME
         # Screenshot save directory can be changed accordingly
-        
+
         print("Screenshot saved as 'Screenshot.png'")
-        
+
     except Exception as e:
         print("Window not found!", e)
 else:
     print(f"Window not found with {keyword1}!")
-    print(f"Window not found with {keyword2}!")   
+    print(f"Window not found with {keyword2}!")
 
-# ██████╗  ██████╗ ██╗   ██╗███╗   ██╗██████╗  █████╗ ██████╗ ██╗   ██╗    ██████╗ ███████╗████████╗███████╗ ██████╗████████╗    ██╗   ██╗  ██╗██████╗ 
+# ██████╗  ██████╗ ██╗   ██╗███╗   ██╗██████╗  █████╗ ██████╗ ██╗   ██╗    ██████╗ ███████╗████████╗███████╗ ██████╗████████╗    ██╗   ██╗  ██╗██████╗
 # ██╔══██╗██╔═══██╗██║   ██║████╗  ██║██╔══██╗██╔══██╗██╔══██╗╚██╗ ██╔╝    ██╔══██╗██╔════╝╚══██╔══╝██╔════╝██╔════╝╚══██╔══╝    ██║   ██║ ███║╚════██╗
 # ██████╔╝██║   ██║██║   ██║██╔██╗ ██║██║  ██║███████║██████╔╝ ╚████╔╝     ██║  ██║█████╗     ██║   █████╗  ██║        ██║       ██║   ██║ ╚██║ █████╔╝
-# ██╔══██╗██║   ██║██║   ██║██║╚██╗██║██║  ██║██╔══██║██╔══██╗  ╚██╔╝      ██║  ██║██╔══╝     ██║   ██╔══╝  ██║        ██║       ╚██╗ ██╔╝  ██║██╔═══╝ 
+# ██╔══██╗██║   ██║██║   ██║██║╚██╗██║██║  ██║██╔══██║██╔══██╗  ╚██╔╝      ██║  ██║██╔══╝     ██║   ██╔══╝  ██║        ██║       ╚██╗ ██╔╝  ██║██╔═══╝
 # ██████╔╝╚██████╔╝╚██████╔╝██║ ╚████║██████╔╝██║  ██║██║  ██║   ██║       ██████╔╝███████╗   ██║   ███████╗╚██████╗   ██║        ╚████╔╝██╗██║███████╗
 # ╚═════╝  ╚═════╝  ╚═════╝ ╚═╝  ╚═══╝╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝       ╚═════╝ ╚══════╝   ╚═╝   ╚══════╝ ╚═════╝   ╚═╝         ╚═══╝ ╚═╝╚═╝╚══════╝
-                                                                                                                                                     
+
 # Load the image
-image_path = r"C:\GitHub\SafeHaven\SoftwareDemo\Sample\Screenshot.png"  # Change to your image path
+image_path = r"Screenshot.png"  # Change to your image path
 image = cv2.imread(image_path)
 
 # Convert BGR to RGB (YOLO expects RGB format)
@@ -111,7 +111,7 @@ for *box, conf, cls in results.xyxy[0]:  # Loop through detected objects
 
     if label == "person":  # Filter only people
         print(f"Bounding Box Coordinates in Pixel: ({x1}, {y1}), ({x2}, {y2})")
-        
+
         # Declare variable to store pixel to meter conversion values
         # X - Pixel to meter conversion ratio
         X_Px_to_M = 0.00092592592
@@ -120,16 +120,16 @@ for *box, conf, cls in results.xyxy[0]:  # Loop through detected objects
         # Y - Pixel to meter conversion ratio
         Y_Px_to_M = 0.00052083333
         ym1, ym2 = y1 * Y_Px_to_M, y2* Y_Px_to_M
-        
+
         # FIXME: from online pixel to meter conversion ratio is 0.000265
         # find out what our relative pixel conversion should be
-        
+
         # Convert pixel to meter
         print(f"Bound Box Coordinates in Meter: ({xm1:.4f}, {ym1:.4f}), ({xm2:.4f}, {ym2:.4f}) \n")
-        
+
         # Draw the bounding box on the image
         cv2.rectangle(image, (x1, y1), (x2, y2), (0, 0, 255), 2)  # Red box
-        cv2.putText(image, f"{label}. Conf: {100*conf:.1f}%", (x1, y1 - 10), 
+        cv2.putText(image, f"{label}. Conf: {100*conf:.1f}%", (x1, y1 - 10),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
 # Export variables
@@ -143,7 +143,7 @@ data = {
 }
 
 # Save to a specific file
-file_path = r"C:\GitHub\SafeHaven\SoftwareDemo\coords.json"  # or use full path like "C:/Users/yourname/Desktop/coords.json"
+file_path = r"coords.json"  # or use full path like "C:/Users/yourname/Desktop/coords.json"
 
 # Make sure the directory exists before saving
 import os
