@@ -1,59 +1,36 @@
-import RPi.GPIO as GPIO
-import time
+from gpiozero import OutputDevice, PWMOutputDevice
+from time import sleep
 
-# Pin definitions
-DIR = 6   # Direction pin
-STEP = 13 # Step pin
-ENABLE = 12 # Enable pin (connected to ENA- on the TB6600 driver)
+# Define the GPIO pins
+PUL_PIN = 13
+DIR_PIN = 6
+ENA_PIN = 12
 
-# The TB6600 driver is enabled with a LOW signal on ENA-
-# Some drivers have EN- and EN+, and require EN+ to be connected to 5V.
-# If your motor isn't working, you may need to check the active state of the enable pin.
-# If you don't need to enable/disable the motor via code, you can tie the EN- pin to GND.
+# Initialize the pins as output devices
+pul = PWMOutputDevice(PUL_PIN, active_high=True, frequency=100)
+dir = OutputDevice(DIR_PIN, active_high=True)
+ena = OutputDevice(ENA_PIN, active_high=False)
 
-# Other variables
-delay = .02083 # Delay in seconds (adjust for motor speed)
+# Enable the driver
+ena.on()
+sleep(1)
 
-# Setup
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(DIR, GPIO.OUT)
-GPIO.setup(STEP, GPIO.OUT)
-GPIO.setup(ENABLE, GPIO.OUT)
+# Test the movement with CW (Clockwise)
+print("Starting CW rotation...")
+dir.off()
+pul.pulse(n=200, background=False)
 
-# Start with the motor disabled and then enable it
-GPIO.output(ENABLE, GPIO.HIGH) # HIGH signal to DISABLE the driver
-time.sleep(1) # wait for a second
-GPIO.output(ENABLE, GPIO.LOW) # LOW signal to ENABLE the driver
+sleep(1)
 
-# Main loop
-try:
-    # Set direction
-    GPIO.output(DIR, GPIO.HIGH) # clockwise
-    
-    # Take 200 steps (one full rotation on a 1.8 degree stepper motor)
-    for x in range(200):
-        GPIO.output(STEP, GPIO.HIGH)
-        time.sleep(delay)
-        GPIO.output(STEP, GPIO.LOW)
-        time.sleep(delay)
-        
-    time.sleep(1) # wait for a second
+# Test the movement with CCW (Counter-Clockwise)
+print("Starting CCW rotation...")
+dir.on()
+pul.pulse(n=200, background=False)
 
-    # Change direction
-    GPIO.output(DIR, GPIO.LOW) # counter-clockwise
-    
-    # Take 200 steps
-    for x in range(200):
-        GPIO.output(STEP, GPIO.HIGH)
-        time.sleep(delay)
-        GPIO.output(STEP, GPIO.LOW)
-        time.sleep(delay)
+# End of test
+print("Test complete.")
 
-except KeyboardInterrupt:
-    print("Program stopped by user")
-
-finally:
-    # Disable the motor and clean up GPIO pins
-    GPIO.output(ENABLE, GPIO.HIGH)
-    GPIO.cleanup()
-    print("GPIO cleaned up")
+# Cleanup
+pul.close()
+dir.close()
+ena.close()
