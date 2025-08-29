@@ -31,6 +31,7 @@ print("Starting CCW rotation...")
 dir.on() # Set direction to CCW
 pul.pulse(fade_in_time=0.5, fade_out_time=0.5, n= 10, background=False) # Start PWM signal
 
+# End of test
 print("Test complete.")
 
 # Cleanup
