@@ -3,6 +3,8 @@
 # DOI: https://doi.org/10.5281/zenodo.3908559
 # Licensed under AGPL-3.0
 
+# Command line: python3 .\GPO.py; python3 .\SnakePathAlgorithm.py
+
 # Screen Capture Imports
 import pygetwindow as gw
 import pyautogui
