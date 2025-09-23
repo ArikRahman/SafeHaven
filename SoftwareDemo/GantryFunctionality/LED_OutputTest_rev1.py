@@ -6,6 +6,8 @@ led2 = LED(27)
 led3 = LED(22)
 led4 = LED(23)
 
+print("LED Test Starting...")
+
 while True:
     led1.on()
     sleep(1)
