@@ -3,7 +3,7 @@ from time import sleep
 
 # Define the GPIO pins
 PUL_PIN = 13    # Pulse pin
-DIR_PIN = 6     # Direction pin
+DIR_PIN = 6     # Direction pins
 ENA_PIN = 5     # Enable pin
 
 duty_cycle = 0.5  # 50% duty cycle for PWM
