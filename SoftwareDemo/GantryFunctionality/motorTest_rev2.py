@@ -1,5 +1,8 @@
 from gpiozero import OutputDevice, DigitalOutputDevice, PWMOutputDevice
 from time import sleep
+# For documentation for gpiozero, please refer to:
+#https://gpiozero.readthedocs.io/en/stable/recipes.html#motors
+#https://gpiozero.readthedocs.io/en/stable/api_output.html
 
 # Define the GPIO pins
 PUL_PIN = 13    # Pulse pin
