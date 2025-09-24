@@ -6,7 +6,7 @@ PUL_PIN = 13    # Pulse pin
 DIR_PIN = 6     # Direction pins
 ENA_PIN = 5     # Enable pin
 
-duty_cycle = 0.5  # 50% duty cycle for PWM
+duty_cycle = 0.75  # 50% duty cycle for PWM
 motor_speed = 100 # Speed of motor in frequency (Hz)
 
 # Initialize the pins as output devices
@@ -22,14 +22,14 @@ sleep(1)  # Small delay to allow the driver to initialize
 # Test the movement with CW (Clockwise)
 print("Starting CW rotation...")
 dir.off() # Set direction to CW
-pul.pulse(fade_in_time=0.5, fade_out_time=0.5, n= 10, background=False) # Start PWM signal
+pul.pulse(fade_in_time=0.5, fade_out_time=0.5, n= 3, background=False) # Start PWM signal
 
 sleep(1)  # Pause for a moment
 
 # Test the movement with CCW (Counter-Clockwise)
 print("Starting CCW rotation...")
 dir.on() # Set direction to CCW
-pul.pulse(fade_in_time=0.5, fade_out_time=0.5, n= 10, background=False) # Start PWM signal
+pul.pulse(fade_in_time=0.5, fade_out_time=0.5, n= 3, background=False) # Start PWM signal
 
 # End of test
 print("Test complete.")
