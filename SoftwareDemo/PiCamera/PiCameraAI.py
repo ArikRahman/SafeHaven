@@ -14,7 +14,7 @@ import cv2, time
 
 # Run program
 # cd SoftwareDemo/PiCamera
-# python3 PiCameraAI
+# python3 PiCameraAI.py
 
 # Load a lightweight model
 model = YOLO("yolov8n.pt")      # or "yolo11n.pt" if available
