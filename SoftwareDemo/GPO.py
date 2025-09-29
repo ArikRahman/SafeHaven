@@ -1,7 +1,17 @@
-# Object detection in this project is powered by YOLOv5 by Ultralytics
-# GitHub: https://github.com/ultralytics/yolov5
+# Object detection in this project is powered by YOLOv11 by Ultralytics
+# GitHub: https://github.com/ultralytics/yolov11
 # DOI: https://doi.org/10.5281/zenodo.3908559
 # Licensed under AGPL-3.0
+
+# Command line: python3 .\GPO.py; python3 .\SnakePathAlgorithm.py
+
+# On both dev machine and Pi: install with the command line at the bottom
+# python -m pip install -U ultralytics
+
+# On the Pi install the following:
+# sudo apt update
+# sudo apt install -y python3-pip libcamera-dev python3-libcamera python3-kms++ python3-picamera2
+# python -m pip install -U ultralytics opencv-python
 
 # Screen Capture Imports
 import pygetwindow as gw
@@ -11,15 +21,24 @@ import time
 # Boundary Detect Imports
 import torch
 import cv2
+from ultralytics import YOLO
+import os
 
 # Snake Path Algorithm Imports
+import json
 import numpy as np
 
 # Pyplot Import
 import matplotlib.pyplot as plt
 
-# Load the YOLOv5 model (small version for speed)
-model = torch.hub.load('ultralytics/yolov5', 'yolov5s', pretrained=True)
+# YOLOv11 set up
+YOLO_WEIGHTS = r"yolo11s.pt"
+YOLO_IMGSZ = 640
+YOLO_CONF = 0.40
+
+ALLOWED_CLASSES = {"person", "mannequin"}
+
+model = YOLO(YOLO_WEIGHTS)
 
 # ███████╗ ██████╗██████╗ ███████╗███████╗███╗   ██╗     ██████╗ █████╗ ██████╗ ████████╗██╗   ██╗██████╗ ███████╗
 # ██╔════╝██╔════╝██╔══██╗██╔════╝██╔════╝████╗  ██║    ██╔════╝██╔══██╗██╔══██╗╚══██╔══╝██║   ██║██╔══██╗██╔════╝
@@ -94,66 +113,70 @@ else:
 # Load the image
 image_path = r"C:\GitHub\SafeHaven\SoftwareDemo\Sample\Screenshot.png"  # Change to your image path
 image = cv2.imread(image_path)
+if image is None:
+    raise FileNotFoundError(f"Could not read image at {image_path}")
 
-# Convert BGR to RGB (YOLO expects RGB format)
-image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-
-# Run YOLOv5 on the image
-results = model(image_rgb)
+# Run YOLOv11 on the image
+results = model.predict(source=image, imgsz=YOLO_IMGSZ, conf=YOLO_CONF, device='cpu', verbose=False)
 
 # Print cord format
 print("Pixel Cord Format: (x1, y1), (x2, y2) \n")
 
-# Extract bounding box coordinates
-for *box, conf, cls in results.xyxy[0]:  # Loop through detected objects
-    x1, y1, x2, y2 = map(int, box)  # Convert to integers
-    label = model.names[int(cls)]  # Get class label (e.g., "person")
+# Pixel to meter conversion
+X_Px_to_M = 0.00092592592
+Y_Px_to_M = 0.00052083333
 
-    if label == "person":  # Filter only people
-        print(f"Bounding Box Coordinates in Pixel: ({x1}, {y1}), ({x2}, {y2})")
-        
-        # Declare variable to store pixel to meter conversion values
-        # X - Pixel to meter conversion ratio
-        X_Px_to_M = 0.00092592592
-        xm1, xm2 = x1 * X_Px_to_M, x2 * X_Px_to_M
+def class_name(m, cls_id: int) -> str:
+    names = getattr(m, "names", None)
+    if isinstance(names, dict):
+        return names.get(cls_id, str(cls_id))
+    if isinstance(names, list) and 0 <= cls_id < len(names):
+        return names[cls_id]
+    return str(cls_id)
 
-        # Y - Pixel to meter conversion ratio
-        Y_Px_to_M = 0.00052083333
-        ym1, ym2 = y1 * Y_Px_to_M, y2* Y_Px_to_M
-        
-        # FIXME: from online pixel to meter conversion ratio is 0.000265
-        # find out what our relative pixel conversion should be
-        
-        # Convert pixel to meter
-        print(f"Bound Box Coordinates in Meter: ({xm1:.4f}, {ym1:.4f}), ({xm2:.4f}, {ym2:.4f}) \n")
-        
-        # Draw the bounding box on the image
-        cv2.rectangle(image, (x1, y1), (x2, y2), (0, 0, 255), 2)  # Red box
-        cv2.putText(image, f"{label}. Conf: {100*conf:.1f}%", (x1, y1 - 10), 
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+best = None  # (area, (x1,y1,x2,y2), label, conf)
 
-# Export variables
-import json
+if len(results):
+    r = results[0]
+    for b in r.boxes:
+        x1, y1, x2, y2 = b.xyxy[0].cpu().numpy().astype(int).tolist()
+        cls_id = int(b.cls[0].item())
+        conf   = float(b.conf[0].item())
+        label  = class_name(model, cls_id)
 
-data = {
-    "xm1": xm1,
-    "ym1": ym1,
-    "xm2": xm2,
-    "ym2": ym2
-}
+        if label in ALLOWED_CLASSES:
+            area = max(0, x2 - x1) * max(0, y2 - y1)
+            if best is None or area > best[0]:
+                best = (area, (x1, y1, x2, y2), label, conf)
 
-# Save to a specific file
-file_path = r"C:\GitHub\SafeHaven\SoftwareDemo\coords.json"  # or use full path like "C:/Users/yourname/Desktop/coords.json"
+coords_out_path = r"C:\GitHub\SafeHaven\SoftwareDemo\coords.json"
+os.makedirs(os.path.dirname(coords_out_path), exist_ok=True)
 
-# Make sure the directory exists before saving
-import os
-os.makedirs(os.path.dirname(file_path), exist_ok=True)
+if best is not None:
+    _, (x1, y1, x2, y2), label, conf = best
 
-# Write JSON
-with open(file_path, "w") as f:
-    json.dump(data, f, indent=4)  # indent=4 makes it readable
+    # Treat mannequin as person for downstream consumers
+    display_label = "person"
 
-# Save or display the image
-cv2.imshow("YOLOv5 Detection", image)
+    print(f"Bounding Box in Pixels: ({x1}, {y1}), ({x2}, {y2})  [{label}→{display_label}, conf={conf:.3f}]")
+
+    xm1, xm2 = x1 * X_Px_to_M, x2 * X_Px_to_M
+    ym1, ym2 = y1 * Y_Px_to_M, y2 * Y_Px_to_M
+    print(f"Bounding Box in Meter: ({xm1:.4f}, {ym1:.4f}), ({xm2:.4f}, {ym2:.4f})\n")
+
+    cv2.rectangle(image, (x1, y1), (x2, y2), (0, 0, 255), 2)
+    cv2.putText(image, f"{display_label} {100*conf:.1f}%", (x1, max(0, y1 - 10)),
+                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+
+    # Export meters for path generator
+    with open(coords_out_path, "w") as f:
+        json.dump({"xm1": xm1, "ym1": ym1, "xm2": xm2, "ym2": ym2}, f, indent=4)
+    print(f"Saved ROI meters to: {coords_out_path}")
+else:
+    print("No person/mannequin detected — exporting empty coords.")
+    with open(coords_out_path, "w") as f:
+        json.dump({"xm1": None, "ym1": None, "xm2": None, "ym2": None}, f, indent=4)
+
+cv2.imshow("YOLO11 Detection", image)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
