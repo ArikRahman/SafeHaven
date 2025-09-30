@@ -10,7 +10,7 @@ import cv2, time
 # Activate YOLO env
 # source ~/yolo-env/bin/activate
 
-# Leave env with deactivate in prompt
+# Leave env with 'deactivate' in prompt
 
 # Run program
 # cd SoftwareDemo/PiCamera
