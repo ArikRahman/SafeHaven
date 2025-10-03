@@ -5,6 +5,9 @@
 # ██║     ██║  ██║   ██║   ██║  ██║    ╚██████╔╝███████╗██║ ╚████║███████╗██║  ██║██║  ██║   ██║   ██║╚██████╔╝██║ ╚████║
 # ╚═╝     ╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝     ╚═════╝ ╚══════╝╚═╝  ╚═══╝╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝   ╚═╝ ╚═════╝ ╚═╝  ╚═══╝                                                                                                                      
 import numpy as np
+import json
+import matplotlib.pyplot as plt
+import os
 
 def generate_snake_path(x_min, y_min, x_max, y_max, step_x, step_y, origin_x, origin_y):
     """
@@ -84,42 +87,64 @@ def generate_snake_path(x_min, y_min, x_max, y_max, step_x, step_y, origin_x, or
 # x_max, y_max = 0.6384, 1.3  # Top-right corner of boundary
 
 # Import cords
-import json
+file_path = r"C:\GitHub\SafeHaven\SoftwareDemo\Picamera\box_coords.json"
 
-file_path = r"C:\GitHub\SafeHaven\SoftwareDemo\coords.json"
+if not os.path.exists(file_path):
+    raise FileNotFoundError(f"Latest detection file not found: {file_path}")
 
 with open(file_path, "r") as f:
-    data = json.load(f)
+    meta = json.load(f)
 
-xm1 = data["xm1"]
-ym1 = data["ym1"]
-xm2 = data["xm2"]
-ym2 = data["ym2"]
+det = meta.get("detection")
+if det is None:
+    raise ValueError("No detection in latest_box_coords.json (detection=None). Capture an image with a detection first.")
 
-# Define boundary box (Example: 1.5m x 1.5m frame)
-x_min, y_min = xm1, ym1         # Bottom-left corner of boundary
-x_max, y_max = xm2, ym2         # Top-right corner of boundary
-step_x = 5/100                  # 5 cm horizontal steps 
+# Pixel corners from camera program
+top_left     = det["corners"]["top_left"]        # [x1_px, y1_px]
+bottom_right = det["corners"]["bottom_right"]    # [x2_px, y2_px]
+x1_px, y1_px = top_left
+x2_px, y2_px = bottom_right
 
-# FIXME: figure out formula to get horizontal step just right 
-# find out what delta_X should be (What is the width of the scan reading)
+# Ensure proper ordering (left<right, bottom<top in pixel coords with y down)
+x_min_px, x_max_px = sorted([x1_px, x2_px])
+y_min_px, y_max_px = sorted([y1_px, y2_px])
 
-step_y = 3/100  # 2 cm vertical steps
+# Frame size saved by the camera program
+WIDTH_PX  = meta.get("width", 640)
+HEIGHT_PX = meta.get("height", 480)
 
-origin_x, origin_y = 0, 1.5  # Origin at (0, 150 cm)
+# Pixel to meter conversion 
+FRAME_WIDTH_M  = 1.5
+FRAME_HEIGHT_M = 1.5
 
-# FIXME: fix the slant. points are shifted up or down 1. Possible fix is remove y_step
+SX = FRAME_WIDTH_M  / float(WIDTH_PX)   # meters per pixel in X
+SY = FRAME_HEIGHT_M / float(HEIGHT_PX)  # meters per pixel in Y
 
-# Generate scan path
+# Convert to meters
+xm1 = x_min_px * SX
+ym1 = y_min_px * SY
+xm2 = x_max_px * SX
+ym2 = y_max_px * SY
+
+# Define boundary box in meters
+x_min, y_min = xm1, ym1
+x_max, y_max = xm2, ym2
+
+# Scan parameters (meters) 
+step_x = 5/100   # 0.05 m horizontal steps
+step_y = 3/100   # 0.03 m vertical steps
+origin_x, origin_y = 0.0, 1.5   # meters
+
+# Generate path
 path, start_range, snake_range, return_range = generate_snake_path(
     x_min, y_min, x_max, y_max, step_x, step_y, origin_x, origin_y
 )
 
-# Variable Test Print
-# print(path[:10])  # Prints the first 10 points in the snake path
+print("Loaded bounding box (meters):")
+print(f"  x_min={x_min:.4f}, y_min={y_min:.4f}, x_max={x_max:.4f}, y_max={y_max:.4f}")
 print("Start range: ", start_range)
 print("Snake range: ", snake_range)
-print("Return range: ", return_range)
+print("Return range:", return_range)
 
 # ██╗   ██╗ █████╗ ██████╗ ████████╗    ████████╗██████╗  █████╗ ███╗   ██╗███████╗███╗   ███╗██╗███████╗███████╗██╗ ██████╗ ███╗   ██╗
 # ██║   ██║██╔══██╗██╔══██╗╚══██╔══╝    ╚══██╔══╝██╔══██╗██╔══██╗████╗  ██║██╔════╝████╗ ████║██║██╔════╝██╔════╝██║██╔═══██╗████╗  ██║
@@ -153,8 +178,6 @@ print("Return range: ", return_range)
 # ╚═╝     ╚══════╝ ╚═════╝    ╚═╝         ╚═══╝  ╚═╝╚══════╝ ╚═════╝ ╚═╝  ╚═╝╚══════╝╚═╝╚══════╝╚═╝  ╚═╝   ╚═╝   ╚═╝ ╚═════╝ ╚═╝  ╚═══╝
                                                                                                                                      
 # Plot of snake path to visualize path
-import matplotlib.pyplot as plt
-
 def plot_segment(path, idx_range, color, label):
     segment = path[idx_range[0]:idx_range[1]]
     if len(segment) >= 2:  # Must have at least two points to plot a line
