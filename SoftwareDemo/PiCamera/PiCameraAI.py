@@ -15,8 +15,10 @@ import numpy as np
 # Leave env with 'deactivate' in prompt
 
 # Run program
-    # cd SoftwareDemo/PiCamera
-    # python3 PiCameraAI.py
+    # cd SoftwareDemo/PiCamera && python3 PiCameraAI.py
+    
+# One line command
+    # source ~/yolo-env/bin/activate && cd SoftwareDemo/PiCamera && python3 PiCameraAI.py
 
 # Load lightweight YOLO model
 model = YOLO("yolov8n.pt")      
@@ -111,7 +113,7 @@ while True:
         ts = datetime.now()
         base = f"Snapshot{idx}D{ts:%Y%m%d}T{ts:%H%M%S}"
         img_path  = f"{base}.jpg"
-        meta_path = f"{base}.json"
+        meta_path = f"box_coords.json"
 
         # Save image
         cv2.imwrite(img_path, annotated)

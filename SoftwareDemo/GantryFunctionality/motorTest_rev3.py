@@ -18,22 +18,22 @@ dirY = DigitalOutputDevice(DIR_PIN_Y, active_high=True, pin_factory= None)  # Ac
 
 # Direction values (1 for CCW, 0 for CW)
 # Test the movement with CW (Clockwise)
-print("Starting X-axis CW rotation...")
-dirX.off() # Set direction to CW
-pulX.pulse(fade_in_time=0.5, fade_out_time=0.5, n= 3, background=False) # Start PWM signal
+#print("Starting X-axis CW rotation...")
+#dirX.off() # Set direction to CW
+#pulX.pulse(fade_in_time=0.5, fade_out_time=0.5, n= 3, background=False) # Start PWM signal
 
-sleep(1)  # Pause for a moment
+#sleep(1)  # Pause for a moment
+
+# Test the movement with CCW (Counter-Clockwise)
+#print("Starting X-axis CCW rotation...")
+#dirX.on() # Set direction to CCW
+#pulX.pulse(fade_in_time=0.5, fade_out_time=0.5, n= 3, background=False) # Start PWM signal
+
+#sleep(1)  # Pause for a moment
 
 print("Starting Y-axis CW rotation...")
 dirY.off() # Set direction to CW
 pulY.pulse(fade_in_time=0.5, fade_out_time=0.5, n= 3, background=False) # Start PWM signal
-
-sleep(1)  # Pause for a moment
-
-# Test the movement with CCW (Counter-Clockwise)
-print("Starting X-axis CCW rotation...")
-dirX.on() # Set direction to CCW
-pulX.pulse(fade_in_time=0.5, fade_out_time=0.5, n= 3, background=False) # Start PWM signal
 
 sleep(1)  # Pause for a moment
 

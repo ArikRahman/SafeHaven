@@ -9,6 +9,15 @@ import json
 import matplotlib.pyplot as plt
 import os
 
+# Activate virtual environment
+    # source ~/yolo-env/bin/activate
+    
+# Run program
+    # python3 SoftwareDemo/SnakePathAlgorithm.py
+    
+# One line command
+    # source ~/yolo-env/bin/activate && python3 SoftwareDemo/SnakePathAlgorithm.py
+
 def generate_snake_path(x_min, y_min, x_max, y_max, step_x, step_y, origin_x, origin_y):
     """
     Generates a snake pattern scan path inside a boundary box
@@ -87,7 +96,7 @@ def generate_snake_path(x_min, y_min, x_max, y_max, step_x, step_y, origin_x, or
 # x_max, y_max = 0.6384, 1.3  # Top-right corner of boundary
 
 # Import cords
-file_path = r"C:\GitHub\SafeHaven\SoftwareDemo\Picamera\box_coords.json"
+file_path = r"/home/corban/Documents/GitHub/SafeHaven/SoftwareDemo/coords.json"
 
 if not os.path.exists(file_path):
     raise FileNotFoundError(f"Latest detection file not found: {file_path}")
