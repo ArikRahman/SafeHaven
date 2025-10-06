@@ -36,15 +36,15 @@ def motorMove(change_x, change_y):
         pulY.pulse(fade_in_time=0.5, fade_out_time=0.5, n= 3, background=False) # Start PWM signal
 
 # Main
-MouseX, MouseY = mouse.get_position()
+currentMouseX, currentMouseY = mouse.get_position()
 
 while True:
     newMouseX, newMouseY = mouse.get_position()
-    change_x = 100 * (MouseX - newMouseX) / 1920
-    change_y = 100 * (newMouseY - MouseY) / 1080
+    change_x = 100 * (currentMouseX - newMouseX) / 1920
+    change_y = 100 * (newMouseY - currentMouseY) / 1080
     motorMove(change_x, change_y)
     
     print(f"Mouse position: X={newMouseX}, Y={newMouseY}")
     
-    newMouseX, newMouseY = MouseX, MouseY
+    newMouseX, newMouseY = currentMouseX, currentMouseY
     sleep(0.1)
