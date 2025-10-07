@@ -1,8 +1,5 @@
 from gpiozero import OutputDevice, DigitalOutputDevice, PWMOutputDevice
 from time import sleep
-import keyboard
-import mouse
-
 
 # Define the GPIO pins
 PUL_PIN_X = 13    # Pulse pin x-axis
@@ -10,7 +7,7 @@ DIR_PIN_X = 6     # Direction pins x-axis
 PUL_PIN_Y = 12    # Pulse pin y-axis
 DIR_PIN_Y = 16    # Direction pins y-axis
 
-duty_cycle = 0.75  # 50% duty cycle for PWM
+duty_cycle = 0.50  # 50% duty cycle for PWM
 motor_speed = 100 # Speed of motor in frequency (Hz)
 
 # Initialize the pins as output devices
@@ -36,15 +33,3 @@ def motorMove(change_x, change_y):
         pulY.pulse(fade_in_time=0.5, fade_out_time=0.5, n= 3, background=False) # Start PWM signal
 
 # Main
-MouseX, MouseY = mouse.get_position()
-
-while True:
-    newMouseX, newMouseY = mouse.get_position()
-    change_x = 100 * (MouseX - newMouseX) / 1920
-    change_y = 100 * (newMouseY - MouseY) / 1080
-    motorMove(change_x, change_y)
-    
-    print(f"Mouse position: X={newMouseX}, Y={newMouseY}")
-    
-    newMouseX, newMouseY = MouseX, MouseY
-    sleep(0.1)
