@@ -1,20 +1,29 @@
 from gpiozero import DigitalOutputDevice, PWMOutputDevice
 from time import sleep
 
-# Define the GPIO pins
-PUL_PIN_X = 13    # Pulse pin x-axis
-DIR_PIN_X = 6     # Direction pins x-axis
-PUL_PIN_Y = 12    # Pulse pin y-axis
-DIR_PIN_Y = 16    # Direction pins y-axis
+def motorInit(PUL_PIN_X = 13, DIR_PIN_X = 6, PUL_PIN_Y = 12, DIR_PIN_Y = 16, duty_cycle=0.5, motor_speed=100):
+    """
+    Initializes the motor control pins.
 
-duty_cycle = 0.50  # 50% duty cycle for PWM
-motor_speed = 100 # Speed of motor in frequency (Hz)
+    Parameters:
+        PUL_PIN_X - GPIO pin for X-axis pulse control
+        DIR_PIN_X - GPIO pin for X-axis direction control
+        PUL_PIN_Y - GPIO pin for Y-axis pulse control
+        DIR_PIN_Y - GPIO pin for Y-axis direction control
+        duty_cycle - Initial % duty cycle for PWM (0 to 1)
+        motor_speed - Frequency for PWM signal in Hz
 
-# Initialize the pins as output devices
-pulX = PWMOutputDevice(PUL_PIN_X, active_high=True, initial_value=duty_cycle, frequency=motor_speed, pin_factory= None)  # PWM for pulse control
-dirX = DigitalOutputDevice(DIR_PIN_X, active_high=True, pin_factory= None)  # Active high to rotate CW
-pulY = PWMOutputDevice(PUL_PIN_Y, active_high=True, initial_value=duty_cycle, frequency=motor_speed, pin_factory= None)  # PWM for pulse control
-dirY = DigitalOutputDevice(DIR_PIN_Y, active_high=True, pin_factory= None)  # Active high to rotate CW
+    Returns:
+        None
+    """
+    # Define global GPIO pin calls
+    global pulX, dirX, pulY, dirY
+
+    # Initialize the pins as output devices
+    pulX = PWMOutputDevice(PUL_PIN_X, active_high=True, initial_value=duty_cycle, frequency=motor_speed, pin_factory= None)  # PWM for pulse control
+    dirX = DigitalOutputDevice(DIR_PIN_X, active_high=True, pin_factory= None)  # Active high to rotate CW
+    pulY = PWMOutputDevice(PUL_PIN_Y, active_high=True, initial_value=duty_cycle, frequency=motor_speed, pin_factory= None)  # PWM for pulse control
+    dirY = DigitalOutputDevice(DIR_PIN_Y, active_high=True, pin_factory= None)  # Active high to rotate CW
 
 # PathGen Array Output Example: [(0, 10000), (0, 9708), (2250, 9708), (2250, 125), (3000, 125), (3000, 9708), (3750, 9708), (3750, 125), (4500, 125), (4500, 9708), (5250, 9708), (5250, 125), (6000, 125), (6000, 9708), (6750, 9708), (6750, 125), (7000, 125), (7000, 9708), (7000, 10000), (0, 10000)]
 
