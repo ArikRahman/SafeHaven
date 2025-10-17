@@ -2,7 +2,7 @@ from gpiozero import DigitalOutputDevice, PWMOutputDevice
 from time import sleep
 
 # Function Definitions
-def motorInit(PUL_PIN_X = 13, DIR_PIN_X = 6, PUL_PIN_Y = 12, DIR_PIN_Y = 16, duty_cycle=0.5, motor_speed=100):
+def motor_init(PUL_PIN_X = 13, DIR_PIN_X = 6, PUL_PIN_Y = 12, DIR_PIN_Y = 16, duty_cycle=0.5, motor_speed=100):
     """
     Initializes the motor control pins.
 
@@ -27,7 +27,7 @@ def motorInit(PUL_PIN_X = 13, DIR_PIN_X = 6, PUL_PIN_Y = 12, DIR_PIN_Y = 16, dut
     dirY = DigitalOutputDevice(DIR_PIN_Y, active_high=True, pin_factory= None)  # Active high to rotate CW
 
 # PathGen Array Output Example: [(0, 10000), (0, 9708), (2250, 9708), (2250, 125), (3000, 125), (3000, 9708), (3750, 9708), (3750, 125), (4500, 125), (4500, 9708), (5250, 9708), (5250, 125), (6000, 125), (6000, 9708), (6750, 9708), (6750, 125), (7000, 125), (7000, 9708), (7000, 10000), (0, 10000)]
-def motorMove(path_array=[[0,0],[0,0]], step_size='1/8', x_max=10000, y_max=10000, fade_in_time=0.5, fade_out_time=0.5, background=False):
+def motor_move(path_array, step_size='1/8', x_max=10000, y_max=10000, fade_in_time=0.5, fade_out_time=0.5, background=False):
     """
     Converts PathGen output array to motor movements.
     
