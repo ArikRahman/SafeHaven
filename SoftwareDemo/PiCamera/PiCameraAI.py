@@ -28,11 +28,15 @@ model = YOLO("yolov8n.pt")
 # Set camera resolution (lower res = more FPS)
 WIDTH, HEIGHT = 640, 480
 # Camera native resolution is 12MP = 4608 x 2592
-# Set camera resolution to 1080p to save resources and output more frames
+# Lower camera resolution to 1080p to save resources and output more frames
 
 picam2 = Picamera2()
+
+# PiCamera configuration
 config = picam2.create_preview_configuration(main={"format":"RGB888","size":(WIDTH,HEIGHT)})
 picam2.configure(config)
+
+# Initialize PiCam
 picam2.start()
 time.sleep(0.2)
 
@@ -43,7 +47,7 @@ last = time.time(); fps = 0.0
 latest_box = None 
 
 def SnapshotIndex():
-    # Scan current dir and return next Snapshot{n} index
+    # Scan current directory and return next Snapshot{n} index
     existing = glob.glob("Snapshot*D*T*.jpg")
     max_n = 0
     for f in existing:
