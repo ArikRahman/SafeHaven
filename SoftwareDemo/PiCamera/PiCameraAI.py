@@ -1,4 +1,4 @@
-from picamera2 import Picamera2
+from picamera2 import Picamera2, Preview
 from ultralytics import YOLO
 import cv2, time, os, re, glob, json
 from datetime import datetime
@@ -14,9 +14,12 @@ import numpy as np
 
 # Leave env with 'deactivate' in prompt
 
-# Run program
+# Run program 
     # cd SoftwareDemo/PiCamera && python3 PiCameraAI.py
-    
+
+# Run program once in the SoftwareDemo/Picamera director 
+# python3 PiCameraAI.py
+
 # One line command
     # source ~/yolo-env/bin/activate && cd SoftwareDemo/PiCamera && python3 PiCameraAI.py
 
