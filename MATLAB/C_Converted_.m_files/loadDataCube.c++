@@ -1,4 +1,4 @@
-// 2D SAR Image Reconstruction .m to C conversion
+// Converted with CodeConvert.AI
 
 #include <stdio.h>
 #include <stdlib.h>
