@@ -33,34 +33,31 @@ function rawData = loadDataCube(filename, samples, X, Y, option)
     % Populate data_cube based on the selected option
     for y = 1:Y
         for x = 1:X
-            start_idx = ((x - 1) * chunk_size) + 1;
-            end_idx = start_idx + chunk_size - 1;
+            start_idx = ((x - 1) * Y + y - 1) * samples + 1;
+            end_idx = start_idx + samples - 1;
+            
+            if end_idx > length(bindata)
+                warning('Index out of range at x=%d, y=%d', x, y);
+                continue;
+            end
             
             switch option
                 case 1
-                    slice = bindata(start_idx:4:end_idx);
+                    slice = bindata(start_idx:end_idx);
                 case 2
-                    slice = bindata(start_idx+1:4:end_idx);
+                    slice = bindata(start_idx:end_idx);
                 case 3
-                    slice = bindata(start_idx+2:4:end_idx);
+                    slice = bindata(start_idx:end_idx);
                 case 4
-                    slice = bindata(start_idx+3:4:end_idx);
+                    slice = bindata(start_idx:end_idx);
                 case 5
-                    avg_slice = (bindata(start_idx:4:end_idx) + ...
-                                 bindata(start_idx+1:4:end_idx) + ...
-                                 bindata(start_idx+2:4:end_idx) + ...
-                                 bindata(start_idx+3:4:end_idx)) / 4;
-                    slice = avg_slice;
+                    slice = bindata(start_idx:end_idx);
                 otherwise
                     error('Invalid option: %d', option)
             end
             
-            % Assign to data_cube with even/odd y handling
-            if rem(y, 2) == 1
-                data_cube(:, y, x) = slice * w;
-            else
-                data_cube(:, y, X + 1 - x) = slice * w;
-            end
+            % Assign to data_cube
+            data_cube(:, y, x) = slice;
         end
     end
 

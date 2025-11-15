@@ -13,9 +13,9 @@
 %rawData = load(dataName);
 %rawData = rawData.(dataName);
 
-%rawData = loadDataCube('scan1.bin', 512, 400, 1, 1); % fname, nsamples, nX, nY, 
+rawData = loadDataCube('adc_data.bin', 512, 400, 1, 1); % fname, nsamples, nX, nY, 
 
-rawData = stack(512, 400, 40, 1);
+%rawData = stack(512, 400, 40, 1);
 
 %% Define parameters, update based on the scenario
 nFFTtime = 1024;    % Number of FFT points for Range-FFT
