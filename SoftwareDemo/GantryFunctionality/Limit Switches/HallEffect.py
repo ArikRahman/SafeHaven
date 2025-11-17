@@ -8,7 +8,7 @@ import time
 import sys
 
 # GPIO configuration
-# Change pin numbers later
+# FIXME: Change pin numbers later
 Hall_Effect_Pins = { 
     "X_MIN": 1; 
     "X_MAX": 2;

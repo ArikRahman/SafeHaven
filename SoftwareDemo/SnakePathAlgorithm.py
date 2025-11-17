@@ -48,7 +48,7 @@ def px_to_gantry(x_px: int, y_px: int) -> tuple[int, int]:
     yg_img_top = int(round(y_px * sy))
     yg = GANTRY_H - yg_img_top  # flip Y: top->bottom to bottom->top
     
-    # clamp just in case
+    # Clamp just in case
     xg = max(0, min(GANTRY_W, xg))
     yg = max(0, min(GANTRY_H, yg))
     
@@ -64,7 +64,7 @@ def generate_snake_path_gantry(x_min, y_min, x_max, y_max, step_x, step_y, origi
 
     path = []
 
-    # 1) origin = top-left corner (x_min, y_max)
+    # 1) Origin = top-left corner (x_min, y_max)
     x, y = int(origin_x), int(origin_y)
     path.append((x, y))
 
@@ -75,11 +75,11 @@ def generate_snake_path_gantry(x_min, y_min, x_max, y_max, step_x, step_y, origi
         path.append((x_min, y))
         x = x_min
 
-    # indices
+    # Indices
     start_start_index = 0
     start_end_index = len(path)
 
-    # 2) snake columns
+    # 2) Snake columns
     snake_start_index = max(0, len(path) - 1)
 
     downward = True
@@ -96,7 +96,7 @@ def generate_snake_path_gantry(x_min, y_min, x_max, y_max, step_x, step_y, origi
 
     snake_end_index = len(path)
 
-    # 3) return to origin (vertical then horizontal)
+    # 3) Return to origin (vertical then horizontal)
     x_end, y_end = path[-1]
     if y_end != origin_y:
         path.append((x_end, origin_y))
@@ -124,15 +124,15 @@ det = meta.get("detection")
 if det is None:
     raise ValueError("No detection object in box JSON. Capture first.")
 
-# pixel corners (x right, y down)
+# Pixel corners (x right, y down)
 x1_px, y1_px = det["corners"]["top_left"]
 x2_px, y2_px = det["corners"]["bottom_right"]
 
-# map to gantry and fix ordering
+# Map to gantry and fix ordering
 x1_g, y1_g = px_to_gantry(x1_px, y1_px)  # top-left -> (x_min, y_max) in gantry after flip
 x2_g, y2_g = px_to_gantry(x2_px, y2_px)  # bottom-right -> (x_max, y_min) in gantry after flip
 
-# after Y flip, reorder to (min/max)
+# After Y flip, reorder to (min/max)
 x_min_g, x_max_g = sorted((x1_g, x2_g))
 y_min_g, y_max_g = sorted((y2_g, y1_g))  # note: y2_g came from bottom-right -> becomes lower Y in gantry
 
