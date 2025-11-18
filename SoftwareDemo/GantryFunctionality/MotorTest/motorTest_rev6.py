@@ -12,10 +12,10 @@ from time import sleep
 # Define GPIO Reed pins
 # FIXME: change pins later
 Reed_Pins = {
-    "X_MIN": 1; 
-    "X_MAX": 2;
-    "Y_MIN": 3;
-    "Y_MAX": 4;
+    "X_MIN": 1,
+    "X_MAX": 2,
+    "Y_MIN": 3,
+    "Y_MAX": 4
 }
 
 # Reed sampling rate (how often to check)

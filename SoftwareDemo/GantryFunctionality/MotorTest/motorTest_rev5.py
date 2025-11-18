@@ -15,7 +15,7 @@ DIR_PIN_Y = 16    # Direction pins y-axis
 
 # Motor config
 duty_cycle = 0.50  # 50% duty cycle for PWM
-motor_speed = 6769 # Speed of motor in frequency (Hz)
+motor_speed = 100 # Speed of motor in frequency (Hz)
 idle = 0 # Motor off
 timeout = 0.15 # Seconds after last key event to stop
 
