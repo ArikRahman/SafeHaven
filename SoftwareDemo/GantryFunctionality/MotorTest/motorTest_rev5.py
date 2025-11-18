@@ -1,10 +1,13 @@
 # Revision 5 by Vincent
 # Changes:
-#     Control movement of gantry carriage with keyboard arrow keys
+    # Control movement of gantry carriage with keyboard arrow keys
+
+# pip install pynput
 
 import curses
 import time
 from gpiozero import OutputDevice, DigitalOutputDevice, PWMOutputDevice
+from pynput import keyboard
 from time import sleep
 
 # Define the GPIO pins
@@ -15,7 +18,7 @@ DIR_PIN_Y = 16    # Direction pins y-axis
 
 # Motor config
 duty_cycle = 0.50  # 50% duty cycle for PWM
-motor_speed = 100 # Speed of motor in frequency (Hz)
+motor_speed = 67.67 # Speed of motor in frequency (Hz)
 idle = 0 # Motor off
 timeout = 0.15 # Seconds after last key event to stop
 
