@@ -11,16 +11,18 @@ duty_cycle = 0.75  # 50% duty cycle for PWM
 motor_speed = 1000 #speed of motor in frequency (Hz)
 
 # Initialize the pins as output devices
-pulX = PWMOutputDevice(PUL_PIN_X, active_high=True, initial_value=duty_cycle, frequency=motor_speed, pin_factory= None)  # PWM for pulse control
+pulX = PWMOutputDevice(PUL_PIN_X, active_high=True, initial_value=0, frequency=motor_speed, pin_factory= None)  # PWM for pulse control
 dirX = DigitalOutputDevice(DIR_PIN_X, active_high=True, pin_factory= None)  # Active high to rotate CW
-pulY = PWMOutputDevice(PUL_PIN_Y, active_high=True, initial_value=duty_cycle, frequency=motor_speed, pin_factory= None)  # PWM for pulse control
+pulY = PWMOutputDevice(PUL_PIN_Y, active_high=True, initial_value=0, frequency=motor_speed, pin_factory= None)  # PWM for pulse control
 dirY = DigitalOutputDevice(DIR_PIN_Y, active_high=True, pin_factory= None)  # Active high to rotate CW
 
 # print("Test starting in 3 seconds...")
 
 print("Starting Y-axis CW rotation (up)...")
 dirY.on() # Set direction to CW
+pulY.value = duty_cycle
 pulY.pulse(fade_in_time=0.5, fade_out_time=0.5, n= 5, background=False) # Start PWM signal
+pulY.value = 0
 
 # print("Starting Y-axis CCW rotation (down)...")
 # dirY.off() # Set direction to CCW
