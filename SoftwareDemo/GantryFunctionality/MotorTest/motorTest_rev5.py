@@ -1,3 +1,6 @@
+# Revision 5 by Vincent
+    # Executes path list
+
 from gpiozero import OutputDevice, DigitalOutputDevice, PWMOutputDevice
 from time import sleep, time
 
@@ -9,9 +12,9 @@ DIR_PIN_Y = 16    # Direction pins y-axis
 
 # Parameters
 duty_cycle = 0.50  # 50% duty cycle for PWM
-motor_speed = 3000 #speed of motor in frequency (Hz)
-xUnit = 0.01 # 10000 units is 100 second
-yUnit = 0.01
+motor_speed = 500 #speed of motor in frequency (Hz)
+xUnit = 0.001 # 10000 units is 100 second
+yUnit = 0.001
 
 # Initialize the pins as output devices
 pulX = PWMOutputDevice(PUL_PIN_X, active_high=True, initial_value=0, frequency=motor_speed, pin_factory= None)  # PWM for pulse control
@@ -120,16 +123,20 @@ def followSnakepath(coords):
             durationX = abs(dx) * xUnit
             if dx > 0:
                 right(durationX)
+                sleep(0.25)
             else:
                 left(durationX)
+                sleep(0.25)
 
         # Vertical
         if dy != 0:
             durationY = abs(dy) * yUnit
             if dy > 0:
                 up(durationY)
+                sleep(0.25)
             else:
                 down(durationY)
+                sleep(0.25)
 
         currentX, currentY = nextX, nextY
 
@@ -152,6 +159,7 @@ def main():
     print("Test starting in 3 seconds...")
     sleep(3)
 
+    # up(5)
     followSnakepath(vectorList)
 
     close()

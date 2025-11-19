@@ -96,8 +96,8 @@ def close():
     pulY.close()
     dirY.close()
 
-######### Main #########
-def main():
+# Function to demo to Hudson/Karim
+def demo():
     print("Test starting in 3 seconds...")
     sleep(3)
 
@@ -118,6 +118,10 @@ def main():
 
     # End of test
     print("Test complete.")
+
+######### Main #########
+def main():
+    demo()
 
 if __name__ == "__main__":
     main()
