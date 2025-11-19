@@ -8,7 +8,7 @@ import numpy as np
 import json
 import matplotlib.pyplot as plt
 import os
-from motorFunc import *
+# from motorFunc import *
 
 # FIXME: configure to read box_coords.json. change coordinates to 10000x10000. 
 

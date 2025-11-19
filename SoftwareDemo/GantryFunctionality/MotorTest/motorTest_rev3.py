@@ -109,7 +109,7 @@ def main():
     sleep(1)
 
     diagonal(3,5)
-
+    # FIXME: try diagonal(0,5)
     sleep(1)
 
     diagonal(-3,-5)

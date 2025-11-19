@@ -1,14 +1,5 @@
-# Revision 5 by Vincent
-# Changes:
-    # Control movement of gantry carriage with keyboard arrow keys
-
-# pip install pynput
-
-import curses
-import time
 from gpiozero import OutputDevice, DigitalOutputDevice, PWMOutputDevice
-from pynput import keyboard
-from time import sleep
+from time import sleep, time
 
 # Define the GPIO pins
 PUL_PIN_X = 13    # Pulse pin x-axis
@@ -16,131 +7,157 @@ DIR_PIN_X = 6     # Direction pins x-axis
 PUL_PIN_Y = 12    # Pulse pin y-axis
 DIR_PIN_Y = 16    # Direction pins y-axis
 
-# Motor config
+# Parameters
 duty_cycle = 0.50  # 50% duty cycle for PWM
-motor_speed = 67.67 # Speed of motor in frequency (Hz)
-idle = 0 # Motor off
-timeout = 0.15 # Seconds after last key event to stop
+motor_speed = 3000 #speed of motor in frequency (Hz)
+xUnit = 0.01 # 10000 units is 100 second
+yUnit = 0.01
 
-pulX = None
-dirX = None
-pulY = None
-dirY = None
+# Initialize the pins as output devices
+pulX = PWMOutputDevice(PUL_PIN_X, active_high=True, initial_value=0, frequency=motor_speed, pin_factory= None)  # PWM for pulse control
+dirX = DigitalOutputDevice(DIR_PIN_X, active_high=True, pin_factory= None)  # Active high to rotate CW
+pulY = PWMOutputDevice(PUL_PIN_Y, active_high=True, initial_value=0, frequency=motor_speed, pin_factory= None)  # PWM for pulse control
+dirY = DigitalOutputDevice(DIR_PIN_Y, active_high=True, pin_factory= None)  # Active high to rotate CW
 
-# Definitions
-def initMotor():
-    global pulX, dirX, pulY, dirY
+# Vector List
+vectorList = [
+    (0, 10000), (0, 9708), (2250, 9708), (2250, 125), (3000, 125),
+    (3000, 9708), (3750, 9708), (3750, 125), (4500, 125), (4500, 9708),
+    (5250, 9708), (5250, 125), (6000, 125), (6000, 9708), (6750, 9708),
+    (6750, 125), (7000, 125), (7000, 9708), (7000, 10000), (0, 10000)
+]
 
-    pulX = PWMOutputDevice(PUL_PIN_X, active_high=True, initial_value=idle, frequency=motor_speed, pin_factory= None)  # PWM for pulse control
-    dirX = DigitalOutputDevice(DIR_PIN_X, active_high=True, pin_factory= None)  # Active high to rotate CW
-    pulY = PWMOutputDevice(PUL_PIN_Y, active_high=True, initial_value=idle, frequency=motor_speed, pin_factory= None)  # PWM for pulse control
-    dirY = DigitalOutputDevice(DIR_PIN_Y, active_high=True, pin_factory= None)  # Active high to rotate CW
-    print("[INIT] Motors initialized")
-
-def stopMotor():
-    pulX.value = idle
-    pulY.value = idle
-
-def rightX(): # X CW
-    dirX.off()
-    pulX.value = duty_cycle
-
-def leftX(): # X CCW
-    dirX.on()
-    pulX.value = duty_cycle
-
-def upY(): # Y CW
-    dirY.off()
+def up(duration):
+    print("Starting Y-axis CW rotation (up)...")
+    dirY.on() # Set direction to CW
     pulY.value = duty_cycle
+    sleep(duration) # Seconds
+    pulY.value = 0
 
-def downY(): # Y CCW
-    dirY.on()
+def down(duration):
+    print("Starting Y-axis CCW rotation (down)...")
+    dirY.off() # Set direction to CCW
     pulY.value = duty_cycle
+    sleep(duration) # Seconds
+    pulY.value = 0
 
-def main(stdscr):
-    curses.curs_set(0) # Hide cursor
-    stdscr.nodelay(True) # Non-blocking get character
-    stdscr.keypad(True) # Enable arrow key
+def right(duration):
+    print("Starting X-axis CW rotation (right)...")
+    dirX.on() # Set direction to CW
+    pulX.value = duty_cycle
+    sleep(duration) # Seconds
+    pulX.value = 0
 
-    stdscr.clear()
-    stdscr.addstr(0, 0, "Gantry Motor Movement Control (Arrow Keys, continuous)")
-    stdscr.addstr(2, 0, "Controls:")
-    stdscr.addstr(3, 2, "Up Arrow    -> Y CW (continuous)")
-    stdscr.addstr(4, 2, "Down Arrow  -> Y CCW (continuous)")
-    stdscr.addstr(5, 2, "Left Arrow  -> X CCW (continuous)")
-    stdscr.addstr(6, 2, "Right Arrow -> X CW (continuous)")
-    stdscr.addstr(8, 0, "Press 'q' to quit.")
-    stdscr.refresh()
+def left(duration):
+    print("Starting X-axis CCW rotation (left)...")
+    dirX.off() # Set direction to CCW
+    pulX.value = duty_cycle
+    sleep(duration) # Seconds
+    pulX.value = 0
 
-    currentMotion = None
-    lastKeyTime = 0
+def diagonal(X, Y): # Coordinates in seconds
+    print(f"Performing ({X},{Y}) triangle...")
 
-    try:
-        while True:
-            key = stdscr.getch()
-            now = time.time()
+    # Determine how long to run each motor for
+    xTime = abs(X)
+    yTime = abs(Y)
 
-            if key != -1:
-                if key == ord('q'):
-                    break
+    # Do nothing if 0,0
+    if xTime == 0 and yTime == 0:
+        return
 
-                elif key == curses.KEY_UP:
-                    stdscr.addstr(10, 0, "Y CW   (UP)    ")
-                    stdscr.refresh()
-                    upY()
-                    currentMotion = "Y_CW"
-                    lastKeyTime = now
+    # Set directions
+    if X > 0:
+        dirX.on() # CW - right
+    else:
+        dirX.off() # CCW - left
 
-                elif key == curses.KEY_DOWN:
-                    stdscr.addstr(10, 0, "Y CCW  (DOWN)  ")
-                    stdscr.refresh()
-                    downY()
-                    currentMotion = "Y_CCW"
-                    lastKeyTime = now
+    if Y > 0:
+        dirY.on() # CW - up
+    else:
+        dirY.off() # CCW - down
 
-                elif key == curses.KEY_LEFT:
-                    stdscr.addstr(10, 0, "X CCW  (LEFT)  ")
-                    stdscr.refresh()
-                    leftX()
-                    currentMotion = "X_CCW"
-                    lastKeyTime = now
+    # Initialize to let both motors move
+    if X != 0:
+        pulX.value = duty_cycle
+    if Y != 0:
+        pulY.value = duty_cycle
+    
+    # Overlap to let longer axis run and stop shorter axis motor
+    overlap = min(xTime, yTime)
+    sleep(overlap)
 
-                elif key == curses.KEY_RIGHT:
-                    stdscr.addstr(10, 0, "X CW   (RIGHT) ")
-                    stdscr.refresh()
-                    rightX()
-                    currentMotion = "X_CW"
-                    lastKeyTime = now
+    # Stop shorter axis
+    if xTime > yTime:
+        pulY.value = 0
+        sleep(xTime - overlap)
+    elif yTime > xTime:
+        pulX.value = 0
+        sleep(yTime - overlap)
 
-                else:
-                    # Any other key doesn't move the motor
-                    stopMotor()
-                    currentMotion = None
+    # Stop PWN
+    pulX.value = 0
+    pulY.value = 0
 
-                # If moving but don't see a repeated key event assume the key is released and stop
-                if currentMotion is not None and (now - lastKeyTime) > timeout:
-                    stopMotor()
-                    currentMotion = None
-                    stdscr.addstr(10, 0, "Idle            ")
-                    stdscr.refresh()
+def followSnakepath(coords):
+    if not coords or len(coords) < 2:
+        print("Path list must have at least two points")
+        return
+    
+    # Start time
+    start = time()
 
-                time.sleep(0.01)
-    finally:
-        stopMotor()
+    print("Following snake path...")
+
+    currentX, currentY = coords[0]
+
+    for nextX, nextY in coords[1:]:
+        dx = nextX - currentX
+        dy = nextY - currentY
+
+        # Horizontal
+        if dx != 0:
+            durationX = abs(dx) * xUnit
+            if dx > 0:
+                right(durationX)
+            else:
+                left(durationX)
+
+        # Vertical
+        if dy != 0:
+            durationY = abs(dy) * yUnit
+            if dy > 0:
+                up(durationY)
+            else:
+                down(durationY)
+
+        currentX, currentY = nextX, nextY
+
+    # End time
+    end = time()
+
+    procedurelength = end - start
+
+    print(f"Time elaped: {procedurelength:.2f}s")
+
+# Cleanup
+def close():
+    pulX.close()
+    dirX.close()
+    pulY.close()
+    dirY.close()
+
+######### Main #########
+def main():
+    print("Test starting in 3 seconds...")
+    sleep(3)
+
+    followSnakepath(vectorList)
+
+    close()
+
+    # End of test
+    print("Test complete.")
 
 if __name__ == "__main__":
-    try:
-        initMotor()
-        curses.wrapper(main)
-    except KeyboardInterrupt:
-        print("\n[INFO] Keyboard interrupt, exiting...")
-    finally:
-        if pulX is not None:
-            pulX.close()
-        if pulY is not None:
-            pulY.close()
-        if dirX is not None:
-            dirX.close()
-        if dirY is not None:
-            dirY.close()
-        print("[CLEANUP] GPIO cleared")
+    main()
