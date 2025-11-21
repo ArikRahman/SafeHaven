@@ -4,8 +4,8 @@ function rawData = stack(samples, X, Y)
     
     % Load data cubes and stack them along the Y dimension
     for y = 1:Y
-        % filename = "scan" + y + "_Raw_0.bin";
-        filename = "adc_data.bin";
+        filename = "adc_data" + y + ".bin";
+        %filename = "adc_data.bin";
         dataStack(:, y, :) = loadDataCube(filename, samples, X, 1);
     end
     
