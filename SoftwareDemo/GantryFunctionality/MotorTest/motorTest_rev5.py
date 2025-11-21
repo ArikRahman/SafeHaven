@@ -12,9 +12,9 @@ DIR_PIN_Y = 16    # Direction pins y-axis
 
 # Parameters
 duty_cycle = 0.50  # 50% duty cycle for PWM
-motor_speed = 500 #speed of motor in frequency (Hz)
-xUnit = 0.001 # 10000 units is 100 second
-yUnit = 0.001
+motor_speed = 3000 #speed of motor in frequency (Hz)
+xUnit = 14.0 / 10000.0
+yUnit = 33.0 / 10000.0
 
 # Initialize the pins as output devices
 pulX = PWMOutputDevice(PUL_PIN_X, active_high=True, initial_value=0, frequency=motor_speed, pin_factory= None)  # PWM for pulse control
@@ -159,7 +159,16 @@ def main():
     print("Test starting in 3 seconds...")
     sleep(3)
 
-    # up(5)
+    # up(33)
+
+    # right(14)
+    # sleep(1)
+    # left(14)
+
+    # down(33)
+    # sleep(1)
+    # up(33)
+
     followSnakepath(vectorList)
 
     close()
