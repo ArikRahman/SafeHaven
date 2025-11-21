@@ -1,5 +1,6 @@
 # Revision 5 by Vincent
     # Executes path list
+    # Smooth motor travel
 
 from gpiozero import OutputDevice, DigitalOutputDevice, PWMOutputDevice
 from time import sleep, time
@@ -15,6 +16,10 @@ duty_cycle = 0.50  # 50% duty cycle for PWM
 motor_speed = 3000 #speed of motor in frequency (Hz)
 xUnit = 14.0 / 10000.0
 yUnit = 33.0 / 10000.0
+
+MotorPresets = {
+    "3000": {"xUnit": 14.0 / 10000.0, "yUnit": 33.0 / 10000.0},
+}
 
 # Initialize the pins as output devices
 pulX = PWMOutputDevice(PUL_PIN_X, active_high=True, initial_value=0, frequency=motor_speed, pin_factory= None)  # PWM for pulse control
@@ -145,7 +150,7 @@ def followSnakepath(coords):
 
     procedurelength = end - start
 
-    print(f"Time elaped: {procedurelength:.2f}s")
+    print(f"Time elaped: {procedurelength:.2f}s, ({procedurelength//60:.0f} minute : {procedurelength%60:.0f} second)")
 
 # Cleanup
 def close():
