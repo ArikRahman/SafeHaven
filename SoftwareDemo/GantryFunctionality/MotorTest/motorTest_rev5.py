@@ -15,7 +15,7 @@ DIR_PIN_Y = 16    # Direction pins y-axis
 duty_cycle = 0.50  # 50% duty cycle for PWM
 motor_speed = 3000 #speed of motor in frequency (Hz)
 xUnit = 14.0 / 10000.0
-yUnit = 33.0 / 10000.0
+yUnit = 17.0 / 10000.0
 
 MotorPresets = {
     "3000": {"xUnit": 14.0 / 10000.0, "yUnit": 33.0 / 10000.0},
@@ -28,12 +28,7 @@ pulY = PWMOutputDevice(PUL_PIN_Y, active_high=True, initial_value=0, frequency=m
 dirY = DigitalOutputDevice(DIR_PIN_Y, active_high=True, pin_factory= None)  # Active high to rotate CW
 
 # Vector List
-vectorList = [
-    (0, 10000), (0, 9708), (2250, 9708), (2250, 125), (3000, 125),
-    (3000, 9708), (3750, 9708), (3750, 125), (4500, 125), (4500, 9708),
-    (5250, 9708), (5250, 125), (6000, 125), (6000, 9708), (6750, 9708),
-    (6750, 125), (7000, 125), (7000, 9708), (7000, 10000), (0, 10000)
-]
+vectorList = [(0, 10000), (0, 9958), (2094, 9958), (2094, 83), (2844, 83), (2844, 9958), (3594, 9958), (3594, 83), (4344, 83), (4344, 9958), (5094, 9958), (5094, 83), (5844, 83), (5844, 9958), (6594, 9958), (6594, 83), (7156, 83), (7156, 9958), (7156, 10000), (0, 10000)]
 
 def up(duration):
     print("Starting Y-axis CW rotation (up)...")
@@ -164,15 +159,13 @@ def main():
     print("Test starting in 3 seconds...")
     sleep(3)
 
-    # up(33)
+    # down(17)
+    # sleep(1)
+    # up(17)
 
     # right(14)
     # sleep(1)
     # left(14)
-
-    # down(33)
-    # sleep(1)
-    # up(33)
 
     followSnakepath(vectorList)
 
