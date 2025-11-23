@@ -32,13 +32,13 @@ speedY_rev_per_s = f_y / steps_per_rev  # Speed in revolutions per second
 speedY_mm_per_s = (speedY_rev_per_s) * length_per_rev  # Speed in mm/s
 speedY_pixels_per_s = (speedY_mm_per_s / total_distance) * total_pixels  # Speed in pixels/s
 
-motor_speed = 3000 #speed of motor in frequency (Hz)
-xUnit = 14.0 / 10000.0
-yUnit = 17.0 / 10000.0
+# motor_speed = 3000 #speed of motor in frequency (Hz)
+# xUnit = 14.0 / 10000.0
+# yUnit = 17.0 / 10000.0
 
-MotorPresets = {
-    "3000": {"xUnit": 14.0 / 10000.0, "yUnit": 33.0 / 10000.0},
-}
+# MotorPresets = {
+#     "3000": {"xUnit": 14.0 / 10000.0, "yUnit": 33.0 / 10000.0},
+# }
 
 # Initialize the pins as output devices
 pulX = PWMOutputDevice(PUL_PIN_X, active_high=True, initial_value=0, frequency=f_x, pin_factory= None)  # PWM for pulse control
