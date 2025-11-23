@@ -14,11 +14,11 @@ DIR_PIN_Y = 16    # Direction pins y-axis
 
 # Parameters
 duty_cycle = 0.50  # 50% duty cycle for PWM
-f_x = 64000 # PWM frequency for X-axis in Hz
-f_y = 32000 # PWM frequency for Y-axis in Hz
+f_x = 6000 # PWM frequency for X-axis in Hz
+f_y = 6000 # PWM frequency for Y-axis in Hz
 
-steps_per_rev = 32000  # Microsteps per revolution for the motor, dictated by driver settings
-length_per_rev = 5  # Length per revolution in mm
+steps_per_rev = 1600  # Microsteps per revolution for the motor, dictated by driver settings
+length_per_rev = 10  # Length per revolution in mm
 total_distance = 675  # Total traveling distance in mm for both axes
 total_pixels = 10000  # Total pixels for both axes
 
