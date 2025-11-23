@@ -1,5 +1,6 @@
 # Revision 5 by Vincent
     # Executes path list
+    # Smooth motor travel
 
 from gpiozero import DigitalOutputDevice, PWMOutputDevice
 from time import sleep, time
@@ -31,6 +32,13 @@ speedY_rev_per_s = f_y / steps_per_rev  # Speed in revolutions per second
 speedY_mm_per_s = (speedY_rev_per_s) * length_per_rev  # Speed in mm/s
 speedY_pixels_per_s = (speedY_mm_per_s / total_distance) * total_pixels  # Speed in pixels/s
 
+motor_speed = 3000 #speed of motor in frequency (Hz)
+xUnit = 14.0 / 10000.0
+yUnit = 17.0 / 10000.0
+
+MotorPresets = {
+    "3000": {"xUnit": 14.0 / 10000.0, "yUnit": 33.0 / 10000.0},
+}
 
 # Initialize the pins as output devices
 pulX = PWMOutputDevice(PUL_PIN_X, active_high=True, initial_value=0, frequency=f_x, pin_factory= None)  # PWM for pulse control
@@ -39,12 +47,7 @@ pulY = PWMOutputDevice(PUL_PIN_Y, active_high=True, initial_value=0, frequency=f
 dirY = DigitalOutputDevice(DIR_PIN_Y, active_high=True, pin_factory= None)  # Active high to rotate CW
 
 # Vector List
-vectorList = [
-    (0, 10000), (0, 9708), (2250, 9708), (2250, 125), (3000, 125),
-    (3000, 9708), (3750, 9708), (3750, 125), (4500, 125), (4500, 9708),
-    (5250, 9708), (5250, 125), (6000, 125), (6000, 9708), (6750, 9708),
-    (6750, 125), (7000, 125), (7000, 9708), (7000, 10000), (0, 10000)
-]
+vectorList = [(0, 10000), (0, 9958), (2094, 9958), (2094, 83), (2844, 83), (2844, 9958), (3594, 9958), (3594, 83), (4344, 83), (4344, 9958), (5094, 9958), (5094, 83), (5844, 83), (5844, 9958), (6594, 9958), (6594, 83), (7156, 83), (7156, 9958), (7156, 10000), (0, 10000)]
 
 def up(pixels):
     print("Starting Y-axis CW rotation (up)...")
@@ -159,7 +162,7 @@ def followSnakepath(coords):
 
     procedurelength = end - start
 
-    print(f"Time elaped: {procedurelength:.2f}s")
+    print(f"Time elaped: {procedurelength:.2f}s, ({procedurelength//60:.0f} minute : {procedurelength%60:.0f} second)")
 
 # Cleanup
 def close():
@@ -173,15 +176,13 @@ def main():
     print("Test starting in 3 seconds...")
     sleep(3)
 
-    # up(33)
+    # down(17)
+    # sleep(1)
+    # up(17)
 
     # right(14)
     # sleep(1)
     # left(14)
-
-    # down(33)
-    # sleep(1)
-    # up(33)
 
     followSnakepath(vectorList)
 
