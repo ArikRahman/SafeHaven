@@ -6,16 +6,16 @@ from gpiozero import DigitalOutputDevice, PWMOutputDevice
 from time import sleep, time
 
 # Define the GPIO pins
-PUL_PIN_X = 13    # Pulse pin x-axis
-DIR_PIN_X = 6     # Direction pins x-axis
-PUL_PIN_Y = 12    # Pulse pin y-axis
-DIR_PIN_Y = 16    # Direction pins y-axis
+PUL_PIN_X = 13 # Pulse pin x-axis
+DIR_PIN_X = 6 # Direction pins x-axis
+PUL_PIN_Y = 12 # Pulse pin y-axis
+DIR_PIN_Y = 16 # Direction pins y-axis
 
 
 # Parameters
 duty_cycle = 0.50  # 50% duty cycle for PWM
-f_x = 6000 # PWM frequency for X-axis in Hz
-f_y = 6000 # PWM frequency for Y-axis in Hz
+f_x = 6400 # PWM frequency for X-axis in Hz
+f_y = 6400 # PWM frequency for Y-axis in Hz
 
 steps_per_rev = 1600  # Microsteps per revolution for the motor, dictated by driver settings
 length_per_rev = 10  # Length per revolution in mm
@@ -32,13 +32,6 @@ speedY_rev_per_s = f_y / steps_per_rev  # Speed in revolutions per second
 speedY_mm_per_s = (speedY_rev_per_s) * length_per_rev  # Speed in mm/s
 speedY_pixels_per_s = (speedY_mm_per_s / total_distance) * total_pixels  # Speed in pixels/s
 
-# motor_speed = 3000 #speed of motor in frequency (Hz)
-# xUnit = 14.0 / 10000.0
-# yUnit = 17.0 / 10000.0
-
-# MotorPresets = {
-#     "3000": {"xUnit": 14.0 / 10000.0, "yUnit": 33.0 / 10000.0},
-# }
 
 # Initialize the pins as output devices
 pulX = PWMOutputDevice(PUL_PIN_X, active_high=True, initial_value=0, frequency=f_x, pin_factory= None)  # PWM for pulse control
@@ -46,8 +39,10 @@ dirX = DigitalOutputDevice(DIR_PIN_X, active_high=True, pin_factory= None)  # Ac
 pulY = PWMOutputDevice(PUL_PIN_Y, active_high=True, initial_value=0, frequency=f_y, pin_factory= None)  # PWM for pulse control
 dirY = DigitalOutputDevice(DIR_PIN_Y, active_high=True, pin_factory= None)  # Active high to rotate CW
 
+
 # Vector List
-vectorList = [(0, 10000), (0, 9958), (2094, 9958), (2094, 83), (2844, 83), (2844, 9958), (3594, 9958), (3594, 83), (4344, 83), (4344, 9958), (5094, 9958), (5094, 83), (5844, 83), (5844, 9958), (6594, 9958), (6594, 83), (7156, 83), (7156, 9958), (7156, 10000), (0, 10000)]
+vectorListContinuous = [(0, 10000), (0, 9915), (2094, 9915), (2094, 85), (2844, 85), (2844, 9915), (3594, 9915), (3594, 85), (4344, 85), (4344, 9915), (5094, 9915), (5094, 85), (5844, 85), (5844, 9915), (6594, 9915), (6594, 85), (7156, 85), (7156, 9915), (7156, 10000), (0, 10000)]
+vectorListDiscrete = [(0, 10000), (0, 9915), (2094, 9915), (2094, 7949), (2094, 5983), (2094, 4017), (2094, 2051), (2094, 85), (2844, 85), (2844, 2051), (2844, 4017), (2844, 5983), (2844, 7949), (2844, 9915), (3594, 9915), (3594, 7949), (3594, 5983), (3594, 4017), (3594, 2051), (3594, 85), (4344, 85), (4344, 2051), (4344, 4017), (4344, 5983), (4344, 7949), (4344, 9915), (5094, 9915), (5094, 7949), (5094, 5983), (5094, 4017), (5094, 2051), (5094, 85), (5844, 85), (5844, 2051), (5844, 4017), (5844, 5983), (5844, 7949), (5844, 9915), (6594, 9915), (6594, 7949), (6594, 5983), (6594, 4017), (6594, 2051), (6594, 85), (7156, 85), (7156, 2051), (7156, 4017), (7156, 5983), (7156, 7949), (7156, 9915), (7156, 10000), (0, 10000)]
 
 def up(pixels):
     print("Starting Y-axis CW rotation (up)...")
@@ -176,15 +171,7 @@ def main():
     print("Test starting in 3 seconds...")
     sleep(3)
 
-    # down(17)
-    # sleep(1)
-    # up(17)
-
-    # right(14)
-    # sleep(1)
-    # left(14)
-
-    followSnakepath(vectorList)
+    followSnakepath(vectorListDiscrete)
 
     close()
 
