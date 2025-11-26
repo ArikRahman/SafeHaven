@@ -16,7 +16,7 @@ import os
     # source ~/yolo-env/bin/activate
     
 # Run program
-    # python3 SoftwareDemo/SnakePathAlgorithm.py
+    # python3 SoftwareDemo/SnakePathAlgorithm.py 
     
 # One line command
     # source ~/yolo-env/bin/activate && python3 SoftwareDemo/SnakePathAlgorithm.py

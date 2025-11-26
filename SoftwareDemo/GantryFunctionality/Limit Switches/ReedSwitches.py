@@ -7,6 +7,8 @@ import RPi.GPIO as GPIO
 import time
 from MotorTest import motorTest_rev5 as motor
 
+# pip install RPi
+
 # Configure RP5 pins
 Reed_Pins = {
     "X_MIN": 17, 
