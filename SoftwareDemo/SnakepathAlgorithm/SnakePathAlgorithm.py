@@ -25,7 +25,7 @@ import os
 BOX_JSON = "/home/corban/Documents/GitHub/SafeHaven/SoftwareDemo/PiCamera/box_coords.json"
 
 # Box corner coordinate path on github
-# BOX_JSON = r"C:\GitHub\SafeHaven\SoftwareDemo\PiCamera\box_coords.json"\
+# BOX_JSON = r"C:\GitHub\SafeHaven\SoftwareDemo\PiCamera\box_coords.json"
 
 # Image size (640x480)
 IMG_W, IMG_H = 640, 480
@@ -82,6 +82,7 @@ def generate_snake_path_gantry(x_min, y_min, x_max, y_max, step_x, step_y, origi
     # 2) Snake columns
     snake_start_index = max(0, len(path) - 1)
 
+    invertCount = 0     # Variable to count number of inverts (down to up)
     downward = True
     for i, cx in enumerate(x_cols):
         if i > 0:
@@ -92,6 +93,7 @@ def generate_snake_path_gantry(x_min, y_min, x_max, y_max, step_x, step_y, origi
             path.append((cx, y_min))   # full drop
         else:
             path.append((cx, y_max))   # full rise
+            invertCount += 1
         downward = not downward
 
     snake_end_index = len(path)
@@ -111,6 +113,7 @@ def generate_snake_path_gantry(x_min, y_min, x_max, y_max, step_x, step_y, origi
         (start_start_index, start_end_index),
         (snake_start_index, snake_end_index),
         (return_start_index, return_end_index),
+        invertCount
     )
 
 # Load box coordinate and map to gantry coordinate system
@@ -139,15 +142,15 @@ y_min_g, y_max_g = sorted((y2_g, y1_g))  # note: y2_g came from bottom-right -> 
 print(f"Gantry box: x[{x_min_g},{x_max_g}]  y[{y_min_g},{y_max_g}] (of 0..{GANTRY_W})")
 
 # Make path
-path, start_range, snake_range, return_range = generate_snake_path_gantry(
+path, start_range, snake_range, return_range, invertNum = generate_snake_path_gantry(
     x_min_g, y_min_g, x_max_g, y_max_g, STEP_X, STEP_Y, ORIGIN_X, ORIGIN_Y
 )
 
 print("Start range:", start_range)
 print("Snake range:", snake_range)
 print("Return range:", return_range)
-print("Total points:", len(path))
-
+print("Number of inverts (down to up): ", invertNum)
+print("Total points:", len(path), "\n")
 print(path)
 
 # Execute path

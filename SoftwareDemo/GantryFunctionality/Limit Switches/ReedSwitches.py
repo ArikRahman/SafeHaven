@@ -5,14 +5,14 @@
 # Imports
 import RPi.GPIO as GPIO
 import time
+from MotorTest import motorTest_rev5 as motor
 
 # Configure RP5 pins
-# FIXME: chnange pins later
 Reed_Pins = {
-    "X_MIN": 1; 
-    "X_MAX": 2;
-    "Y_MIN": 3;
-    "Y_MAX": 4;
+    "X_MIN": 17, 
+    "X_MAX": 27,
+    "Y_MIN": 22,
+    "Y_MAX": 23,
 }
 
 # Sampling rate (how often to check)
@@ -47,8 +47,33 @@ def monitorReed(block = True):
             
         time.sleep(Poll)
 
-# Example use
+# Homing function, go to home (0,10000)
+def motorHome():
+    motor.up(10000)
+    motor.left(10000)
 
+    # Flags
+    stopX, stopY = False
+    
+    while True:
+        if GPIO.input(27) == GPIO.LOW:
+            time.sleep(Debounce)
+            if GPIO.input(27) == GPIO.LOW:
+                motor.stopX()
+                stopX = True
+
+        if GPIO.input(23) == GPIO.LOW:
+            time.sleep(Debounce)
+            if GPIO.input(23) == GPIO.LOW:
+                motor.stopY()
+                stopY = True
+
+        if stopY and stopX == True:
+            break
+
+    motor.stopAll()
+    
+# Example use
 if __name__ == "__main__":
     try:
         initReed()
@@ -58,7 +83,7 @@ if __name__ == "__main__":
             name, pin = monitorReed()
             print(f"[TRIGGER] {name} triggered on GPIO{pin}")
 
-            # Motor stop code here
+            motor.stopAll()
             
             # Wait for magnet to leave before watching again
             while GPIO.input(pin) == GPIO.LOW:

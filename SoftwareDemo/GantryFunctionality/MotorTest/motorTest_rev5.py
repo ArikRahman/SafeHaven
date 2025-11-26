@@ -1,24 +1,24 @@
 # Revision 5 by Vincent
     # Executes path list
     # Smooth motor travel
+    # Reed switch detection
 
 from gpiozero import DigitalOutputDevice, PWMOutputDevice
 from time import sleep, time
 
 # Define the GPIO pins
 PUL_PIN_X = 13 # Pulse pin x-axis
-DIR_PIN_X = 6 # Direction pins x-axis
+DIR_PIN_X = 6  # Direction pins x-axis
 PUL_PIN_Y = 12 # Pulse pin y-axis
 DIR_PIN_Y = 16 # Direction pins y-axis
 
-
 # Parameters
-duty_cycle = 0.50  # 50% duty cycle for PWM
-f_x = 6400 # PWM frequency for X-axis in Hz
-f_y = 6400 # PWM frequency for Y-axis in Hz
+duty_cycle = 0.50   # 50% duty cycle for PWM
+f_x = 6400          # PWM frequency for X-axis in Hz
+f_y = 6400          # PWM frequency for Y-axis in Hz
 
 steps_per_rev = 1600  # Microsteps per revolution for the motor, dictated by driver settings
-length_per_rev = 10  # Length per revolution in mm
+length_per_rev = 10   # Length per revolution in mm
 total_distance = 675  # Total traveling distance in mm for both axes
 total_pixels = 10000  # Total pixels for both axes
 
@@ -32,13 +32,11 @@ speedY_rev_per_s = f_y / steps_per_rev  # Speed in revolutions per second
 speedY_mm_per_s = (speedY_rev_per_s) * length_per_rev  # Speed in mm/s
 speedY_pixels_per_s = (speedY_mm_per_s / total_distance) * total_pixels  # Speed in pixels/s
 
-
 # Initialize the pins as output devices
 pulX = PWMOutputDevice(PUL_PIN_X, active_high=True, initial_value=0, frequency=f_x, pin_factory= None)  # PWM for pulse control
 dirX = DigitalOutputDevice(DIR_PIN_X, active_high=True, pin_factory= None)  # Active high to rotate CW
 pulY = PWMOutputDevice(PUL_PIN_Y, active_high=True, initial_value=0, frequency=f_y, pin_factory= None)  # PWM for pulse control
 dirY = DigitalOutputDevice(DIR_PIN_Y, active_high=True, pin_factory= None)  # Active high to rotate CW
-
 
 # Vector List
 vectorListContinuous = [(0, 10000), (0, 9915), (2094, 9915), (2094, 85), (2844, 85), (2844, 9915), (3594, 9915), (3594, 85), (4344, 85), (4344, 9915), (5094, 9915), (5094, 85), (5844, 85), (5844, 9915), (6594, 9915), (6594, 85), (7156, 85), (7156, 9915), (7156, 10000), (0, 10000)]
@@ -113,8 +111,17 @@ def diagonal(X, Y): # Coordinates in seconds
         sleep(yTime - overlap)
 
     # Stop PWN
+    stopAll()
+
+def stopX():
     pulX.value = 0
+
+def stopY():
     pulY.value = 0
+
+def stopAll():
+    stopX()
+    stopY()
 
 def followSnakepath(coords):
     if not coords or len(coords) < 2:
@@ -128,6 +135,7 @@ def followSnakepath(coords):
 
     currentX, currentY = coords[0]
 
+    # Iterate through rest of path list cords
     for nextX, nextY in coords[1:]:
         dx = nextX - currentX
         dy = nextY - currentY
@@ -170,6 +178,10 @@ def close():
 def main():
     print("Test starting in 3 seconds...")
     sleep(3)
+
+    # up(3000)
+    # sleep(1)
+    # down(3000)
 
     followSnakepath(vectorListDiscrete)
 
