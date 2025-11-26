@@ -180,18 +180,10 @@ def main():
     print("Test starting in 3 seconds...")
     sleep(3)
 
-    # up(3000)
-<<<<<<< Updated upstream
-    # sleep(1)
+    up(9000)
     # down(3000)
-=======
 
-    # sleep(1)
-
-    # left(3000)
->>>>>>> Stashed changes
-
-    followSnakepath(vectorListDiscrete)
+    # followSnakepath(vectorListDiscrete)
 
     close()
 
