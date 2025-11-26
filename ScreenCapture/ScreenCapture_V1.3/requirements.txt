@@ -1,7 +1,0 @@
-numpy
-opencv-python
-pillow==9.5.0 # Use binary-only install: pip install Pillow==9.5.0 --only-binary :all:
-pygetwindow
-pywin32
-pyautogui
-pyscreeze
