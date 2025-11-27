@@ -1,57 +1,34 @@
 from gpiozero import Button
 import time
+from MotorTest import motorTest_rev7 as motor
 
-# ================================
-# CONFIG
-# ================================
-STOP_BUTTON_PIN = 24   # Your stop button GPIO
-DEBOUNCE = 0.05        # 50ms debounce (optional)
+STOP_BUTTON_PIN = 24   # Stop button pin on GPIO 24
+DEBOUNCE = 0.05        # 50ms debounce 
 
+# Run command
+# python3 /home/corban/Documents/GitHub/SafeHaven/SoftwareDemo/GantryFunctionality/ShutoffSwitch/EmergencyStop.py
 
-# ================================
-# MOTOR STOP FUNCTION
-# ================================
-def stop_motors():
-    """
-    Place your motor-shutdown code here.
-    This is called immediately when the stop button is pressed.
-    """
-    print(">>> STOP BUTTON PRESSED � stopping motors now!")
-    # -----------------------------------------
-    # TODO: insert your motor stop code here
-    # e.g., pulX.value = 0, pulY.value = 0, etc.
-    # -----------------------------------------
-
-
-# ================================
-# STOP BUTTON WATCHER
-# ================================
-def monitor_stop_button():
-    """
-    Continuously checks the stop button.
-    When pressed, calls stop_motors().
-    This runs forever unless you break manually.
-    """
+# Monitor for stop button press
+def monitorStopPress():
+    # Create object
     stop_button = Button(STOP_BUTTON_PIN, pull_up=True, bounce_time=DEBOUNCE)
 
     print("Stop button monitor active. Press button to trigger stop.")
 
-    while True:
-        if stop_button.is_pressed:
-            stop_motors()
-            break
-
-        time.sleep(0.01)    # 10ms polling rate � safe & responsive
-
-
-# ================================
-# MAIN
-# ================================
-def main():
     try:
-        monitor_stop_button()
+        while True:
+            if stop_button.is_pressed:
+                # Stop motor when button is pressed
+                motor.stopAllMotor()
+                break
+
+            time.sleep(0.01)    # 10ms polling rate
+
     except KeyboardInterrupt:
         print("\nExiting program.")
 
+def main():    
+    monitorStopPress()
+    
 if __name__ == "__main__":
     main()

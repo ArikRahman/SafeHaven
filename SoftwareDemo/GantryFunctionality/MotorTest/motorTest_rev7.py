@@ -10,7 +10,7 @@ import threading
 
 # Define the GPIO pins
 PUL_PIN_X = 13 # Pulse pin x-axis
-DIR_PIN_X = 6 # Direction pins x-axis
+DIR_PIN_X = 6  # Direction pins x-axis
 PUL_PIN_Y = 12 # Pulse pin y-axis
 DIR_PIN_Y = 16 # Direction pins y-axis
 
@@ -20,8 +20,8 @@ duty_cycle = 0.50  # 50% duty cycle for PWM
 f_x = 6400 # PWM frequency for X-axis in Hz
 f_y = 6400 # PWM frequency for Y-axis in Hz
 steps_per_rev = 1600  # Microsteps per revolution for the motor, dictated by driver settings
-length_per_rev = 10  # Length per revolution in mm
-total_distance = 660  # Total traveling distance in mm for both axes
+length_per_rev = 10   # Length per revolution in mm
+total_distance = 675  # Total traveling distance in mm for both axes
 total_pixels = 10000  # Total pixels for both axes
 
 # X-axis speed calculations
@@ -180,9 +180,21 @@ def followSnakepath(coords, discrete=False):
     # End time
     end = time()
 
+    stopAllMotor()
+
     procedurelength = end - start
 
     print(f"Time elaped: {procedurelength:.2f}s, ({procedurelength//60:.0f} minute : {procedurelength%60:.0f} second)")
+
+def stopX_Motor():
+    pulX.value = 0
+
+def stopY_Motor():
+    pulY.value = 0
+
+def stopAllMotor():
+    stopX_Motor()
+    stopY_Motor()
 
 # Cleanup
 def close():
@@ -194,23 +206,30 @@ def close():
 ######### Main #########
 def main():
     # Start listener in background
-    listener = keyboard.Listener(
-        on_press=on_press, 
-        on_release=on_release, 
-        suppress=True)
-    listener.start()
+    if 0:
+        listener = keyboard.Listener(
+            on_press=on_press, 
+            on_release=on_release, 
+            suppress=True)
+        listener.start()
     
+    print(f"Setting x-axis speed: {speedX_pixels_per_s:.2f} pixels/s, {speedX_mm_per_s:.2f} mm/s or {speedX_mm_per_s / 25.4:.2f} in/s, {speedX_rev_per_s:.2f} rev/s")
+    print(f"Setting y-axis speed: {speedY_pixels_per_s:.2f} pixels/s, {speedY_mm_per_s:.2f} mm/s or {speedY_mm_per_s / 25.4:.2f} in/s, {speedY_rev_per_s:.2f} rev/s")
     print("Test starting in 3 seconds...")
     sleep(3)
 
-    # up(3000)
-    # print("Waiting to go left...")
-    # sleep(1)
-    # left(3000)
+    if 1:
+        # up(1000)
+        # sleep(1)
+        # down(1000)
+        # right(8000)
+        sleep(1)
+        left(8000)
+    
+    if 0:
+        followSnakepath(vectorListDiscrete_test, discrete=True)
+        listener.stop()
 
-    followSnakepath(vectorListDiscrete_test, discrete=True)
-
-    listener.stop()
     close()
 
     # End of test

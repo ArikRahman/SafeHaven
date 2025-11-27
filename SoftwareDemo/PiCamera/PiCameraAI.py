@@ -15,13 +15,10 @@ import numpy as np
 # Leave env with 'deactivate' in prompt
 
 # Run program 
-    # cd SoftwareDemo/PiCamera && python3 PiCameraAI.py
-
-# Run program once in the SoftwareDemo/Picamera director 
-# python3 PiCameraAI.py
+    # python3 /home/corban/Documents/GitHub/SafeHaven/SoftwareDemo/PiCamera/PiCameraAI.py
 
 # One line command
-    # source ~/yolo-env/bin/activate && cd SoftwareDemo/PiCamera && python3 PiCameraAI.py
+    # source ~/yolo-env/bin/activate && python3 /home/corban/Documents/GitHub/SafeHaven/SoftwareDemo/PiCamera/PiCameraAI.py
 
 # Load lightweight YOLO model
 model = YOLO("yolov8n.pt")      
