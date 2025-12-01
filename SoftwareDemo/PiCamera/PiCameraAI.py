@@ -29,11 +29,11 @@ DefaultWidth, DefaultHeight = 640, 480  # Set camera resolution (lower res = mor
                                         # Lower camera resolution to 1080p to save resources and output more frames
 
 def SnapshotIndex():
-    # Scan current directory and return next Snapshot{n} index
-    existing = glob.glob("Snapshot*D*T*.jpg")
+    # Scan current directory and return next Snapshot_{n} index
+    existing = glob.glob("Snapshot_*.jpg")
     max_n = 0
     for f in existing:
-        m = re.match(r"Snapshot(\d+)D(\d{8})T(\d{6})\.jpg", os.path.basename(f))
+        m = re.match(r"Snapshot_(\d+)_", os.path.basename(f))
         if m:
             try:
                 max_n = max(max_n, int(m.group(1)))
@@ -167,7 +167,11 @@ def PersonCapture(
                 if latest_box is None:
                     print("No person detected at capture time; coordinates file contains null.")
 
+                # After one capture, break the loop
+                break
+
             elif key == ord('q'):
+                # Quit without capturing anything
                 break
 
     finally:
