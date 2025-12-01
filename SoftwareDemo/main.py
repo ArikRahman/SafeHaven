@@ -1,17 +1,24 @@
-spa = __import__('SnakePathAlgorithm.SnakePathAlgorithm_V1.3.SnakePathAlgorithm')
 import SoftwareDemo.GantryFunctionality.MotorFunc.motorFunc as moFo
 import matplotlib.pyplot as plt
+from PiCamera import PiCameraAI as PiCamAI
+from GantryFunctionality.LimitSwitches import ReedSwitches as Reed
+from GantryFunctionality.ShutoffSwitch import EmergencyStop as Shutoff
+from SnakepathAlgorithm import SnakePathGen as sp 
 
-# from PiCamera import PiCameraAI as PiCamAI
+# Command to run PiCamera script
+# source ~/yolo-env/bin/activate && python3 /home/corban/Documents/GitHub/SafeHaven/SoftwareDemo/main.py
 
-# def main():
-#     PiCamAI.PersonCapture()
+def main():
+    PiCamAI.PersonCapture()         # Open PiCamera and detect humans
+    Reed.ReedMonitor()              # Actively scan and monitor reed switch state and stop motors
+    Shutoff.monitorStopPress()      # Monitor for when stop button is pressed
+    sp.generate_snake_path_gantry() # Generate snake path
+    moFo.                           # Gantry movement execution
+    Reed.home()                     # Send gantry carriage to origin (0,10000)
 
-# if __name__ == "__main__":
-#     main()
+if __name__ == "__main__":
+    main()
 
-# # Command to run PiCamera script
-# # source ~/yolo-env/bin/activate && python3 /home/corban/Documents/GitHub/SafeHaven/SoftwareDemo/main.py
 
 # __/\\\\\\\\\\\\\_________________________________/\\\_____________/\\\\\\\\\\\\______________________________        
 #  _\/\\\/////////\\\______________________________\/\\\___________/\\\//////////_______________________________       
@@ -24,7 +31,7 @@ import matplotlib.pyplot as plt
 #         _\///_______________\////////\//______\/////____\///____\///___\////////////______\//////////__\///____\///__
 
 # Generate snake path
-path, start_range, snake_range, return_range = spa.generate_snake_path(
+path, start_range, snake_range, return_range = sp.generate_snake_path_gantry(
     x_min=0.2584, y_min=0.0988, 
     x_max=0.8384, y_max=1.5, 
     step_x=8/100 , step_y=3/100, 
@@ -58,9 +65,9 @@ moFo.motor_move(path, step_size='1/8')
 # Plot the snake path
 plt.figure(figsize=(6, 6)) # Size of generated output
 
-spa.plot_segment(path, start_range, 'green', 'Start Path')
-spa.plot_segment(path, snake_range, 'blue', 'Snake Path')
-spa.plot_segment(path, return_range, 'purple', 'Return Path')
+sp.plot_segment(path, start_range, 'green', 'Start Path')
+sp.plot_segment(path, snake_range, 'blue', 'Snake Path')
+sp.plot_segment(path, return_range, 'purple', 'Return Path')
 
 plt.plot(origin_x, origin_y, 'ro') # Origin point on plot
 plt.annotate("Origin", (origin_x - .05, 1.5 + .04)) # Plot origin plot
