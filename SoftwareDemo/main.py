@@ -2,6 +2,17 @@ spa = __import__('SnakePathAlgorithm.SnakePathAlgorithm_V1.3.SnakePathAlgorithm'
 import SoftwareDemo.GantryFunctionality.MotorFunc.motorFunc as moFo
 import matplotlib.pyplot as plt
 
+# from PiCamera import PiCameraAI as PiCamAI
+
+# def main():
+#     PiCamAI.PersonCapture()
+
+# if __name__ == "__main__":
+#     main()
+
+# # Command to run PiCamera script
+# # source ~/yolo-env/bin/activate && python3 /home/corban/Documents/GitHub/SafeHaven/SoftwareDemo/main.py
+
 # __/\\\\\\\\\\\\\_________________________________/\\\_____________/\\\\\\\\\\\\______________________________        
 #  _\/\\\/////////\\\______________________________\/\\\___________/\\\//////////_______________________________       
 #   _\/\\\_______\/\\\____________________/\\\______\/\\\__________/\\\__________________________________________      
