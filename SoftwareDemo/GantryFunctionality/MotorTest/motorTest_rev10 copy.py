@@ -1,11 +1,11 @@
-# Revision 6 by Corban
+# Revision 10 by Corban
     # Executes path list
     # Stepping motor travel
 
 from gpiozero import DigitalOutputDevice, PWMOutputDevice
 from time import sleep, time
-from pynput import keyboard
-import threading
+import sys
+import os
 
 
 # Define the GPIO pins
@@ -87,110 +87,29 @@ vectorListDiscrete_test = [(0, 10000), (0, 9900),
                       (7156, 10000), (0, 10000)]
 
 
-# Create a global event
-right_arrow_pressed = threading.Event()
-
-
-def on_press(key):
-    # Special keys like arrows
-    if key == keyboard.Key.left:
-        print("Left arrow detected! Stopping motors.")
-        stopAllMotor()
-
-    # Keep any other handlers you need
-    if key == keyboard.Key.right:
-        print("Right arrow detected!")
-        right_arrow_pressed.set()  # Signal to main loop
-
-def on_release(key):
-    if key == keyboard.Key.esc:
-        print("Esc pressed — stopping listener.")
-        return False  # Stop listener thread
-
 def up(pixels):
-    print("Starting Y-axis CW rotation (up)...")
     dirY.on() # Set direction to CW
     pulY.value = duty_cycle
     sleep(abs(pixels)/speedY_pixels_per_s) # Seconds
     pulY.value = 0
 
 def down(pixels):
-    print("Starting Y-axis CCW rotation (down)...")
     dirY.off() # Set direction to CCW
     pulY.value = duty_cycle
     sleep(abs(pixels)/speedY_pixels_per_s) # Seconds
     pulY.value = 0
 
 def right(pixels):
-    print("Starting X-axis CW rotation (right)...")
     dirX.on() # Set direction to CW
     pulX.value = duty_cycle
     sleep(abs(pixels)/speedX_pixels_per_s) # Seconds
     pulX.value = 0
 
 def left(pixels):
-    print("Starting X-axis CCW rotation (left)...")
     dirX.off() # Set direction to CCW
     pulX.value = duty_cycle
     sleep(abs(pixels)/speedX_pixels_per_s) # Seconds
     pulX.value = 0
-
-def followSnakepath(coords, discrete=False):
-    if not coords or len(coords) < 2:
-        print("Path list must have at least two points")
-        return
-    
-    # Start time
-    start = time()
-
-    print("Following snake path...")
-
-    currentX, currentY = coords[0]
-
-    for nextX, nextY in coords[1:]:
-        dx = nextX - currentX
-        dy = nextY - currentY
-
-        # Horizontal
-        if dx != 0:
-            if dx > 0:
-                right(dx)
-                sleep(0.25)
-            else:
-                left(dx)
-                sleep(0.25)
-
-        # Vertical
-        if dy != 0:
-            if dy > 0:
-                if discrete == True:
-                    print("Waiting for right arrow...") # Waits here until right arrow is pressed
-                    right_arrow_pressed.wait()
-                    # print("Right arrow received!") # Clear event so next loop iteration waits again
-                    right_arrow_pressed.clear()
-
-                up(dy)          
-                sleep(0.25)
-            else:
-                if discrete == True:
-                    print("Waiting for right arrow...") # Waits here until right arrow is pressed
-                    right_arrow_pressed.wait()
-                    # print("Right arrow received!") # Clear event so next loop iteration waits again
-                    right_arrow_pressed.clear()
-                
-                down(dy)
-                sleep(0.25)
-
-        currentX, currentY = nextX, nextY
-
-    # End time
-    end = time()
-
-    stopAllMotor()
-
-    procedurelength = end - start
-
-    print(f"Time elaped: {procedurelength:.2f}s, ({procedurelength//60:.0f} minute : {procedurelength%60:.0f} second)")
 
 def stopX_Motor():
     pulX.value = 0
@@ -211,35 +130,58 @@ def close():
 
 ######### Main #########
 def main():
-    # Start listener in background
-    if 1:
-        listener = keyboard.Listener(
-            on_press=on_press, 
-            on_release=on_release, 
-            suppress=False)
-        listener.start()
-    
-    print(f"Setting x-axis speed: {speedX_pixels_per_s:.2f} pixels/s, {speedX_mm_per_s:.2f} mm/s or {speedX_mm_per_s / 25.4:.2f} in/s, {speedX_rev_per_s:.2f} rev/s")
-    print(f"Setting y-axis speed: {speedY_pixels_per_s:.2f} pixels/s, {speedY_mm_per_s:.2f} mm/s or {speedY_mm_per_s / 25.4:.2f} in/s, {speedY_rev_per_s:.2f} rev/s")
-    print("Test starting in 3 seconds...")
-    sleep(3)
-
-    if 0:
-        # up(1000)
-        # sleep(1)
-        # down(1000)
-        # right(8000)
-        sleep(1)
-        left(2000)
-    
-    if 1:
-        followSnakepath(vectorListDiscrete, discrete=True)
-        listener.stop()
-
-    close()
-
-    # End of test
-    print("Test complete.")
+    if "next" in sys.argv:
+        # Load current index
+        if os.path.exists("current_index.txt"):
+            with open("current_index.txt", "r") as f:
+                current_index = int(f.read().strip())
+        else:
+            current_index = 0
+        
+        coords = vectorListDiscrete
+        
+        if current_index == 0:
+            pass
+        
+        if current_index >= len(coords) - 1:
+            close()
+            return
+        
+        currentX, currentY = coords[current_index]
+        
+        # Find the next index where dy != 0
+        next_index = current_index + 1
+        while next_index < len(coords):
+            nextX, nextY = coords[next_index]
+            dx = nextX - currentX
+            dy = nextY - currentY
+            if dx != 0:
+                if dx > 0:
+                    right(dx)
+                    sleep(0.25)
+                else:
+                    left(dx)
+                    sleep(0.25)
+            if dy != 0:
+                if dy > 0:
+                    up(dy)
+                    sleep(0.25)
+                else:
+                    down(dy)
+                    sleep(0.25)
+                break
+            currentX, currentY = nextX, nextY
+            next_index += 1
+        
+        stopAllMotor()
+        
+        # Save new index
+        with open("current_index.txt", "w") as f:
+            f.write(str(next_index))
+        
+        if next_index >= len(coords) - 1:
+            close()
+            os.remove("current_index.txt")
 
 if __name__ == "__main__":
     main()

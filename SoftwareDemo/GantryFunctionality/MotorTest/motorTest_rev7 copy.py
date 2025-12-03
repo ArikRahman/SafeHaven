@@ -1,10 +1,10 @@
-# Revision 6 by Corban
+# Revision 7 by Corban
     # Executes path list
     # Stepping motor travel
 
 from gpiozero import DigitalOutputDevice, PWMOutputDevice
 from time import sleep, time
-from pynput import keyboard
+import argparse
 import threading
 
 
@@ -91,21 +91,21 @@ vectorListDiscrete_test = [(0, 10000), (0, 9900),
 right_arrow_pressed = threading.Event()
 
 
-def on_press(key):
-    # Special keys like arrows
-    if key == keyboard.Key.left:
-        print("Left arrow detected! Stopping motors.")
-        stopAllMotor()
-
-    # Keep any other handlers you need
-    if key == keyboard.Key.right:
-        print("Right arrow detected!")
-        right_arrow_pressed.set()  # Signal to main loop
-
-def on_release(key):
-    if key == keyboard.Key.esc:
-        print("Esc pressed — stopping listener.")
-        return False  # Stop listener thread
+def input_listener():
+    while True:
+        try:
+            cmd = input().strip().lower()
+            if cmd == 'left':
+                print("Left command detected! Stopping motors.")
+                stopAllMotor()
+            elif cmd == 'right':
+                print("Right command detected!")
+                right_arrow_pressed.set()
+            elif cmd == 'esc':
+                print("Esc command detected — stopping listener.")
+                break
+        except EOFError:
+            break
 
 def up(pixels):
     print("Starting Y-axis CW rotation (up)...")
@@ -211,30 +211,25 @@ def close():
 
 ######### Main #########
 def main():
-    # Start listener in background
-    if 1:
-        listener = keyboard.Listener(
-            on_press=on_press, 
-            on_release=on_release, 
-            suppress=False)
-        listener.start()
+    parser = argparse.ArgumentParser(description='Motor test script')
+    parser.add_argument('--mode', choices=['continuous', 'discrete'], default='discrete', help='Choose path mode')
+    args = parser.parse_args()
+    
+    # Start input listener in background
+    input_thread = threading.Thread(target=input_listener, daemon=True)
+    input_thread.start()
     
     print(f"Setting x-axis speed: {speedX_pixels_per_s:.2f} pixels/s, {speedX_mm_per_s:.2f} mm/s or {speedX_mm_per_s / 25.4:.2f} in/s, {speedX_rev_per_s:.2f} rev/s")
     print(f"Setting y-axis speed: {speedY_pixels_per_s:.2f} pixels/s, {speedY_mm_per_s:.2f} mm/s or {speedY_mm_per_s / 25.4:.2f} in/s, {speedY_rev_per_s:.2f} rev/s")
     print("Test starting in 3 seconds...")
     sleep(3)
 
-    if 0:
-        # up(1000)
-        # sleep(1)
-        # down(1000)
-        # right(8000)
-        sleep(1)
-        left(2000)
+    if args.mode == 'continuous':
+        coords = vectorListContinuous
+    else:
+        coords = vectorListDiscrete
     
-    if 1:
-        followSnakepath(vectorListDiscrete, discrete=True)
-        listener.stop()
+    followSnakepath(coords, discrete=True)
 
     close()
 

@@ -1,4 +1,5 @@
 import SoftwareDemo.GantryFunctionality.MotorFunc.motorFunc as moFo
+import SoftwareDemo.GantryFunctionality.MotorTest.motorTest_rev7 as MotorTest
 import matplotlib.pyplot as plt
 from PiCamera import PiCameraAI as PiCamAI
 from GantryFunctionality.LimitSwitches import ReedSwitches as Reed
@@ -13,7 +14,7 @@ def main():
     Reed.ReedMonitor()              # Actively scan and monitor reed switch state and stop motors
     Shutoff.monitorStopPress()      # Monitor for when stop button is pressed
     sp.generate_snake_path_gantry() # Generate snake path
-    moFo.                           # Gantry movement execution
+    MotorTest.followSnakepath()     # Gantry movement execution
     Reed.home()                     # Send gantry carriage to origin (0,10000)
 
 if __name__ == "__main__":

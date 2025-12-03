@@ -1,3 +1,6 @@
 venv/
 CAD Files/
 Scan Data/
+.venv/
+SoftwareDemo/GantryFunctionality/MotorTest/.venv/
+/SoftwareDemo/GantryFunctionality/MotorTest/__pycache__
