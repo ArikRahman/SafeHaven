@@ -129,7 +129,7 @@ def PersonCapture(
                         "cls": int(clss[best_i])
                     }
 
-                # Build name Snapshot{number}_D{YYYY-MM-DD}T{HH-MM-SS}
+                # Build name Snapshot{number}_D{YYYY-MM-DD}_T{HH-MM-SS}
                 idx = SnapshotIndex()
                 ts = datetime.now()
                 base = f"Snapshot_{idx:04d}_{ts:%Y-%m-%d_%H-%M-%S}"
