@@ -14,13 +14,14 @@
 #   python3 motorTest_rev10.py left=200 --force        # 'force' allows ignore margin clamp and prevents saving position
 
 from gpiozero import DigitalOutputDevice, PWMOutputDevice
-from time import sleep, time
+from time import sleep
 import sys
 import os
 import json
 import tty
 import termios
 import select
+import os
 
 
 # Define the GPIO pins
@@ -254,6 +255,51 @@ def move_both(dx, dy, duty=duty_cycle):
             pulY.value = 0
             return
 
+            # Arcade mode: interactive keyboard mode if 'arcade' token passed
+            arcade_flag = False
+            arcade_step = None
+            # accept arcade, arcade=<n>, or arcade <n>
+            for idx, arg in enumerate(sys.argv[1:]):
+                a = arg.lstrip('-')
+                if a.startswith('arcade'):
+                    arcade_flag = True
+                    if '=' in a:
+                        try:
+                            arcade_step = int(a.split('=', 1)[1])
+                        except Exception:
+                            arcade_step = None
+                if a == 'arcade':
+                    # Check next token for step
+                    abs_idx = idx + 1
+                    if abs_idx + 1 < len(sys.argv):
+                        nxt = sys.argv[abs_idx + 1]
+                        if nxt.lstrip('-').isdigit():
+                            try:
+                                arcade_step = int(nxt)
+                            except Exception:
+                                arcade_step = None
+
+            if arcade_flag:
+                # Starting position: load or use current_index
+                pos_info = load_position()
+                if pos_info and 'current_pos' in pos_info:
+                    currentX, currentY = pos_info['current_pos']
+                else:
+                    current_index = 0
+                    if os.path.exists('current_index.txt'):
+                        with open('current_index.txt', 'r') as f:
+                            try:
+                                current_index = int(f.read().strip())
+                            except Exception:
+                                current_index = 0
+                    coords_inset = apply_margin(vectorListDiscrete, MARGIN_PIXELS)
+                    currentX, currentY = coords_inset[current_index]
+
+                s = arcade_step if arcade_step is not None else chosen_step
+                # ensure force_flag variable exists
+                force_flag = force_flag if 'force_flag' in locals() else False
+                arcade_mode(currentX, currentY, step=s, chosen_margin=chosen_margin, force_flag=force_flag)
+                return
         if timeX > timeY:
             sleep(timeY)
             # stop Y
@@ -404,189 +450,8 @@ def arcade_mode(initialX, initialY, step=STEP_PIXELS, chosen_margin=MARGIN_PIXEL
         stopAllMotor()
         print('Arcade mode stopped; motors halted.')
 
-def start_motion(action):
-    """Start motor movement in a specific direction (non-blocking)."""
-    if action == 'up':
-        dirY.on()
-        pulY.value = duty_cycle
-    elif action == 'down':
-        dirY.off()
-        pulY.value = duty_cycle
-    elif action == 'right':
-        dirX.on()
-        pulX.value = duty_cycle
-    elif action == 'left':
-        dirX.off()
-        pulX.value = duty_cycle
-
-def arcade_mode_live(initialX, initialY, chosen_margin=MARGIN_PIXELS, force_flag=False):
-    """
-    Live arcade mode using terminal input (works over SSH/headless).
-    Simulates 'hold-to-move' by using a watchdog timer on key repeats.
-    """
-    print('\nEntering LIVE arcade mode (terminal). Hold keys to move (WASD/Arrows). q to quit. p for pos.')
-    
-    currentX = float(initialX)
-    currentY = float(initialY)
-    
-    current_action = None
-    move_start_time = 0
-    last_key_time = 0
-    
-    # Watchdog threshold: if no key for this long, stop motors.
-    # Typical keyboard repeat rate is ~30Hz (33ms). 0.15s is a safe buffer.
-    STOP_THRESHOLD = 0.15 
-
-    try:
-        while True:
-            # Short timeout to allow checking the watchdog
-            k = read_key(timeout=0.05)
-            now = time()
-            
-            # Map key to action
-            new_action = None
-            if k is not None:
-                if k in ('w', 'W', 'k') or k == '\x1b[A' or k == '\x1b[OA':
-                    new_action = 'up'
-                elif k in ('s', 'S', 'j') or k == '\x1b[B' or k == '\x1b[OB':
-                    new_action = 'down'
-                elif k in ('a', 'A', 'h') or k == '\x1b[D' or k == '\x1b[OD':
-                    new_action = 'left'
-                elif k in ('d', 'D', 'l') or k == '\x1b[C' or k == '\x1b[OC':
-                    new_action = 'right'
-                elif k in ('q', 'Q'):
-                    break
-                elif k in ('p', 'P'):
-                    print(f'Pos: {int(currentX)}, {int(currentY)}')
-                    continue
-            
-            # State Machine
-            if new_action:
-                last_key_time = now
-                
-                if new_action != current_action:
-                    # Direction changed!
-                    # 1. Stop previous
-                    if current_action:
-                        dt = now - move_start_time
-                        # Update position for the segment just finished
-                        if current_action in ('up', 'down'):
-                            dist = dt * speedY_pixels_per_s * (1 if current_action == 'up' else -1)
-                            currentY += dist
-                        else:
-                            dist = dt * speedX_pixels_per_s * (1 if current_action == 'right' else -1)
-                            currentX += dist
-                        stopAllMotor()
-                        print(f"Pos: {int(currentX)}, {int(currentY)}")
-
-                    # 2. Start new
-                    current_action = new_action
-                    move_start_time = now
-                    start_motion(current_action)
-            
-            else:
-                # No key pressed this cycle. Check watchdog.
-                if current_action is not None:
-                    if (now - last_key_time) > STOP_THRESHOLD:
-                        # Timeout! Stop motors.
-                        dt = last_key_time - move_start_time # Use last known key time for accuracy
-                        # (Or use 'now' if you prefer to count the silence as movement, but usually safer to stop at last key)
-                        # Let's use a mix: the motor WAS running until now, but maybe we should credit up to threshold?
-                        # Simplest: credit up to 'now' minus a tiny bit, or just 'now'. 
-                        # Since we poll fast, 'now' is fine.
-                        dt = now - move_start_time
-                        
-                        if current_action in ('up', 'down'):
-                            dist = dt * speedY_pixels_per_s * (1 if current_action == 'up' else -1)
-                            currentY += dist
-                        else:
-                            dist = dt * speedX_pixels_per_s * (1 if current_action == 'right' else -1)
-                            currentX += dist
-                        
-                        stopAllMotor()
-                        current_action = None
-                        print(f"Stopped. Pos: {int(currentX)}, {int(currentY)}")
-                        
-                        # Save position on stop
-                        if not force_flag:
-                            coords_inset = apply_margin(vectorListDiscrete, chosen_margin)
-                            # Clamp to margin before saving
-                            currentX = min(max(currentX, chosen_margin), total_pixels - chosen_margin)
-                            currentY = min(max(currentY, chosen_margin), total_pixels - chosen_margin)
-                            save_position(currentX, currentY, coords_inset)
-                        else:
-                            # Just clamp to bounds
-                            currentX = min(max(currentX, 0), total_pixels)
-                            currentY = min(max(currentY, 0), total_pixels)
-
-            # Safety Clamp Check (while moving)
-            if current_action:
-                # Predict where we are roughly
-                dt = now - move_start_time
-                tempX, tempY = currentX, currentY
-                if current_action == 'up': tempY += dt * speedY_pixels_per_s
-                elif current_action == 'down': tempY -= dt * speedY_pixels_per_s
-                elif current_action == 'right': tempX += dt * speedX_pixels_per_s
-                elif current_action == 'left': tempX -= dt * speedX_pixels_per_s
-                
-                # Check bounds
-                limit = total_pixels if force_flag else (total_pixels - chosen_margin)
-                lower = 0 if force_flag else chosen_margin
-                
-                if tempX < lower or tempX > limit or tempY < lower or tempY > limit:
-                    print("Hit limit!")
-                    stopAllMotor()
-                    # Update real pos
-                    currentX, currentY = tempX, tempY
-                    current_action = None
-
-    finally:
-        stopAllMotor()
-        print('Arcade mode stopped.')
-
-
 ######### Main #########
 def main():
-    # Check for arcade mode first
-    arcade_flag = False
-    for arg in sys.argv:
-        if arg.lstrip('-').startswith('arcade'):
-            arcade_flag = True
-            break
-    
-    if arcade_flag:
-        # Load position
-        pos_info = load_position()
-        pos_info = load_position()
-        if pos_info and 'current_pos' in pos_info:
-            currentX, currentY = pos_info['current_pos']
-        else:
-            current_index = 0
-            if os.path.exists('current_index.txt'):
-                with open('current_index.txt', 'r') as f:
-                    try:
-                        current_index = int(f.read().strip())
-                    except Exception:
-                        current_index = 0
-            coords_inset = apply_margin(vectorListDiscrete, MARGIN_PIXELS)
-            currentX, currentY = coords_inset[current_index]
-
-        chosen_margin = MARGIN_PIXELS
-        for arg in sys.argv:
-            if arg.startswith('--margin=') or arg.startswith('margin='):
-                try:
-                    chosen_margin = int(arg.split('=')[1])
-                except ValueError:
-                    pass
-        
-        force_flag = False
-        for a in sys.argv:
-            if a.lstrip('-').split('=', 1)[0] == 'force':
-                force_flag = True
-
-        arcade_mode_live(currentX, currentY, chosen_margin=chosen_margin, force_flag=force_flag)
-        return
-
     # Priority order: next -> origin -> directional commands
     if "next" in sys.argv:
         # Load current index

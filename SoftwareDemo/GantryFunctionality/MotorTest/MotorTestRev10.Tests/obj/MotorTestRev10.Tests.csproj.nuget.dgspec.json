@@ -1,0 +1,152 @@
+{
+  "format": 1,
+  "restore": {
+    "/home/corban/Documents/GitHub/SafeHaven/SoftwareDemo/GantryFunctionality/MotorTest/MotorTestRev10.Tests/MotorTestRev10.Tests.csproj": {}
+  },
+  "projects": {
+    "/home/corban/Documents/GitHub/SafeHaven/SoftwareDemo/GantryFunctionality/MotorTest/MotorTestRev10.Tests/MotorTestRev10.Tests.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/home/corban/Documents/GitHub/SafeHaven/SoftwareDemo/GantryFunctionality/MotorTest/MotorTestRev10.Tests/MotorTestRev10.Tests.csproj",
+        "projectName": "MotorTestRev10.Tests",
+        "projectPath": "/home/corban/Documents/GitHub/SafeHaven/SoftwareDemo/GantryFunctionality/MotorTest/MotorTestRev10.Tests/MotorTestRev10.Tests.csproj",
+        "packagesPath": "/home/corban/.nuget/packages/",
+        "outputPath": "/home/corban/Documents/GitHub/SafeHaven/SoftwareDemo/GantryFunctionality/MotorTest/MotorTestRev10.Tests/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/home/corban/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net9.0"
+        ],
+        "sources": {
+          "/home/linuxbrew/.linuxbrew/Cellar/dotnet/9.0.8/libexec/library-packs": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net9.0": {
+            "targetAlias": "net9.0",
+            "projectReferences": {
+              "/home/corban/Documents/GitHub/SafeHaven/SoftwareDemo/GantryFunctionality/MotorTest/MotorTestRev10/MotorTestRev10.csproj": {
+                "projectPath": "/home/corban/Documents/GitHub/SafeHaven/SoftwareDemo/GantryFunctionality/MotorTest/MotorTestRev10/MotorTestRev10.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.100"
+      },
+      "frameworks": {
+        "net9.0": {
+          "targetAlias": "net9.0",
+          "dependencies": {
+            "Microsoft.NET.Test.Sdk": {
+              "target": "Package",
+              "version": "[18.0.1, )"
+            },
+            "xunit": {
+              "target": "Package",
+              "version": "[2.5.3, )"
+            },
+            "xunit.runner.visualstudio": {
+              "target": "Package",
+              "version": "[2.5.3, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/home/linuxbrew/.linuxbrew/Cellar/dotnet/9.0.8/libexec/sdk/9.0.109/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "/home/corban/Documents/GitHub/SafeHaven/SoftwareDemo/GantryFunctionality/MotorTest/MotorTestRev10/MotorTestRev10.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/home/corban/Documents/GitHub/SafeHaven/SoftwareDemo/GantryFunctionality/MotorTest/MotorTestRev10/MotorTestRev10.csproj",
+        "projectName": "MotorTestRev10",
+        "projectPath": "/home/corban/Documents/GitHub/SafeHaven/SoftwareDemo/GantryFunctionality/MotorTest/MotorTestRev10/MotorTestRev10.csproj",
+        "packagesPath": "/home/corban/.nuget/packages/",
+        "outputPath": "/home/corban/Documents/GitHub/SafeHaven/SoftwareDemo/GantryFunctionality/MotorTest/MotorTestRev10/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/home/corban/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net9.0"
+        ],
+        "sources": {
+          "/home/linuxbrew/.linuxbrew/Cellar/dotnet/9.0.8/libexec/library-packs": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net9.0": {
+            "targetAlias": "net9.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.100"
+      },
+      "frameworks": {
+        "net9.0": {
+          "targetAlias": "net9.0",
+          "dependencies": {
+            "System.Device.Gpio": {
+              "target": "Package",
+              "version": "[4.0.1, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/home/linuxbrew/.linuxbrew/Cellar/dotnet/9.0.8/libexec/sdk/9.0.109/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}

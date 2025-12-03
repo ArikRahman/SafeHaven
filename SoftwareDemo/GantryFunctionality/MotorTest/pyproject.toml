@@ -3,5 +3,6 @@ name = "motor-test"
 version = "0.1.0"
 dependencies = [
     "gpiozero",
-    "rpi-lgpio"
+    "rpi-lgpio",
+    "pynput"
 ]

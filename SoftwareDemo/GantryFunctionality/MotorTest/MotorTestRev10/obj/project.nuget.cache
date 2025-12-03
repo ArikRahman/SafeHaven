@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "V1Bw0mFM5lU=",
+  "success": true,
+  "projectFilePath": "/home/corban/Documents/GitHub/SafeHaven/SoftwareDemo/GantryFunctionality/MotorTest/MotorTestRev10/MotorTestRev10.csproj",
+  "expectedPackageFiles": [
+    "/root/.nuget/packages/system.device.gpio/4.0.1/system.device.gpio.4.0.1.nupkg.sha512"
+  ],
+  "logs": []
+}
