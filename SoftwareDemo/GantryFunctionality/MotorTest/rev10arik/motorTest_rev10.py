@@ -52,27 +52,6 @@ speedY_mm_per_s = (speedY_rev_per_s) * length_per_rev  # Speed in mm/s
 speedY_pixels_per_s = (speedY_mm_per_s / total_distance) * total_pixels  # Speed in pixels/s
 
 
-# Top-level short-circuit for help: print a short usage and exit before hardware init.
-if any(arg in ('-h', '--help', 'help') for arg in sys.argv[1:]):
-    # Print the full, helpful help and exit before initializing hardware.
-    print('''\
-motorTest_rev10.py - Control gantry motors from the command line.
-
-Examples:
-  python3 motorTest_rev10.py next
-  python3 motorTest_rev10.py origin --margin=200
-  python3 motorTest_rev10.py up
-  python3 motorTest_rev10.py up=50
-  python3 motorTest_rev10.py go right 100
-  python3 motorTest_rev10.py go 100 right
-  python3 motorTest_rev10.py --step=50 up
-  python3 motorTest_rev10.py left=200 --force
-  python3 motorTest_rev10.py --help
-
-For more detail, run this script with --help while able to instantiate GPIO (when running on target).
-''')
-    sys.exit(0)
-
 # Initialize the pins as output devices
 pulX = PWMOutputDevice(PUL_PIN_X, 
                        active_high=True, 
@@ -135,52 +114,6 @@ def apply_margin(coords, margin=MARGIN_PIXELS, max_pixels=total_pixels):
         cy = int(min(max(y, margin), max_pixels - margin))
         inset.append((cx, cy))
     return inset
-
-
-def print_help():
-        """Print usage information for the CLI and exit.
-
-        The script supports a set of convenience commands and options used from
-        the command line. We show short descriptions and several examples.
-        """
-        help_text = '''
-Overview:
-    motorTest_rev10.py - Control gantry motors from the command line.
-
-Quick CLI usage examples:
-    python3 motorTest_rev10.py next
-    python3 motorTest_rev10.py origin --margin=200
-    python3 motorTest_rev10.py up                            # default step
-    python3 motorTest_rev10.py up=50                         # step=50
-    python3 motorTest_rev10.py go right 100                 # shorthand
-    python3 motorTest_rev10.py go 100 right                 # shorthand
-    python3 motorTest_rev10.py --step=50 up                 # override global step
-    python3 motorTest_rev10.py left=200 --force             # 'force' allows ignore margin clamp and prevents saving position
-    python3 motorTest_rev10.py --help                       # show this help and exit
-
-Main Commands:
-    next             Move along the discrete vector list to the next vertical break
-    origin           Move to origin (first coordinate in the vector list)
-    up/down/left/right [=pixels]
-                                     Move that direction by either the optional pixel amount or the default step size
-    go [amount] <dir>
-                                     Shorthand for moving a specified amount in a direction; defaults to right
-    arcade           Enter interactive arcade mode (keyboard-controlled)
-    arcadeLive       Enter terminal-based live arcade mode
-
-Options:
-    --step=<pixels>  Override default step size
-    --margin=<pixels> Override margin inset
-    --force[=true|false]
-                                     Force moves outside margin and avoid saving position if true
-    -h, --help       Print this help message
-
-Notes:
-    - Force moves do not update saved position or index unless CLI command explicitly writes one.
-    - When using arcade modes, use WASD or arrow keys; space stops motors; q quits.
-'''
-        print(help_text)
-        return
 
 
 # Create inset (margined) variants of the travel vectors
@@ -607,12 +540,6 @@ def arcade_mode_live(initialX, initialY, chosen_margin=MARGIN_PIXELS, force_flag
 
 ######### Main #########
 def main():
-    # Check for CLI help option first
-    for arg in sys.argv[1:]:
-        if arg in ('-h', '--help', 'help'):
-            print_help()
-            return
-
     # Check for arcade mode first
     arcade_flag = False
     for arg in sys.argv:
