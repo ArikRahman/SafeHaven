@@ -4,3 +4,5 @@ Scan Data/
 .venv/
 SoftwareDemo/GantryFunctionality/MotorTest/.venv/
 /SoftwareDemo/GantryFunctionality/MotorTest/__pycache__
+NeuroNauts/Scan Data/
+NeuroNauts/testdummydata3/
