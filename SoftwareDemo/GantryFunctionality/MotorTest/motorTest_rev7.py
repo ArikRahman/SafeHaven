@@ -6,7 +6,7 @@ from gpiozero import DigitalOutputDevice, PWMOutputDevice
 from time import sleep, time
 from pynput import keyboard
 import threading
-from GantryFunctionality import RunState
+# from GantryFunctionality import RunState
 
 # Define the GPIO pins
 PUL_PIN_X = 13 # Pulse pin x-axis
@@ -21,7 +21,7 @@ f_x = 6400 # PWM frequency for X-axis in Hz
 f_y = 6400 # PWM frequency for Y-axis in Hz
 steps_per_rev = 1600  # Microsteps per revolution for the motor, dictated by driver settings
 length_per_rev = 10   # Length per revolution in mm
-total_distance = 675  # Total traveling distance in mm for both axes
+total_distance = 636.9  # Total traveling distance in mm for both axes
 total_pixels = 10000  # Total pixels for both axes
 
 # X-axis speed calculations
@@ -266,6 +266,7 @@ def main():
     
     print(f"Setting x-axis speed: {speedX_pixels_per_s:.2f} pixels/s, {speedX_mm_per_s:.2f} mm/s or {speedX_mm_per_s / 25.4:.2f} in/s, {speedX_rev_per_s:.2f} rev/s")
     print(f"Setting y-axis speed: {speedY_pixels_per_s:.2f} pixels/s, {speedY_mm_per_s:.2f} mm/s or {speedY_mm_per_s / 25.4:.2f} in/s, {speedY_rev_per_s:.2f} rev/s")
+    
     print("Test starting in 3 seconds...")
     sleep(3)
 
@@ -273,9 +274,9 @@ def main():
         # up(1000)
         # sleep(1)
         # down(1000)
-        # right(8000)
-        sleep(1)
-        left(8000)
+        right(9000)
+        # sleep(1)
+        # left(9000)
     
     if 0:
         followSnakepath(vectorListDiscrete_test, discrete=True)
