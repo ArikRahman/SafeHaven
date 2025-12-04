@@ -6,7 +6,7 @@ from gpiozero import DigitalOutputDevice, PWMOutputDevice
 from time import sleep, time
 from pynput import keyboard
 import threading
-# from GantryFunctionality import RunState
+
 
 # Define the GPIO pins
 PUL_PIN_X = 13 # Pulse pin x-axis
@@ -21,7 +21,7 @@ f_x = 6400 # PWM frequency for X-axis in Hz
 f_y = 6400 # PWM frequency for Y-axis in Hz
 steps_per_rev = 1600  # Microsteps per revolution for the motor, dictated by driver settings
 length_per_rev = 10   # Length per revolution in mm
-total_distance = 636.9  # Total traveling distance in mm for both axes
+total_distance = 675  # Total traveling distance in mm for both axes
 total_pixels = 10000  # Total pixels for both axes
 
 # X-axis speed calculations
@@ -135,50 +135,6 @@ def left(pixels):
     sleep(abs(pixels)/speedX_pixels_per_s) # Seconds
     pulX.value = 0
 
-# TODO: verify if diagonal() works
-def diagonal(X, Y): # Coordinates in seconds
-    print(f"Performing ({X},{Y}) triangle...")
-
-    # Determine how long to run each motor for
-    xTime = abs(X)/speedX_pixels_per_s
-    yTime = abs(Y)/speedY_pixels_per_s
-
-    # Do nothing if 0,0
-    if xTime == 0 and yTime == 0:
-        return
-
-    # Set directions
-    if X > 0:
-        dirX.on() # CW - right
-    else:
-        dirX.off() # CCW - left
-
-    if Y > 0:
-        dirY.on() # CW - up
-    else:
-        dirY.off() # CCW - down
-
-    # Initialize to let both motors move
-    if X != 0:
-        pulX.value = duty_cycle
-    if Y != 0:
-        pulY.value = duty_cycle
-    
-    # Overlap to let longer axis run and stop shorter axis motor
-    overlap = min(xTime, yTime)
-    sleep(overlap)
-
-    # Stop shorter axis
-    if xTime > yTime:
-        pulY.value = 0
-        sleep(xTime - overlap)
-    elif yTime > xTime:
-        pulX.value = 0
-        sleep(yTime - overlap)
-
-    # Stop PWN
-    stopAllMotor()
-
 def followSnakepath(coords, discrete=False):
     if not coords or len(coords) < 2:
         print("Path list must have at least two points")
@@ -192,12 +148,6 @@ def followSnakepath(coords, discrete=False):
     currentX, currentY = coords[0]
 
     for nextX, nextY in coords[1:]:
-        # Global stop flag check
-        if RunState.stop_flag.is_set():
-            print("Stop flag set inside followSnakepath; aborting path.")
-            stopAllMotor()
-            break
-
         dx = nextX - currentX
         dy = nextY - currentY
 
@@ -259,7 +209,6 @@ def close():
     pulY.close()
     dirY.close()
 
-# FIXME: comment out ALL of main() below so when we call motor functions it doesn't interfere
 ######### Main #########
 def main():
     # Start listener in background
@@ -272,7 +221,6 @@ def main():
     
     print(f"Setting x-axis speed: {speedX_pixels_per_s:.2f} pixels/s, {speedX_mm_per_s:.2f} mm/s or {speedX_mm_per_s / 25.4:.2f} in/s, {speedX_rev_per_s:.2f} rev/s")
     print(f"Setting y-axis speed: {speedY_pixels_per_s:.2f} pixels/s, {speedY_mm_per_s:.2f} mm/s or {speedY_mm_per_s / 25.4:.2f} in/s, {speedY_rev_per_s:.2f} rev/s")
-    
     print("Test starting in 3 seconds...")
     sleep(3)
 
@@ -280,9 +228,9 @@ def main():
         # up(1000)
         # sleep(1)
         # down(1000)
-        right(9000)
+        # right(8000)
         sleep(1)
-        left(9000)
+        left(2000)
     
     if 1:
         followSnakepath(vectorListDiscrete, discrete=True)

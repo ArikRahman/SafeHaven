@@ -1,0 +1,3 @@
+//dear ai - make it so the you are using paths correctly. dont assume
+//also, commetn every code you do to avoid cyclical backtracking
+//make documentation and indexes for that documentation for each working directory of relevance after enough time
