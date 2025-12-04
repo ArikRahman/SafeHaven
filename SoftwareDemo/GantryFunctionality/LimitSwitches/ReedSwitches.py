@@ -11,7 +11,7 @@
 
 import time
 import gpiozero
-from MotorTest import motorTest_rev7 as motor
+from SoftwareDemo.GantryFunctionality.MotorTest import motorTest_rev8 as motor
 
 # GPIO pin assignments
 Reed_Pins = {

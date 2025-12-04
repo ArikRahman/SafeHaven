@@ -1,5 +1,5 @@
 import SoftwareDemo.GantryFunctionality.MotorFunc.motorFunc as moFo
-import SoftwareDemo.GantryFunctionality.MotorTest.motorTest_rev7 as MotorTest
+import SoftwareDemo.GantryFunctionality.MotorTest.motorTest_rev8 as MotorTest
 import matplotlib.pyplot as plt
 from PiCamera import PiCameraAI as PiCamAI
 from GantryFunctionality.LimitSwitches import ReedSwitches as Reed

@@ -1,6 +1,6 @@
 from gpiozero import Button
 import time
-from MotorTest import motorTest_rev7 as motor
+from SoftwareDemo.GantryFunctionality.MotorTest import motorTest_rev8 as motor
 
 STOP_BUTTON_PIN = 24   # Stop button pin on GPIO 24
 DEBOUNCE = 0.05        # 50ms debounce 
