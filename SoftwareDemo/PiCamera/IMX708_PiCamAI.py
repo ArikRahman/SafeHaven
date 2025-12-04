@@ -14,11 +14,11 @@ import numpy as np
 
 # Leave env with 'deactivate' in prompt
 
-# Run program 
-    # python3 /home/corban/Documents/GitHub/SafeHaven/SoftwareDemo/PiCamera/PiCameraAI.py
-
 # One line command
-    # source ~/yolo-env/bin/activate && python3 /home/corban/Documents/GitHub/SafeHaven/SoftwareDemo/PiCamera/PiCameraAI.py
+    # source ~/yolo-env/bin/activate && python3 /home/corban/Documents/GitHub/SafeHaven/SoftwareDemo/PiCamera/IMX708_PiCamAI.py
+
+# Run script
+    # python3 /home/corban/Documents/GitHub/SafeHaven/SoftwareDemo/PiCamera/IMX708_PiCamAI.py
 
 DefaultModelPath = "yolov8n.pt" # Path to model
                                 # You can try "yolo11n.pt" if is available

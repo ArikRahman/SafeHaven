@@ -11,7 +11,8 @@
 
 import time
 import gpiozero
-from SoftwareDemo.GantryFunctionality.MotorTest import motorTest_rev8 as motor
+from MotorTest import motorTest_rev7 as motor
+from GantryFunctionality import RunState
 
 # GPIO pin assignments
 Reed_Pins = {
@@ -56,6 +57,8 @@ def ReedMonitor():
                         if name in ("Y_MIN", "Y_MAX"):
                             motor.stopY_Motor()    
 
+                        RunState.stop_flag.set()
+
                         # This block is optional and redundant but guarantees both axis are stopped
                         x_hit = reeds["X_MIN"].is_pressed or reeds["X_MAX"].is_pressed
                         y_hit = reeds["Y_MIN"].is_pressed or reeds["Y_MAX"].is_pressed
@@ -76,8 +79,10 @@ def home():
     print("Starting homing sequence to (0, 10000)")
 
     # Move to origin
-    motor.left(10000)   
-    motor.up(10000)     
+    motor.diagonal(-10000,10000) # TODO: verify if it moves diagonally to origin
+
+    # motor.left(10000)   
+    # motor.up(10000)     
 
     x_homed = False
     y_homed = False
@@ -108,15 +113,13 @@ def home():
         print("\nHoming interrupted by user.")
         motor.stopAllMotor()
 
-    motor.close()
+# def main():
+#     try:
+#         ReedMonitor()
+#         # home()
 
-def main():
-    try:
-        ReedMonitor()
-        # home()
+#     except KeyboardInterrupt:
+#         print("\nExiting reed switch monitor.")
 
-    except KeyboardInterrupt:
-        print("\nExiting reed switch monitor.")
-
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     main()
