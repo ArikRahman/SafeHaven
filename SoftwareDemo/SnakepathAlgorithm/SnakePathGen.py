@@ -10,8 +10,6 @@ import matplotlib.pyplot as plt
 import os
 from typing import Tuple, List
 
-# FIXME: configure to read box_coords.json. change coordinates to 10000x10000. 
-
 # Activate virtual environment
     # source ~/yolo-env/bin/activate
     
@@ -24,7 +22,7 @@ from typing import Tuple, List
 # Box corner coordinate path on RP5
 # BOX_JSON = "/home/corban/Documents/GitHub/SafeHaven/SoftwareDemo/PiCamera/box_coords.json"
 
-# Read/write file in the samel working directory as main.py
+# Read/write file in the same working directory as main.py
 BOX_JSON = "box_coords.json"
 
 # Box corner coordinate path on github
