@@ -63,7 +63,7 @@ F1::
         Sleep 100
 
         ; Run the specific Python command with --force flag
-        Send "python3 motorTest_rev10.py down=2000 --force"
+        Send "python3 motorTest_rev10.py"
         Sleep 100
         Send "{Enter}"
         Sleep 100

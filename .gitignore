@@ -12,3 +12,5 @@ SoftwareDemo/GantryFunctionality/MotorTest/position.txt
 NeuroNauts/testdummydata3/
 NeuroNauts/.venv/
 NeuroNauts/Scan Data/
+SoftwareDemo/GantryFunctionality/MotorTest/current_index.txt
+SoftwareDemo/GantryFunctionality/MotorTest/position.txt
