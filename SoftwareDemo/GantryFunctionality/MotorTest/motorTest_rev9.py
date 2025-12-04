@@ -1,12 +1,12 @@
-# Revision 6 by Corban
+# Revision 9 by Corban
     # Executes path list
     # Stepping motor travel
 
 from gpiozero import DigitalOutputDevice, PWMOutputDevice
 from time import sleep, time
-from pynput import keyboard
 import threading
-# from GantryFunctionality import RunState
+import sys
+
 
 # Define the GPIO pins
 PUL_PIN_X = 13 # Pulse pin x-axis
@@ -21,7 +21,7 @@ f_x = 6400 # PWM frequency for X-axis in Hz
 f_y = 6400 # PWM frequency for Y-axis in Hz
 steps_per_rev = 1600  # Microsteps per revolution for the motor, dictated by driver settings
 length_per_rev = 10   # Length per revolution in mm
-total_distance = 636.9  # Total traveling distance in mm for both axes
+total_distance = 675  # Total traveling distance in mm for both axes
 total_pixels = 10000  # Total pixels for both axes
 
 # X-axis speed calculations
@@ -91,113 +91,53 @@ vectorListDiscrete_test = [(0, 10000), (0, 9900),
 right_arrow_pressed = threading.Event()
 
 
-def on_press(key):
-    # Special keys like arrows
-    if key == keyboard.Key.left:
-        print("Left arrow detected! Stopping motors.")
-        stopAllMotor()
-
-    # Keep any other handlers you need
-    if key == keyboard.Key.right:
-        print("Right arrow detected!")
-        right_arrow_pressed.set()  # Signal to main loop
-
-def on_release(key):
-    if key == keyboard.Key.esc:
-        print("Esc pressed — stopping listener.")
-        return False  # Stop listener thread
+def input_listener():
+    while True:
+        try:
+            cmd = input().strip().lower()
+            if cmd == 'left':
+                stopAllMotor()
+            elif cmd == 'right':
+                right_arrow_pressed.set()
+            elif cmd == 'esc':
+                break
+        except EOFError:
+            break
 
 def up(pixels):
-    print("Starting Y-axis CW rotation (up)...")
     dirY.on() # Set direction to CW
     pulY.value = duty_cycle
     sleep(abs(pixels)/speedY_pixels_per_s) # Seconds
     pulY.value = 0
 
 def down(pixels):
-    print("Starting Y-axis CCW rotation (down)...")
     dirY.off() # Set direction to CCW
     pulY.value = duty_cycle
     sleep(abs(pixels)/speedY_pixels_per_s) # Seconds
     pulY.value = 0
 
 def right(pixels):
-    print("Starting X-axis CW rotation (right)...")
     dirX.on() # Set direction to CW
     pulX.value = duty_cycle
     sleep(abs(pixels)/speedX_pixels_per_s) # Seconds
     pulX.value = 0
 
 def left(pixels):
-    print("Starting X-axis CCW rotation (left)...")
     dirX.off() # Set direction to CCW
     pulX.value = duty_cycle
     sleep(abs(pixels)/speedX_pixels_per_s) # Seconds
     pulX.value = 0
 
-# TODO: verify if diagonal() works
-def diagonal(X, Y): # Coordinates in seconds
-    print(f"Performing ({X},{Y}) triangle...")
-
-    # Determine how long to run each motor for
-    xTime = abs(X)/speedX_pixels_per_s
-    yTime = abs(Y)/speedY_pixels_per_s
-
-    # Do nothing if 0,0
-    if xTime == 0 and yTime == 0:
-        return
-
-    # Set directions
-    if X > 0:
-        dirX.on() # CW - right
-    else:
-        dirX.off() # CCW - left
-
-    if Y > 0:
-        dirY.on() # CW - up
-    else:
-        dirY.off() # CCW - down
-
-    # Initialize to let both motors move
-    if X != 0:
-        pulX.value = duty_cycle
-    if Y != 0:
-        pulY.value = duty_cycle
-    
-    # Overlap to let longer axis run and stop shorter axis motor
-    overlap = min(xTime, yTime)
-    sleep(overlap)
-
-    # Stop shorter axis
-    if xTime > yTime:
-        pulY.value = 0
-        sleep(xTime - overlap)
-    elif yTime > xTime:
-        pulX.value = 0
-        sleep(yTime - overlap)
-
-    # Stop PWN
-    stopAllMotor()
-
 def followSnakepath(coords, discrete=False):
     if not coords or len(coords) < 2:
-        print("Path list must have at least two points")
         return
     
     # Start time
     start = time()
 
-    print("Following snake path...")
-
     currentX, currentY = coords[0]
 
     for nextX, nextY in coords[1:]:
-        # Global stop flag check
-        if RunState.stop_flag.is_set():
-            print("Stop flag set inside followSnakepath; aborting path.")
-            stopAllMotor()
-            break
-
         dx = nextX - currentX
         dy = nextY - currentY
 
@@ -214,18 +154,14 @@ def followSnakepath(coords, discrete=False):
         if dy != 0:
             if dy > 0:
                 if discrete == True:
-                    print("Waiting for right arrow...") # Waits here until right arrow is pressed
                     right_arrow_pressed.wait()
-                    # print("Right arrow received!") # Clear event so next loop iteration waits again
                     right_arrow_pressed.clear()
 
                 up(dy)          
                 sleep(0.25)
             else:
                 if discrete == True:
-                    print("Waiting for right arrow...") # Waits here until right arrow is pressed
                     right_arrow_pressed.wait()
-                    # print("Right arrow received!") # Clear event so next loop iteration waits again
                     right_arrow_pressed.clear()
                 
                 down(dy)
@@ -239,8 +175,6 @@ def followSnakepath(coords, discrete=False):
     stopAllMotor()
 
     procedurelength = end - start
-
-    print(f"Time elaped: {procedurelength:.2f}s, ({procedurelength//60:.0f} minute : {procedurelength%60:.0f} second)")
 
 def stopX_Motor():
     pulX.value = 0
@@ -259,43 +193,24 @@ def close():
     pulY.close()
     dirY.close()
 
-# FIXME: comment out ALL of main() below so when we call motor functions it doesn't interfere
 ######### Main #########
 def main():
-    # Start listener in background
-    if 1:
-        listener = keyboard.Listener(
-            on_press=on_press, 
-            on_release=on_release, 
-            suppress=False)
-        listener.start()
+    # Check for "right" argument
+    one_off = "right" in sys.argv
+    discrete = not one_off
     
-    print(f"Setting x-axis speed: {speedX_pixels_per_s:.2f} pixels/s, {speedX_mm_per_s:.2f} mm/s or {speedX_mm_per_s / 25.4:.2f} in/s, {speedX_rev_per_s:.2f} rev/s")
-    print(f"Setting y-axis speed: {speedY_pixels_per_s:.2f} pixels/s, {speedY_mm_per_s:.2f} mm/s or {speedY_mm_per_s / 25.4:.2f} in/s, {speedY_rev_per_s:.2f} rev/s")
+    # Start input listener in background if not one off
+    if not one_off:
+        input_thread = threading.Thread(target=input_listener, daemon=True)
+        input_thread.start()
     
-    print("Test starting in 3 seconds...")
     sleep(3)
 
-    if 0:
-        # up(1000)
-        # sleep(1)
-        # down(1000)
-        right(9000)
-        sleep(1)
-        left(9000)
-        sleep(1)
-        right(9000)
-        sleep(1)
-        left(9000)
+    coords = vectorListDiscrete
     
-    if 1:
-        followSnakepath(vectorListDiscrete, discrete=True)
-        listener.stop()
+    followSnakepath(coords, discrete=discrete)
 
     close()
-
-    # End of test
-    print("Test complete.")
 
 if __name__ == "__main__":
     main()

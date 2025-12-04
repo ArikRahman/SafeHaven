@@ -1,0 +1,6 @@
+[project]
+name = "motor-test"
+version = "0.1.0"
+dependencies = [
+    "pigpio",
+]
