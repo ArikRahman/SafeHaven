@@ -277,6 +277,10 @@ def main():
         right(9000)
         sleep(1)
         left(9000)
+        sleep(1)
+        right(9000)
+        sleep(1)
+        left(9000)
     
     if 0:
         followSnakepath(vectorListDiscrete_test, discrete=True)
