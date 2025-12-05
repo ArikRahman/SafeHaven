@@ -111,6 +111,7 @@ dependencies = [
     { name = "gpiozero", version = "2.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.9'" },
     { name = "gpiozero", version = "2.0.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.9'" },
     { name = "pynput" },
+    { name = "rpi-hardware-pwm" },
     { name = "rpi-lgpio" },
 ]
 
@@ -118,6 +119,7 @@ dependencies = [
 requires-dist = [
     { name = "gpiozero" },
     { name = "pynput" },
+    { name = "rpi-hardware-pwm" },
     { name = "rpi-lgpio" },
 ]
 
@@ -467,6 +469,15 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/86/f5/8c0653e5bb54e0cbdfe27bf32d41f27bc4e12faa8742778c17f2a71be2c0/python-xlib-0.33.tar.gz", hash = "sha256:55af7906a2c75ce6cb280a584776080602444f75815a7aff4d287bb2d7018b32", size = 269068, upload-time = "2022-12-25T18:53:00.824Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/fc/b8/ff33610932e0ee81ae7f1269c890f697d56ff74b9f5b2ee5d9b7fa2c5355/python_xlib-0.33-py2.py3-none-any.whl", hash = "sha256:c3534038d42e0df2f1392a1b30a15a4ff5fdc2b86cfa94f072bf11b10a164398", size = 182185, upload-time = "2022-12-25T18:52:58.662Z" },
+]
+
+[[package]]
+name = "rpi-hardware-pwm"
+version = "0.3.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/be/0c/4308050d8b6bbe24e8e54b38e48b287b1e356efce33cd485ee4387fc92a9/rpi_hardware_pwm-0.3.0.tar.gz", hash = "sha256:1ec870633a795e98a31068565f067f82f64a8e1678069bcf8dd702fa2fb31b26", size = 4926, upload-time = "2025-05-23T14:50:45.768Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/4c/44/c417f283a4ccdb214cc26583e9d54640ba6f2cea2a561355ca4829e885bb/rpi_hardware_pwm-0.3.0-py3-none-any.whl", hash = "sha256:9a1407512871232c64c55572c1bcd0a0c2872a4241df53b79ca3b5e185499ee5", size = 4772, upload-time = "2025-05-23T14:50:44.538Z" },
 ]
 
 [[package]]

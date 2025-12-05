@@ -13,7 +13,8 @@
 #   python3 motorTest_rev10.py --step=50 up            # override global step
 #   python3 motorTest_rev10.py left=200 --force        # 'force' allows ignore margin clamp and prevents saving position
 
-from gpiozero import DigitalOutputDevice, PWMOutputDevice
+from gpiozero import DigitalOutputDevice
+from rpi_hardware_pwm import HardwarePWM
 from time import sleep, time
 import sys
 import os
@@ -21,6 +22,13 @@ import json
 import tty
 import termios
 import select
+
+# Force pin modes for RPi 5 (PWM pins to Alt0, Dir pins to Output)
+# This ensures the pins are correctly muxed for the hardware PWM and GPIO control
+os.system("pinctrl set 12 a0")
+os.system("pinctrl set 13 a0")
+os.system("pinctrl set 6 op")
+os.system("pinctrl set 16 op")
 
 
 # Define the GPIO pins
@@ -31,7 +39,7 @@ DIR_PIN_Y = 16 # Direction pins y-axis
 
 
 # Parameters
-duty_cycle = 0.50  # 50% duty cycle for PWM
+duty_cycle = 50  # 50% duty cycle for PWM (0-100)
 f_x = 6400 # PWM frequency for X-axis in Hz
 f_y = 6400 # PWM frequency for Y-axis in Hz
 steps_per_rev = 1600  # Microsteps per revolution for the motor, dictated by driver settings
@@ -52,38 +60,67 @@ speedY_mm_per_s = (speedY_rev_per_s) * length_per_rev  # Speed in mm/s
 speedY_pixels_per_s = (speedY_mm_per_s / total_distance) * total_pixels  # Speed in pixels/s
 
 
-# Top-level short-circuit for help: print a short usage and exit before hardware init.
-if any(arg in ('-h', '--help', 'help') for arg in sys.argv[1:]):
-    # Print the full, helpful help and exit before initializing hardware.
-    print('''\
-motorTest_rev10.py - Control gantry motors from the command line.
+def print_help():
+    """Print usage information for the CLI and exit.
 
-Examples:
+    The script supports a set of convenience commands and options used from
+    the command line. We show short descriptions and several examples.
+    """
+    help_text = '''
+Overview:
+  motorTest_rev10.py - Control gantry motors from the command line.
+
+Quick CLI usage examples:
   python3 motorTest_rev10.py next
   python3 motorTest_rev10.py origin --margin=200
-  python3 motorTest_rev10.py up
-  python3 motorTest_rev10.py up=50
-  python3 motorTest_rev10.py go right 100
-  python3 motorTest_rev10.py go 100 right
-  python3 motorTest_rev10.py --step=50 up
-  python3 motorTest_rev10.py left=200 --force
-  python3 motorTest_rev10.py --help
+  python3 motorTest_rev10.py up                            # default step
+  python3 motorTest_rev10.py up=50                         # step=50
+  python3 motorTest_rev10.py go right 100                 # shorthand
+  python3 motorTest_rev10.py go 100 right                 # shorthand
+  python3 motorTest_rev10.py --step=50 up                 # override global step
+  python3 motorTest_rev10.py left=200 --force             # 'force' allows ignore margin clamp and prevents saving position
+  python3 motorTest_rev10.py arcade                       # enter arcade mode
+  python3 motorTest_rev10.py --help                       # show this help and exit
 
-For more detail, run this script with --help while able to instantiate GPIO (when running on target).
-''')
+Main Commands:
+  next             Move along the discrete vector list to the next vertical break
+  origin           Move to origin (first coordinate in the vector list)
+  up/down/left/right [=pixels]
+                   Move that direction by either the optional pixel amount or the default step size
+  go [amount] <dir>
+                   Shorthand for moving a specified amount in a direction; defaults to right
+  arcade           Enter interactive arcade mode (keyboard-controlled)
+
+Options:
+  --step=<pixels>  Override default step size
+  --margin=<pixels> Override margin inset
+  --force[=true|false]
+                   Force moves outside margin and avoid saving position if true
+  -h, --help       Print this help message
+
+Notes:
+  - Force moves do not update saved position or index unless CLI command explicitly writes one.
+  - When using arcade mode, use WASD or arrow keys; space stops motors; q quits.
+'''
+    print(help_text)
+    print("done")
+    return
+
+
+# Top-level short-circuit for help: print full usage and exit before hardware init.
+if any(arg in ('-h', '--help', 'help') for arg in sys.argv[1:]):
+    print_help()
     sys.exit(0)
 
 # Initialize the pins as output devices
-pulX = PWMOutputDevice(PUL_PIN_X, 
-                       active_high=True, 
-                       initial_value=0, 
-                       frequency=f_x)  # PWM for pulse control
+# Using rpi-hardware-pwm for hardware PWM on Pi 5 (Chip 0)
+# GPIO 13 -> PWM0 (Channel 1)
+# GPIO 12 -> PWM0 (Channel 0)
+# Note: On this RPi 5, the RP1 PWM controller appears as pwmchip0.
+pulX = HardwarePWM(pwm_channel=1, hz=f_x, chip=0)
 dirX = DigitalOutputDevice(DIR_PIN_X, 
                            active_high=True)  # Active high to rotate CW
-pulY = PWMOutputDevice(PUL_PIN_Y, 
-                       active_high=True, 
-                       initial_value=0, 
-                       frequency=f_y)  # PWM for pulse control
+pulY = HardwarePWM(pwm_channel=0, hz=f_y, chip=0)
 dirY = DigitalOutputDevice(DIR_PIN_Y, 
                            active_high=True)  # Active high to rotate CW
 
@@ -137,52 +174,6 @@ def apply_margin(coords, margin=MARGIN_PIXELS, max_pixels=total_pixels):
     return inset
 
 
-def print_help():
-        """Print usage information for the CLI and exit.
-
-        The script supports a set of convenience commands and options used from
-        the command line. We show short descriptions and several examples.
-        """
-        help_text = '''
-Overview:
-    motorTest_rev10.py - Control gantry motors from the command line.
-
-Quick CLI usage examples:
-    python3 motorTest_rev10.py next
-    python3 motorTest_rev10.py origin --margin=200
-    python3 motorTest_rev10.py up                            # default step
-    python3 motorTest_rev10.py up=50                         # step=50
-    python3 motorTest_rev10.py go right 100                 # shorthand
-    python3 motorTest_rev10.py go 100 right                 # shorthand
-    python3 motorTest_rev10.py --step=50 up                 # override global step
-    python3 motorTest_rev10.py left=200 --force             # 'force' allows ignore margin clamp and prevents saving position
-    python3 motorTest_rev10.py --help                       # show this help and exit
-
-Main Commands:
-    next             Move along the discrete vector list to the next vertical break
-    origin           Move to origin (first coordinate in the vector list)
-    up/down/left/right [=pixels]
-                                     Move that direction by either the optional pixel amount or the default step size
-    go [amount] <dir>
-                                     Shorthand for moving a specified amount in a direction; defaults to right
-    arcade           Enter interactive arcade mode (keyboard-controlled)
-    arcadeLive       Enter terminal-based live arcade mode
-
-Options:
-    --step=<pixels>  Override default step size
-    --margin=<pixels> Override margin inset
-    --force[=true|false]
-                                     Force moves outside margin and avoid saving position if true
-    -h, --help       Print this help message
-
-Notes:
-    - Force moves do not update saved position or index unless CLI command explicitly writes one.
-    - When using arcade modes, use WASD or arrow keys; space stops motors; q quits.
-'''
-        print(help_text)
-        return
-
-
 # Create inset (margined) variants of the travel vectors
 vectorListContinuous_inset = apply_margin(vectorListContinuous, MARGIN_PIXELS)
 vectorListDiscrete_inset = apply_margin(vectorListDiscrete, MARGIN_PIXELS)
@@ -190,34 +181,35 @@ vectorListDiscrete_test_inset = apply_margin(vectorListDiscrete_test, MARGIN_PIX
 
 
 def up(pixels):
+    #these are commands calling, using old library, want to swap out, not direction but everything else
     dirY.on() # Set direction to CW
-    pulY.value = duty_cycle
+    pulY.start(duty_cycle)
     sleep(abs(pixels)/speedY_pixels_per_s) # Seconds
-    pulY.value = 0
+    pulY.stop()
 
 def down(pixels):
     dirY.off() # Set direction to CCW
-    pulY.value = duty_cycle
+    pulY.start(duty_cycle)
     sleep(abs(pixels)/speedY_pixels_per_s) # Seconds
-    pulY.value = 0
+    pulY.stop()
 
 def right(pixels):
     dirX.on() # Set direction to CW
-    pulX.value = duty_cycle
+    pulX.start(duty_cycle)
     sleep(abs(pixels)/speedX_pixels_per_s) # Seconds
-    pulX.value = 0
+    pulX.stop()
 
 def left(pixels):
     dirX.off() # Set direction to CCW
-    pulX.value = duty_cycle
+    pulX.start(duty_cycle)
     sleep(abs(pixels)/speedX_pixels_per_s) # Seconds
-    pulX.value = 0
+    pulX.stop()
 
 def stopX_Motor():
-    pulX.value = 0
+    pulX.stop()
 
 def stopY_Motor():
-    pulY.value = 0
+    pulY.stop()
 
 def stopAllMotor():
     stopX_Motor()
@@ -225,9 +217,9 @@ def stopAllMotor():
 
 # Cleanup
 def close():
-    pulX.close()
+    pulX.stop()
     dirX.close()
-    pulY.close()
+    pulY.stop()
     dirY.close()
 
 
@@ -308,42 +300,42 @@ def move_both(dx, dy, duty=duty_cycle):
 
     # start both
     if dx != 0:
-        pulX.value = duty
+        pulX.start(duty)
     if dy != 0:
-        pulY.value = duty
+        pulY.start(duty)
 
     # if both times are >0 then coordinate stopping times
     if timeX > 0 and timeY > 0:
         # sleep until the shorter one finishes
         if timeX == timeY:
             sleep(timeX)
-            pulX.value = 0
-            pulY.value = 0
+            pulX.stop()
+            pulY.stop()
             return
 
         if timeX > timeY:
             sleep(timeY)
             # stop Y
-            pulY.value = 0
+            pulY.stop()
             # finish X
             sleep(timeX - timeY)
-            pulX.value = 0
+            pulX.stop()
             return
         else:
             # timeY > timeX
             sleep(timeX)
-            pulX.value = 0
+            pulX.stop()
             sleep(timeY - timeX)
-            pulY.value = 0
+            pulY.stop()
             return
 
     # If we only need to move X or Y
     if timeX > 0 and timeY == 0:
         sleep(timeX)
-        pulX.value = 0
+        pulX.stop()
     elif timeY > 0 and timeX == 0:
         sleep(timeY)
-        pulY.value = 0
+        pulY.stop()
 
 
 def read_key(timeout=0.1):
@@ -479,22 +471,22 @@ def start_motion_xy(dir_x, dir_y):
     # X Axis
     if dir_x == 1:
         dirX.on()
-        pulX.value = duty_cycle
+        pulX.start(duty_cycle)
     elif dir_x == -1:
         dirX.off()
-        pulX.value = duty_cycle
+        pulX.start(duty_cycle)
     else:
-        pulX.value = 0
+        pulX.stop()
 
     # Y Axis
     if dir_y == 1:
         dirY.on()
-        pulY.value = duty_cycle
+        pulY.start(duty_cycle)
     elif dir_y == -1:
         dirY.off()
-        pulY.value = duty_cycle
+        pulY.start(duty_cycle)
     else:
-        pulY.value = 0
+        pulY.stop()
 
 def arcade_mode_live(initialX, initialY, chosen_margin=MARGIN_PIXELS, force_flag=False):
     """
@@ -607,12 +599,6 @@ def arcade_mode_live(initialX, initialY, chosen_margin=MARGIN_PIXELS, force_flag
 
 ######### Main #########
 def main():
-    # Check for CLI help option first
-    for arg in sys.argv[1:]:
-        if arg in ('-h', '--help', 'help'):
-            print_help()
-            return
-
     # Check for arcade mode first
     arcade_flag = False
     for arg in sys.argv:

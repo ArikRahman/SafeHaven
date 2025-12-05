@@ -52,61 +52,7 @@ speedY_mm_per_s = (speedY_rev_per_s) * length_per_rev  # Speed in mm/s
 speedY_pixels_per_s = (speedY_mm_per_s / total_distance) * total_pixels  # Speed in pixels/s
 
 
-def print_help():
-    """Print usage information for the CLI and exit.
-
-    The script supports a set of convenience commands and options used from
-    the command line. We show short descriptions and several examples.
-    """
-    help_text = '''
-Overview:
-  motorTest_rev10.py - Control gantry motors from the command line.
-
-Quick CLI usage examples:
-  python3 motorTest_rev10.py next
-  python3 motorTest_rev10.py origin --margin=200
-  python3 motorTest_rev10.py up                            # default step
-  python3 motorTest_rev10.py up=50                         # step=50
-  python3 motorTest_rev10.py go right 100                 # shorthand
-  python3 motorTest_rev10.py go 100 right                 # shorthand
-  python3 motorTest_rev10.py --step=50 up                 # override global step
-  python3 motorTest_rev10.py left=200 --force             # 'force' allows ignore margin clamp and prevents saving position
-  python3 motorTest_rev10.py arcade                       # enter arcade mode
-  python3 motorTest_rev10.py --help                       # show this help and exit
-
-Main Commands:
-  next             Move along the discrete vector list to the next vertical break
-  origin           Move to origin (first coordinate in the vector list)
-  up/down/left/right [=pixels]
-                   Move that direction by either the optional pixel amount or the default step size
-  go [amount] <dir>
-                   Shorthand for moving a specified amount in a direction; defaults to right
-  arcade           Enter interactive arcade mode (keyboard-controlled)
-
-Options:
-  --step=<pixels>  Override default step size
-  --margin=<pixels> Override margin inset
-  --force[=true|false]
-                   Force moves outside margin and avoid saving position if true
-  -h, --help       Print this help message
-
-Notes:
-  - Force moves do not update saved position or index unless CLI command explicitly writes one.
-  - When using arcade mode, use WASD or arrow keys; space stops motors; q quits.
-'''
-    print(help_text)
-    print("done")
-    return
-
-
-# Top-level short-circuit for help: print full usage and exit before hardware init.
-if any(arg in ('-h', '--help', 'help') for arg in sys.argv[1:]):
-    print_help()
-    sys.exit(0)
-
 # Initialize the pins as output devices
-#Change pwm config and change pwm ones, anywhere with pule reference or value ref
-#
 pulX = PWMOutputDevice(PUL_PIN_X, 
                        active_high=True, 
                        initial_value=0, 
@@ -177,7 +123,6 @@ vectorListDiscrete_test_inset = apply_margin(vectorListDiscrete_test, MARGIN_PIX
 
 
 def up(pixels):
-    #these are commands calling, using old library, want to swap out, not direction but everything else
     dirY.on() # Set direction to CW
     pulY.value = duty_cycle
     sleep(abs(pixels)/speedY_pixels_per_s) # Seconds

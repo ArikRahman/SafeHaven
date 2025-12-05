@@ -105,8 +105,6 @@ if any(arg in ('-h', '--help', 'help') for arg in sys.argv[1:]):
     sys.exit(0)
 
 # Initialize the pins as output devices
-#Change pwm config and change pwm ones, anywhere with pule reference or value ref
-#
 pulX = PWMOutputDevice(PUL_PIN_X, 
                        active_high=True, 
                        initial_value=0, 
@@ -177,7 +175,6 @@ vectorListDiscrete_test_inset = apply_margin(vectorListDiscrete_test, MARGIN_PIX
 
 
 def up(pixels):
-    #these are commands calling, using old library, want to swap out, not direction but everything else
     dirY.on() # Set direction to CW
     pulY.value = duty_cycle
     sleep(abs(pixels)/speedY_pixels_per_s) # Seconds
