@@ -40,8 +40,8 @@ DIR_PIN_Y = 16 # Direction pins y-axis
 
 # Parameters
 duty_cycle = 50  # 50% duty cycle for PWM (0-100)
-f_x = 6400 # PWM frequency for X-axis in Hz
-f_y = 6400 # PWM frequency for Y-axis in Hz
+f_x = 800 # PWM frequency for X-axis in Hz
+f_y = 800 # PWM frequency for Y-axis in Hz
 steps_per_rev = 1600  # Microsteps per revolution for the motor, dictated by driver settings
 length_per_rev = 10   # Length per revolution in mm
 total_distance = 675  # Total traveling distance in mm for both axes
@@ -103,6 +103,8 @@ Notes:
   - When using arcade mode, use WASD or arrow keys; space stops motors; q quits.
 '''
     print(help_text)
+    print(f"Gantry Config: {total_distance}mm ({total_pixels} pixels)")
+    print(f"Resolution: 1 pixel = {total_distance/total_pixels} mm")
     print("done")
     return
 
@@ -297,6 +299,8 @@ def move_both(dx, dy, duty=duty_cycle):
     # compute duration; zero distances should have zero time
     timeX = abs(dx) / speedX_pixels_per_s if dx != 0 else 0
     timeY = abs(dy) / speedY_pixels_per_s if dy != 0 else 0
+
+    print(f"Moving: dx={dx} ({timeX:.2f}s), dy={dy} ({timeY:.2f}s)")
 
     # start both
     if dx != 0:
@@ -929,11 +933,11 @@ def main():
             elif k == 'left':
                 dx -= int(step_val)
 
-        # Compute the target. If force_flag is set, ignore margin clamping and only
-        # clamp to absolute bounds. Otherwise, clamp to margin for safety.
+        # Compute the target. If force_flag is set, ignore ALL clamping (including bounds).
+        # Otherwise, clamp to margin for safety.
         if force_flag:
-            targetX = currentX if dx == 0 else clamp_to_bounds(currentX + dx, total_pixels)
-            targetY = currentY if dy == 0 else clamp_to_bounds(currentY + dy, total_pixels)
+            targetX = currentX + dx
+            targetY = currentY + dy
         else:
             targetX = currentX if dx == 0 else clamp_to_margin(currentX + dx, chosen_margin, total_pixels)
             targetY = currentY if dy == 0 else clamp_to_margin(currentY + dy, chosen_margin, total_pixels)

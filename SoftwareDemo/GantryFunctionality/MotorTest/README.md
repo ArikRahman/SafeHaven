@@ -18,6 +18,12 @@ sudo ./.venv/bin/python3 motorTest_rev11.py [command]
 
 *Note: Ensure you are in the `MotorTest` directory.*
 
+## Gantry Dimensions & Units
+* **Physical Dimensions:** 675mm x 675mm
+* **Coordinate System:** 0 to 10000 "pixels"
+* **Conversion:** 1 pixel ≈ 0.0675 mm
+* **Default Step:** 200 pixels ≈ 13.5 mm
+
 ## Modes
 
 ### Next Path Segment
