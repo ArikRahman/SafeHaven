@@ -711,27 +711,11 @@ def main():
         return
 
     if "facetrack" in sys.argv:
-        print("DEBUG: Executing 'facetrack' command")
+        print("DEBUG: Executing 'facetrack' command (Looping)")
         
         # Path to faceposition.json
-        # Assuming this script is in SoftwareDemo/GantryFunctionality/MotorTest/
-        # and json is in SoftwareDemo/PiCamera/
         json_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../PiCamera/faceposition.json"))
         
-        if not os.path.exists(json_path):
-            print(f"ERROR: Could not find {json_path}")
-            return
-
-        try:
-            with open(json_path, 'r') as f:
-                data = json.load(f)
-                targetX = int(data['motor_coords']['x'])
-                targetY = int(data['motor_coords']['y'])
-                print(f"DEBUG: Face target found at ({targetX}, {targetY})")
-        except Exception as e:
-            print(f"ERROR: Failed to read face position: {e}")
-            return
-
         # Determine current position
         pos_info = load_position()
         if pos_info and 'current_pos' in pos_info:
@@ -749,29 +733,63 @@ def main():
             coords_inset = apply_margin(vectorListDiscrete, MARGIN_PIXELS)
             currentX, currentY = coords_inset[current_index]
 
-        dx = targetX - currentX
-        dy = targetY - currentY
+        print("Starting Face Tracking Loop. Press Ctrl+C to stop.")
         
-        print(f"DEBUG: Facetrack move dx={dx}, dy={dy}")
+        try:
+            while True:
+                if not os.path.exists(json_path):
+                    print(f"Waiting for {json_path}...", end='\r')
+                    sleep(0.5)
+                    continue
 
-        # Move both motors at once to target
-        if dx != 0 and dy != 0:
-            move_both(dx, dy)
-        elif dx != 0:
-            if dx > 0:
-                right(dx)
-            else:
-                left(abs(dx))
-        elif dy != 0:
-            if dy > 0:
-                up(dy)
-            else:
-                down(abs(dy))
+                try:
+                    with open(json_path, 'r') as f:
+                        data = json.load(f)
+                        # User requested "toppest position possible". 
+                        # The tracker sends (x1, y1) which is the top-left of the bounding box.
+                        # So targetY is already the top of the face.
+                        targetX = int(data['motor_coords']['x'])
+                        targetY = int(data['motor_coords']['y'])
+                except Exception as e:
+                    # print(f"Error reading json: {e}", end='\r')
+                    sleep(0.1)
+                    continue
 
-        # stop and save new position
-        stopAllMotor()
-        # We don't update current_index.txt because this is an arbitrary position
-        save_position(targetX, targetY)
+                dx = targetX - currentX
+                dy = targetY - currentY
+                
+                # Deadband to prevent jitter
+                if abs(dx) < 50 and abs(dy) < 50:
+                    sleep(0.1)
+                    continue
+                
+                print(f"Tracking: Moving to ({targetX}, {targetY}) dx={dx}, dy={dy}")
+
+                # Move both motors at once to target
+                if dx != 0 and dy != 0:
+                    move_both(dx, dy)
+                elif dx != 0:
+                    if dx > 0:
+                        right(dx)
+                    else:
+                        left(abs(dx))
+                elif dy != 0:
+                    if dy > 0:
+                        up(dy)
+                    else:
+                        down(abs(dy))
+                
+                # Update current position tracking
+                currentX = targetX
+                currentY = targetY
+                
+                # We don't save to disk every loop to avoid wear, but we should keep track in memory
+                
+        except KeyboardInterrupt:
+            print("\nTracking stopped by user.")
+        finally:
+            stopAllMotor()
+            save_position(currentX, currentY)
         return
 
     # Priority order: next -> origin -> directional commands

@@ -20,7 +20,9 @@ import numpy as np
 # One line command
     # source ~/yolo-env/bin/activate && python3 /home/corban/Documents/GitHub/SafeHaven/SoftwareDemo/PiCamera/PiCameraAI.py
 
-DefaultModelPath = "yolov8n.pt" # Path to model
+# Download from: https://github.com/lindevs/yolov8-face?tab=readme-ov-file
+DefaultModelPath = "yolov8n-face.pt" # Path to model
+#DefaultModelPath = "yolov8-lite-t.pt" # Path to model
                                 # You can try "yolo11n.pt" if is available
                                 # You can increase speed by setting image size to 480 or 419
 
@@ -45,7 +47,7 @@ def PersonCapture(
         model_path: str = DefaultModelPath,
         width: int = DefaultWidth,
         height: int = DefaultHeight,
-        window_name: str = "Human Detection (press S to save, Q to quit)"
+        window_name: str = "Face Detection (press S to save, Q to quit)"
 ):
     # Load lightweight YOLO model
     model = YOLO(model_path)
@@ -70,7 +72,7 @@ def PersonCapture(
             # YOLO inference 
             results = model.predict(
                 source=frame,
-                classes=[0], # (person only = class 0)
+                classes=[0], # (face only = class 0)
                 imgsz=480,
                 device='cpu',
                 conf=0.35,
