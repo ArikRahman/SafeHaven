@@ -1,7 +1,7 @@
 #Requires AutoHotkey v2.0
 
 ; --- CONFIGURATION ---
-global DataFolder := "C:\ti\mmwave_studio_02_01_01_00\mmWaveStudio\PostProc"
+global DataFolder := "C:\ti\mmwave_studio_02_01_01_00\mmWaveStudio\PostProc\cranidetect"
 global lastBinCount := 0
 
 ; Press 'f1' to start the sequence
@@ -21,7 +21,7 @@ F1::
 
         ; --- 2. INTELLIGENT WAIT (Wait for .bin file) ---
         ; This ensures we don't move the motor until capture is actually saved
-        if !WaitForNewBin(DataFolder, 30000)
+        if !WaitForNewBin(DataFolder, 17000)
         {
             MsgBox "Error: Timeout waiting for .bin file. Script stopped."
             ExitApp
@@ -58,15 +58,15 @@ F1::
 CountBinFiles(dir) {
     count := 0
     try {
-        Loop Files, dir "\*.bin"
+        Loop Files, dir "\*.txt"
             count++
     }
     return count
 }
 
 WaitForNewBin(dir, timeoutMS) {
-    Sleep 2000
-    return true
+    ; Sleep 2000
+    ; return true
     ; comment out when real ^
     global lastBinCount
 
