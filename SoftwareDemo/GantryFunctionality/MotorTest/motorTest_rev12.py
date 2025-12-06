@@ -45,20 +45,19 @@ f_y = 25600 # PWM frequency for Y-axis in Hz (approx 40mm/s)
 #i changed from 1600 to 6400 after changing driver microstep settings
 steps_per_rev = 6400  # Microsteps per revolution for the motor, dictated by driver settings
 length_per_rev = 10   # Length per revolution in mm
-total_distance = 675  # Total traveling distance in mm for both axes
-total_pixels = 10000  # Total pixels for both axes
-MARGIN_PIXELS = 200  # How far from the borders we want motions to stay (in pixels)
-STEP_PIXELS = 200  # Default 'small' step used for direction-only commands
+total_distance = 636  # Total traveling distance in mm for both axes
+# total_pixels = 10000  # REMOVED - using mm directly
+AXIS_MAX_MM = 636
+MARGIN_MM = 20  # How far from the borders we want motions to stay (in mm)
+STEP_MM = 20  # Default 'small' step used for direction-only commands
 
 # X-axis speed calculations
 speedX_rev_per_s = f_x / steps_per_rev  # Speed in revolutions per second
 speedX_mm_per_s = (speedX_rev_per_s) * length_per_rev  # Speed in mm/s
-speedX_pixels_per_s = (speedX_mm_per_s / total_distance) * total_pixels  # Speed in pixels/s
 
 # Y-axis speed calculations
 speedY_rev_per_s = f_y / steps_per_rev  # Speed in revolutions per second
 speedY_mm_per_s = (speedY_rev_per_s) * length_per_rev  # Speed in mm/s
-speedY_pixels_per_s = (speedY_mm_per_s / total_distance) * total_pixels  # Speed in pixels/s
 
 
 def print_help():
@@ -73,9 +72,9 @@ Overview:
 
 Quick CLI usage examples:
   python3 motorTest_rev10.py next
-  python3 motorTest_rev10.py origin --margin=200
+  python3 motorTest_rev10.py origin --margin=20
   python3 motorTest_rev10.py up                            # default step
-  python3 motorTest_rev10.py up=50                         # step=50
+  python3 motorTest_rev10.py up=50                         # step=50mm
   python3 motorTest_rev10.py go right 100                 # shorthand
   python3 motorTest_rev10.py go 100 right                 # shorthand
   python3 motorTest_rev10.py --step=50 up                 # override global step
@@ -86,15 +85,16 @@ Quick CLI usage examples:
 Main Commands:
   next             Move along the discrete vector list to the next vertical break
   origin           Move to origin (first coordinate in the vector list)
-  up/down/left/right [=pixels]
-                   Move that direction by either the optional pixel amount or the default step size
+  reset            Recalibrate current position to (0, 0) without moving
+  up/down/left/right [=mm]
+                   Move that direction by either the optional mm amount or the default step size
   go [amount] <dir>
                    Shorthand for moving a specified amount in a direction; defaults to right
   arcade           Enter interactive arcade mode (keyboard-controlled)
 
 Options:
-  --step=<pixels>  Override default step size
-  --margin=<pixels> Override margin inset
+  --step=<mm>      Override default step size
+  --margin=<mm>    Override margin inset
   --force[=true|false]
                    Force moves outside margin and avoid saving position if true
   -h, --help       Print this help message
@@ -104,8 +104,8 @@ Notes:
   - When using arcade mode, use WASD or arrow keys; space stops motors; q quits.
 '''
     print(help_text)
-    print(f"Gantry Config: {total_distance}mm ({total_pixels} pixels)")
-    print(f"Resolution: 1 pixel = {total_distance/total_pixels} mm")
+    print(f"Gantry Config: {total_distance}mm")
+    # print(f"Resolution: 1 pixel = {total_distance/total_pixels} mm")
     print("done")
     return
 
@@ -128,8 +128,8 @@ dirY = DigitalOutputDevice(DIR_PIN_Y,
                            active_high=True)  # Active high to rotate CW
 
 
-# Vector List
-vectorListContinuous = [(0, 10000), (0, 9915), 
+# Vector List (Raw 0-10000)
+_vectorListContinuous_Raw = [(0, 10000), (0, 9915), 
                         (2094, 9915), (2094, 85), 
                         (2844, 85), (2844, 9915), 
                         (3594, 9915), (3594, 85), 
@@ -139,7 +139,7 @@ vectorListContinuous = [(0, 10000), (0, 9915),
                         (6594, 9915), (6594, 85), 
                         (7156, 85), (7156, 9915), 
                         (7156, 10000), (0, 10000)]
-vectorListDiscrete = [(0, 10000), (0, 9900), 
+_vectorListDiscrete_Raw = [(0, 10000), (0, 9900), 
                       (2094, 9900), (2094, 7940), (2094, 5980), (2094, 4020), (2094, 2060), (2094, 100), 
                       (2844, 100), (2844, 2060), (2844, 4020), (2844, 5980), (2844, 7940), (2844, 9900), 
                       (3594, 9900), (3594, 7940), (3594, 5980), (3594, 4020), (3594, 2060), (3594, 100), 
@@ -149,7 +149,7 @@ vectorListDiscrete = [(0, 10000), (0, 9900),
                       (6594, 9900), (6594, 7940), (6594, 5980), (6594, 4020), (6594, 2060), (6594, 100), 
                       (7156, 100), (7156, 2060), (7156, 4020), (7156, 5980), (7156, 7940), (7156, 9900), 
                       (7156, 10000), (0, 10000)]
-vectorListDiscrete_test = [(0, 10000), (0, 9900), 
+_vectorListDiscrete_test_Raw = [(0, 10000), (0, 9900), 
                       (2094, 9900), (2094, 7940), (2094, 5980), (2094, 4020), (2094, 2060), (2094, 100), (2094, 9900),
                       (2844, 9900), (2844, 7940), (2844, 5980), (2844, 4020), (2844, 2060), (2844, 100), (2844, 9900), 
                       (3594, 9900), (3594, 7940), (3594, 5980), (3594, 4020), (3594, 2060), (3594, 100), (3594, 9900),
@@ -160,9 +160,17 @@ vectorListDiscrete_test = [(0, 10000), (0, 9900),
                       (7156, 9900), (7156, 7940), (7156, 5980), (7156, 4020), (7156, 2060), (7156, 100), (7156, 9900), 
                       (7156, 10000), (0, 10000)]
 
+# Scale to mm
+def scale_vec(v_list):
+    return [(int(x * AXIS_MAX_MM / 10000), int(y * AXIS_MAX_MM / 10000)) for x, y in v_list]
 
-def apply_margin(coords, margin=MARGIN_PIXELS, max_pixels=total_pixels):
-    """Clamp each coordinate pair inside the range [margin, max_pixels - margin].
+vectorListContinuous = scale_vec(_vectorListContinuous_Raw)
+vectorListDiscrete = scale_vec(_vectorListDiscrete_Raw)
+vectorListDiscrete_test = scale_vec(_vectorListDiscrete_test_Raw)
+
+
+def apply_margin(coords, margin=MARGIN_MM, max_val=AXIS_MAX_MM):
+    """Clamp each coordinate pair inside the range [margin, max_val - margin].
 
     This keeps the gantry from traveling to the extreme border or outside it.
     """
@@ -171,46 +179,46 @@ def apply_margin(coords, margin=MARGIN_PIXELS, max_pixels=total_pixels):
     inset = []
     for x, y in coords:
         # Ensure integer arithmetic; preserve integers from original coordinates
-        cx = int(min(max(x, margin), max_pixels - margin))
-        cy = int(min(max(y, margin), max_pixels - margin))
+        cx = int(min(max(x, margin), max_val - margin))
+        cy = int(min(max(y, margin), max_val - margin))
         inset.append((cx, cy))
     return inset
 
 
 # Create inset (margined) variants of the travel vectors
-vectorListContinuous_inset = apply_margin(vectorListContinuous, MARGIN_PIXELS)
-vectorListDiscrete_inset = apply_margin(vectorListDiscrete, MARGIN_PIXELS)
-vectorListDiscrete_test_inset = apply_margin(vectorListDiscrete_test, MARGIN_PIXELS)
+vectorListContinuous_inset = apply_margin(vectorListContinuous, MARGIN_MM)
+vectorListDiscrete_inset = apply_margin(vectorListDiscrete, MARGIN_MM)
+vectorListDiscrete_test_inset = apply_margin(vectorListDiscrete_test, MARGIN_MM)
 
 
-def up(pixels):
+def up(dist_mm):
     #these are commands calling, using old library, want to swap out, not direction but everything else
-    duration = abs(pixels)/speedY_pixels_per_s
-    # print(f"DEBUG: Moving UP {pixels} pixels, duration {duration:.2f}s")
+    duration = abs(dist_mm)/speedY_mm_per_s
+    # print(f"DEBUG: Moving UP {dist_mm} mm, duration {duration:.2f}s")
     dirY.on() # Set direction to CW
     pulY.start(duty_cycle)
     sleep(duration) # Seconds
     pulY.stop()
 
-def down(pixels):
-    duration = abs(pixels)/speedY_pixels_per_s
-    # print(f"DEBUG: Moving DOWN {pixels} pixels, duration {duration:.2f}s")
+def down(dist_mm):
+    duration = abs(dist_mm)/speedY_mm_per_s
+    # print(f"DEBUG: Moving DOWN {dist_mm} mm, duration {duration:.2f}s")
     dirY.off() # Set direction to CCW
     pulY.start(duty_cycle)
     sleep(duration) # Seconds
     pulY.stop()
 
-def right(pixels):
-    duration = abs(pixels)/speedX_pixels_per_s
-    # print(f"DEBUG: Moving RIGHT {pixels} pixels, duration {duration:.2f}s")
+def right(dist_mm):
+    duration = abs(dist_mm)/speedX_mm_per_s
+    # print(f"DEBUG: Moving RIGHT {dist_mm} mm, duration {duration:.2f}s")
     dirX.on() # Set direction to CW
     pulX.start(duty_cycle)
     sleep(duration) # Seconds
     pulX.stop()
 
-def left(pixels):
-    duration = abs(pixels)/speedX_pixels_per_s
-    # print(f"DEBUG: Moving LEFT {pixels} pixels, duration {duration:.2f}s")
+def left(dist_mm):
+    duration = abs(dist_mm)/speedX_mm_per_s
+    # print(f"DEBUG: Moving LEFT {dist_mm} mm, duration {duration:.2f}s")
     dirX.off() # Set direction to CCW
     pulX.start(duty_cycle)
     sleep(duration) # Seconds
@@ -273,13 +281,13 @@ def load_position(filename='position.txt'):
         return None
 
 
-def clamp_to_margin(value, margin=MARGIN_PIXELS, max_pixels=total_pixels):
-    return int(min(max(value, margin), max_pixels - margin))
+def clamp_to_margin(value, margin=MARGIN_MM, max_val=AXIS_MAX_MM):
+    return int(min(max(value, margin), max_val - margin))
 
 
-def clamp_to_bounds(value, max_pixels=total_pixels):
-    """Clamp to absolute bounds [0, max_pixels]."""
-    return int(min(max(value, 0), max_pixels))
+def clamp_to_bounds(value, max_val=AXIS_MAX_MM):
+    """Clamp to absolute bounds [0, max_val]."""
+    return int(min(max(value, 0), max_val))
 
 
 def find_index_for_pos(coords, x, y):
@@ -306,8 +314,8 @@ def move_both(dx, dy, duty=duty_cycle):
         dirY.off()
 
     # compute duration; zero distances should have zero time
-    timeX = abs(dx) / speedX_pixels_per_s if dx != 0 else 0
-    timeY = abs(dy) / speedY_pixels_per_s if dy != 0 else 0
+    timeX = abs(dx) / speedX_mm_per_s if dx != 0 else 0
+    timeY = abs(dy) / speedY_mm_per_s if dy != 0 else 0
     max_time = max(timeX, timeY)
 
     print(f"Moving: dx={dx} ({timeX:.2f}s), dy={dy} ({timeY:.2f}s). Total: {max_time:.2f}s")
@@ -390,11 +398,11 @@ def read_key(timeout=0.1):
         termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
 
 
-def arcade_mode(initialX, initialY, step=STEP_PIXELS, chosen_margin=MARGIN_PIXELS, force_flag=False):
+def arcade_mode(initialX, initialY, step=STEP_MM, chosen_margin=MARGIN_MM, force_flag=False):
     """Interactive keyboard mode for arcade-style manual control.
 
     Use arrow keys or WASD for movement; 'q' to quit; 'f' to toggle force; 'p' to print current position.
-    Each key press moves by `step` pixels; use --step to customize when calling the script.
+    Each key press moves by `step` mm; use --step to customize when calling the script.
     """
     print('\nEntering arcade mode. Arrow keys / WASD to move; q to quit; f to toggle force; p to print position; s to save')
     currentX = int(initialX)
@@ -454,8 +462,8 @@ def arcade_mode(initialX, initialY, step=STEP_PIXELS, chosen_margin=MARGIN_PIXEL
                 targetX = clamp_to_bounds(currentX + dx)
                 targetY = clamp_to_bounds(currentY + dy)
             else:
-                targetX = currentX if dx == 0 else clamp_to_margin(currentX + dx, chosen_margin, total_pixels)
-                targetY = currentY if dy == 0 else clamp_to_margin(currentY + dy, chosen_margin, total_pixels)
+                targetX = currentX if dx == 0 else clamp_to_margin(currentX + dx, chosen_margin, AXIS_MAX_MM)
+                targetY = currentY if dy == 0 else clamp_to_margin(currentY + dy, chosen_margin, AXIS_MAX_MM)
 
             new_dx = targetX - currentX
             new_dy = targetY - currentY
@@ -517,7 +525,7 @@ def start_motion_xy(dir_x, dir_y):
     else:
         pulY.stop()
 
-def arcade_mode_live(initialX, initialY, chosen_margin=MARGIN_PIXELS, force_flag=False):
+def arcade_mode_live(initialX, initialY, chosen_margin=MARGIN_MM, force_flag=False):
     """
     Live arcade mode using terminal input (works over SSH/headless).
     Simulates 'hold-to-move' by using a watchdog timer on key repeats.
@@ -588,14 +596,14 @@ def arcade_mode_live(initialX, initialY, chosen_margin=MARGIN_PIXELS, force_flag
             last_loop_time = now
             
             if active_x != 0:
-                dist = dt * speedX_pixels_per_s * active_x
+                dist = dt * speedX_mm_per_s * active_x
                 currentX += dist
             if active_y != 0:
-                dist = dt * speedY_pixels_per_s * active_y
+                dist = dt * speedY_mm_per_s * active_y
                 currentY += dist
             
             # 5. Safety Clamp
-            limit = total_pixels if force_flag else (total_pixels - chosen_margin)
+            limit = AXIS_MAX_MM if force_flag else (AXIS_MAX_MM - chosen_margin)
             lower = 0 if force_flag else chosen_margin
             
             hit_limit = False
@@ -678,13 +686,13 @@ def main():
         
         speedX_rev_per_s = f_x / steps_per_rev
         speedX_mm_per_s = speedX_rev_per_s * length_per_rev
-        speedX_pixels_per_s = (speedX_mm_per_s / total_distance) * total_pixels
+        # speedX_pixels_per_s = (speedX_mm_per_s / total_distance) * total_pixels
         
         speedY_rev_per_s = f_y / steps_per_rev
         speedY_mm_per_s = speedY_rev_per_s * length_per_rev
-        speedY_pixels_per_s = (speedY_mm_per_s / total_distance) * total_pixels
+        # speedY_pixels_per_s = (speedY_mm_per_s / total_distance) * total_pixels
         
-        print(f"DEBUG: Calculated Speed: {speedX_mm_per_s:.2f} mm/s ({speedX_pixels_per_s:.2f} px/s)")
+        print(f"DEBUG: Calculated Speed: {speedX_mm_per_s:.2f} mm/s")
 
     # Check for arcade mode first
     arcade_flag = False
@@ -707,10 +715,10 @@ def main():
                         current_index = int(f.read().strip())
                     except Exception:
                         current_index = 0
-            coords_inset = apply_margin(vectorListDiscrete, MARGIN_PIXELS)
+            coords_inset = apply_margin(vectorListDiscrete, MARGIN_MM)
             currentX, currentY = coords_inset[current_index]
 
-        chosen_margin = MARGIN_PIXELS
+        chosen_margin = MARGIN_MM
         for arg in sys.argv:
             if arg.startswith('--margin=') or arg.startswith('margin='):
                 try:
@@ -746,7 +754,7 @@ def main():
                         current_index = 0
             else:
                 current_index = 0
-            coords_inset = apply_margin(vectorListDiscrete, MARGIN_PIXELS)
+            coords_inset = apply_margin(vectorListDiscrete, MARGIN_MM)
             currentX, currentY = coords_inset[current_index]
 
         print("Starting Face Tracking Loop. Press Ctrl+C to stop.")
@@ -764,8 +772,21 @@ def main():
                         # User requested "toppest position possible". 
                         # The tracker sends (x1, y1) which is the top-left of the bounding box.
                         # So targetY is already the top of the face.
-                        targetX = int(data['motor_coords']['x'])
-                        targetY = int(data['motor_coords']['y'])
+                        # Coordinates are now in MM (0-AXIS_MAX_MM)
+                        raw_x = int(data['motor_coords']['x'])
+                        raw_y = int(data['motor_coords']['y'])
+                        
+                        targetX = raw_x
+                        targetY = raw_y
+
+                        # Apply Camera Offset
+                        # Camera is centered 100mm to the left.
+                        targetX += -100
+
+                        # Clamp to bounds to prevent out of bounds errors
+                        targetX = clamp_to_bounds(targetX)
+                        targetY = clamp_to_bounds(targetY)
+
                 except Exception as e:
                     # print(f"Error reading json: {e}", end='\r')
                     sleep(0.1)
@@ -808,8 +829,8 @@ def main():
             current_index = 0
         
         # Allow a custom margin to be passed as a command-line argument as
-        # `margin=<pixels>` or `--margin=<pixels>`. If not, use the default MARGIN_PIXELS.
-        chosen_margin = MARGIN_PIXELS
+        # `margin=<pixels>` or `--margin=<pixels>`. If not, use the default MARGIN_MM.
+        chosen_margin = MARGIN_MM
         for arg in sys.argv:
             if arg.startswith('--margin=') or arg.startswith('margin='):
                 try:
@@ -877,7 +898,7 @@ def main():
     if "origin" in sys.argv:
         print("DEBUG: Executing 'origin' command")
         # Bring gantry to the origin (approximate to the in-margin origin)
-        chosen_margin = MARGIN_PIXELS
+        chosen_margin = MARGIN_MM
         for arg in sys.argv:
             if arg.startswith('--margin=') or arg.startswith('margin='):
                 try:
@@ -930,6 +951,15 @@ def main():
         save_position(originX, originY, coords_inset)
         return
 
+    if "reset" in sys.argv:
+        print("DEBUG: Executing 'reset' command")
+        # Reset current position to (0, 0) without moving motors
+        save_position(0, 0)
+        with open('current_index.txt', 'w') as f:
+            f.write('0')
+        print("Position recalibrated to (0, 0).")
+        return
+
     # Directional micro-movements: up/down/left/right optionally with =<pixels>. Supports multiple at once
     # and the 'go' shorthand. Examples:
     # - python3 motorTest_rev10.py go right 100
@@ -946,8 +976,7 @@ def main():
         s = str(v).lower()
         if s.endswith('mm'):
             try:
-                mm = float(s[:-2])
-                return int(mm * (total_pixels / total_distance))
+                return int(float(s[:-2]))
             except:
                 return None
         try:
@@ -1049,7 +1078,7 @@ def main():
         i += 1
 
     # Parse global step and margin overrides
-    chosen_step = STEP_PIXELS
+    chosen_step = STEP_MM
     for arg in sys.argv:
         if arg.startswith('--step=') or arg.startswith('step='):
             try:
@@ -1057,7 +1086,7 @@ def main():
             except ValueError:
                 pass
 
-    chosen_margin = MARGIN_PIXELS
+    chosen_margin = MARGIN_MM
     for arg in sys.argv:
         if arg.startswith('--margin=') or arg.startswith('margin='):
             try:
@@ -1116,8 +1145,8 @@ def main():
             targetX = currentX + dx
             targetY = currentY + dy
         else:
-            targetX = currentX if dx == 0 else clamp_to_margin(currentX + dx, chosen_margin, total_pixels)
-            targetY = currentY if dy == 0 else clamp_to_margin(currentY + dy, chosen_margin, total_pixels)
+            targetX = currentX if dx == 0 else clamp_to_margin(currentX + dx, chosen_margin, AXIS_MAX_MM)
+            targetY = currentY if dy == 0 else clamp_to_margin(currentY + dy, chosen_margin, AXIS_MAX_MM)
         new_dx = targetX - currentX
         new_dy = targetY - currentY
 

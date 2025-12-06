@@ -30,7 +30,7 @@ DefaultWidth, DefaultHeight = 640, 480  # Set camera resolution (lower res = mor
                                         # Camera native resolution is 12MP = 4608 x 2592
                                         # Lower camera resolution to 1080p to save resources and output more frames
 
-MotorMaxPixels = 10000
+MotorMaxMM = 636
 
 def SnapshotIndex():
     # Scan current directory and return next Snapshot_{n} index
@@ -102,8 +102,9 @@ def PersonCapture(
                 cam_y = float(y1)
                 
                 # Scale to Motor space (0-10000)
-                motor_x = int(np.clip((cam_x / width) * MotorMaxPixels, 0, MotorMaxPixels))
-                motor_y = int(np.clip((cam_y / height) * MotorMaxPixels, 0, MotorMaxPixels))
+                # Invert X axis: Camera Left (0) -> Motor Right (10000)
+                motor_x = MotorMaxMM - int(np.clip((cam_x / width) * MotorMaxMM, 0, MotorMaxMM))
+                motor_y = int(np.clip((cam_y / height) * MotorMaxMM, 0, MotorMaxMM))
                 
                 face_data = {
                     "camera_coords": {
@@ -115,7 +116,7 @@ def PersonCapture(
                     "motor_coords": {
                         "x": motor_x,
                         "y": motor_y,
-                        "max_pixels": MotorMaxPixels
+                        "max_mm": MotorMaxMM
                     },
                     "timestamp": time.time()
                 }
@@ -200,8 +201,9 @@ def PersonCapture(
                 latest_box = chosen
                 
                 # Calculate motor coords
-                motor_x = int(np.clip((x1i / width) * MotorMaxPixels, 0, MotorMaxPixels))
-                motor_y = int(np.clip((y1i / height) * MotorMaxPixels, 0, MotorMaxPixels))
+                # Invert X axis: Camera Left (0) -> Motor Right (10000)
+                motor_x = MotorMaxMM - int(np.clip((x1i / width) * MotorMaxMM, 0, MotorMaxMM))
+                motor_y = int(np.clip((y1i / height) * MotorMaxMM, 0, MotorMaxMM))
 
                 face_data = {
                     "camera_coords": {
@@ -213,7 +215,7 @@ def PersonCapture(
                     "motor_coords": {
                         "x": motor_x,
                         "y": motor_y,
-                        "max_pixels": MotorMaxPixels
+                        "max_mm": MotorMaxMM
                     },
                     "timestamp": time.time()
                 }

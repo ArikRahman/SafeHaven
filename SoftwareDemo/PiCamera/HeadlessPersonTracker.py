@@ -10,7 +10,7 @@ import json
 ModelPath = "yolov8n-face.pt"
 Width, Height = 640, 480
 OutputParamsFile = "faceposition.json"
-MotorMaxPixels = 8000
+MotorMaxMM = 636
 
 def HeadlessTracker():
     # Check if model exists
@@ -88,8 +88,9 @@ def HeadlessTracker():
                 
                 # Scale to Motor space (0-10000)
                 # Clamp to ensure we don't go out of bounds if detection is slightly off
-                motor_x = int(np.clip((cam_x / Width) * MotorMaxPixels, 0, MotorMaxPixels))
-                motor_y = int(np.clip((cam_y / Height) * MotorMaxPixels, 0, MotorMaxPixels))
+                # Invert X axis: Camera Left (0) -> Motor Right (10000)
+                motor_x = MotorMaxMM - int(np.clip((cam_x / Width) * MotorMaxMM, 0, MotorMaxMM))
+                motor_y = int(np.clip((cam_y / Height) * MotorMaxMM, 0, MotorMaxMM))
                 
                 # Prepare JSON data
                 data = {
@@ -102,7 +103,7 @@ def HeadlessTracker():
                     "motor_coords": {
                         "x": motor_x,
                         "y": motor_y,
-                        "max_pixels": MotorMaxPixels
+                        "max_mm": MotorMaxMM
                     },
                     "timestamp": time.time()
                 }
