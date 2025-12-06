@@ -73,7 +73,13 @@ def HeadlessTracker():
                 xyxy = r0.boxes.xyxy.detach().cpu().numpy()
                 confs = r0.boxes.conf.detach().cpu().numpy()
                 
+                # Select the detection with the highest confidence
                 best_i = int(np.argmax(confs))
+                
+                # Debug: If multiple people are detected, show which one is chosen
+                if len(confs) > 1:
+                    print(f"Detected {len(confs)} people. Confidences: {confs}. Selecting best: {confs[best_i]:.2f}")
+
                 x1, y1, x2, y2 = xyxy[best_i]
                 
                 # Top left coordinates (Camera space)
