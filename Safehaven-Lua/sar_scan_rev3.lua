@@ -8,7 +8,7 @@
 -- =================================================================================
 local base_path = "C:\\Users\\arikrahman\\Documents\\GitHub\\SafeHaven\\Safehaven-Lua\\dumps\\"
 local num_y_steps = 40         -- Number of steps in the Y direction (matches Python Y=40)
-local gantry_wait_time = 1000  -- Time (ms) to wait between scans for manual/gantry movement
+local gantry_wait_time = 0  -- Time (ms) to wait between scans for manual/gantry movement
 local frame_periodicity = 18    -- ms
 local num_frames = 400         -- Matches Python X=400 (if 1 chirp/frame) or just total frames
 -- Note: fix_rev2.lua uses 400 frames. Total duration = 400 * 8ms = 3200ms.
