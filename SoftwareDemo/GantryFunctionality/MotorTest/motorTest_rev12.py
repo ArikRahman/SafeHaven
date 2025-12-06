@@ -336,12 +336,13 @@ def move_both(dx, dy, duty=duty_cycle):
             if remaining_wait <= 0:
                 break
             
-            total_elapsed = now - start_time
-            total_remaining = max_time - total_elapsed
-            if total_remaining < 0: total_remaining = 0
+            # Mimic Arcade Mode: Refresh PWM state continuously
+            # This can help dampen resonance or prevent timeouts if any exist
+            if dx != 0: pulX.start(duty)
+            if dy != 0: pulY.start(duty)
             
-            print(f"Time remaining: {total_remaining:.1f}s   ", end='\r')
-            sleep(min(0.1, remaining_wait))
+            # Sleep briefly to avoid 100% CPU usage, but fast enough to be responsive
+            sleep(0.02)
 
     # if both times are >0 then coordinate stopping times
     if timeX > 0 and timeY > 0:
@@ -633,6 +634,58 @@ def arcade_mode_live(initialX, initialY, chosen_margin=MARGIN_MM, force_flag=Fal
             save_position(currentX, currentY, coords_inset)
         else:
             save_position(currentX, currentY)
+
+
+def move_to_position_arcade_style(targetX, targetY, currentX, currentY):
+    """
+    Moves to target using the same control loop style as arcade_mode_live.
+    This avoids the 'grating' sound reported with the calculated duration move_both.
+    """
+    print(f"Arcade-style move: ({int(currentX)}, {int(currentY)}) -> ({int(targetX)}, {int(targetY)})")
+    
+    # Time step for the loop (50Hz)
+    dt = 0.02 
+    
+    # Tolerance in mm
+    TOLERANCE = 2.0
+
+    try:
+        while True:
+            # Calculate distance remaining
+            dx = targetX - currentX
+            dy = targetY - currentY
+            
+            # Check if we are close enough
+            if abs(dx) < TOLERANCE and abs(dy) < TOLERANCE:
+                break
+            
+            # Determine direction for this step
+            step_x = 0
+            if abs(dx) >= TOLERANCE:
+                step_x = 1 if dx > 0 else -1
+                
+            step_y = 0
+            if abs(dy) >= TOLERANCE:
+                step_y = 1 if dy > 0 else -1
+            
+            # Apply motor command
+            start_motion_xy(step_x, step_y)
+            
+            # Wait
+            sleep(dt)
+            
+            # Update position (Dead reckoning)
+            if step_x != 0:
+                currentX += step_x * speedX_mm_per_s * dt
+            if step_y != 0:
+                currentY += step_y * speedY_mm_per_s * dt
+            
+            # Optional: Print progress every 0.5s? No, keep it silent/smooth.
+            
+    finally:
+        stopAllMotor()
+        
+    return currentX, currentY
 
 
 ######### Main #########
@@ -933,19 +986,8 @@ def main():
         
         print(f"DEBUG: Origin move dx={dx}, dy={dy}")
 
-        # Move both motors at once to origin
-        if dx != 0 and dy != 0:
-            move_both(dx, dy)
-        elif dx != 0:
-            if dx > 0:
-                right(dx)
-            else:
-                left(dx)
-        elif dy != 0:
-            if dy > 0:
-                up(dy)
-            else:
-                down(dy)
+        # Use arcade-style movement to avoid grating sound
+        currentX, currentY = move_to_position_arcade_style(originX, originY, currentX, currentY)
 
         # stop and save new position (origin); update index to 0
         stopAllMotor()
