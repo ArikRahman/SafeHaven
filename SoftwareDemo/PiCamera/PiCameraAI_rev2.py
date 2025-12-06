@@ -66,6 +66,10 @@ def PersonCapture(
     last = time.time()
     fps = 0.0
     latest_box = None
+    
+    # Buffer for smoothing
+    pos_buffer = []
+    BUFFER_SIZE = 5
 
     try:
         while True:
@@ -121,6 +125,15 @@ def PersonCapture(
                 motor_x = int(np.clip(motor_x, 0, MotorMaxMM))
                 motor_y = int(np.clip(motor_y, 0, MotorMaxMM))
                 
+                # Add to buffer
+                pos_buffer.append((motor_x, motor_y))
+                if len(pos_buffer) > BUFFER_SIZE:
+                    pos_buffer.pop(0)
+                
+                # Calculate average
+                avg_x = int(sum(p[0] for p in pos_buffer) / len(pos_buffer))
+                avg_y = int(sum(p[1] for p in pos_buffer) / len(pos_buffer))
+                
                 face_data = {
                     "camera_coords": {
                         "x": int(cam_x),
@@ -129,8 +142,8 @@ def PersonCapture(
                         "height": height
                     },
                     "motor_coords": {
-                        "x": motor_x,
-                        "y": motor_y,
+                        "x": avg_x,
+                        "y": avg_y,
                         "max_mm": MotorMaxMM
                     },
                     "timestamp": time.time()

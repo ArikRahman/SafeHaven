@@ -643,12 +643,8 @@ def move_to_position_arcade_style(targetX, targetY, currentX, currentY):
     """
     print(f"Arcade-style move: ({int(currentX)}, {int(currentY)}) -> ({int(targetX)}, {int(targetY)})")
     
-    # Time step for the loop (50Hz)
-    dt = 0.02 
+    dt = 0.02 # 50Hz
     
-    # Tolerance in mm
-    TOLERANCE = 2.0
-
     try:
         while True:
             # Calculate distance remaining
@@ -656,16 +652,16 @@ def move_to_position_arcade_style(targetX, targetY, currentX, currentY):
             dy = targetY - currentY
             
             # Check if we are close enough
-            if abs(dx) < TOLERANCE and abs(dy) < TOLERANCE:
+            if abs(dx) < 2.0 and abs(dy) < 2.0:
                 break
             
             # Determine direction for this step
             step_x = 0
-            if abs(dx) >= TOLERANCE:
+            if abs(dx) >= 2.0:
                 step_x = 1 if dx > 0 else -1
                 
             step_y = 0
-            if abs(dy) >= TOLERANCE:
+            if abs(dy) >= 2.0:
                 step_y = 1 if dy > 0 else -1
             
             # Apply motor command
@@ -691,7 +687,8 @@ def move_to_position_arcade_style(targetX, targetY, currentX, currentY):
 def facetrack_live_mode(initialX, initialY):
     """
     Live face tracking mode.
-    Moves towards the target position from faceposition.json using a control loop.
+    Maintains a buffer of the last 5 positions from faceposition.json.
+    Moves towards the average of these positions.
     """
     print("Starting Live Face Tracking. Press Ctrl+C to stop.")
     
@@ -699,6 +696,10 @@ def facetrack_live_mode(initialX, initialY):
     currentY = float(initialY)
     
     json_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../PiCamera/faceposition.json"))
+    
+    position_buffer = []
+    BUFFER_SIZE = 5
+    last_timestamp = 0
     
     # Control loop parameters
     dt = 0.05 # 20Hz update rate
@@ -711,24 +712,40 @@ def facetrack_live_mode(initialX, initialY):
                 if os.path.exists(json_path):
                     with open(json_path, 'r') as f:
                         data = json.load(f)
-                        # Coordinates are already averaged by the camera script now
-                        raw_x = int(data['motor_coords']['x'])
-                        raw_y = int(data['motor_coords']['y'])
+                        ts = data.get('timestamp', 0)
                         
-                        targetX = raw_x
-                        targetY = raw_y
-                        
-                        # Apply Offset (Camera is centered 100mm to the left)
-                        targetX += -100
-                        
-                        # Clamp
-                        targetX = clamp_to_bounds(targetX)
-                        targetY = clamp_to_bounds(targetY)
+                        if ts > last_timestamp:
+                            last_timestamp = ts
+                            raw_x = int(data['motor_coords']['x'])
+                            raw_y = int(data['motor_coords']['y'])
+                            
+                            # Add to buffer
+                            position_buffer.append((raw_x, raw_y))
+                            if len(position_buffer) > BUFFER_SIZE:
+                                position_buffer.pop(0)
             except Exception:
                 # Ignore read errors (file might be busy)
                 pass
             
-            # 2. Move towards target
+            # 2. Calculate Average Target
+            if not position_buffer:
+                # If no data yet, stay put
+                targetX, targetY = currentX, currentY
+            else:
+                avg_x = sum(p[0] for p in position_buffer) / len(position_buffer)
+                avg_y = sum(p[1] for p in position_buffer) / len(position_buffer)
+                
+                targetX = avg_x
+                targetY = avg_y
+                
+                # Apply Offset (Camera is centered 100mm to the left)
+                targetX += -100
+                
+                # Clamp
+                targetX = clamp_to_bounds(targetX)
+                targetY = clamp_to_bounds(targetY)
+
+            # 3. Move towards target
             dx = targetX - currentX
             dy = targetY - currentY
             
@@ -744,7 +761,7 @@ def facetrack_live_mode(initialX, initialY):
             # Start/Update Motion
             start_motion_xy(dir_x, dir_y)
             
-            # 3. Update Position Estimate
+            # 4. Update Position Estimate
             if dir_x != 0:
                 currentX += dir_x * speedX_mm_per_s * dt
             if dir_y != 0:
@@ -756,12 +773,12 @@ def facetrack_live_mode(initialX, initialY):
             
             # Print status occasionally or if moving
             if dir_x != 0 or dir_y != 0:
-                 print(f"Tracking: Pos({int(currentX)}, {int(currentY)}) -> Target({int(targetX)}, {int(targetY)})   ", end='\r')
+                 print(f"Tracking: Pos({int(currentX)}, {int(currentY)}) -> Target({int(targetX)}, {int(targetY)})   ", end='\\r')
             
             sleep(dt)
             
     except KeyboardInterrupt:
-        print("\nTracking stopped.")
+        print("\\nTracking stopped.")
     finally:
         stopAllMotor()
         return currentX, currentY
@@ -870,7 +887,7 @@ def main():
         return
 
     if "facetrack" in sys.argv:
-        print("DEBUG: Executing 'facetrack' command (Live)")
+        print("DEBUG: Executing 'facetrack' command (Live Average)")
         
         # Determine current position
         pos_info = load_position()
