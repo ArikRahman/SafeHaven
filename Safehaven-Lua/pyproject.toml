@@ -1,0 +1,20 @@
+[project]
+name = "simple2dheatmapper"
+version = "0.1.0"
+description = "A simple 2D heatmapper"
+requires-python = ">=3.10"
+
+authors = [{name = "Arik Rahman"}]
+dependencies = [
+    "numpy",
+    "matplotlib",
+    "scipy",
+    "scikit-image",
+    "tensorflow",
+    "scikit-learn",
+    "opencv-python"
+]
+
+#[build-system]
+#requires = ["hatchling"]
+#build-backend = "hatchling.build"
