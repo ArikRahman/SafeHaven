@@ -1,0 +1,21 @@
+[project]
+name = "software-demo"
+version = "0.1.0"
+description = "SafeHaven Software Demo"
+requires-python = ">3.9"
+dependencies = [
+    "matplotlib",
+    "numpy",
+    "opencv-python",
+    "pynput",
+    "ultralytics",
+]
+
+#[build-system]
+#requires = ["hatchling"]
+#build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = [
+    "pytest",
+]
