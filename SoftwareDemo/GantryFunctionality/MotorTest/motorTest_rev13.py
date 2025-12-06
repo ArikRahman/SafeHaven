@@ -40,8 +40,8 @@ DIR_PIN_Y = 16 # Direction pins y-axis
 
 # Parameters
 duty_cycle = 50  # 50% duty cycle for PWM (0-100)
-f_x = 25600 # PWM frequency for X-axis in Hz (approx 40mm/s)
-f_y = 25600 # PWM frequency for Y-axis in Hz (approx 40mm/s)
+f_x = 23040 # PWM frequency for X-axis in Hz (approx 36mm/s)
+f_y = 23040 # PWM frequency for Y-axis in Hz (approx 36mm/s)
 #i changed from 1600 to 6400 after changing driver microstep settings
 steps_per_rev = 6400  # Microsteps per revolution for the motor, dictated by driver settings
 length_per_rev = 10   # Length per revolution in mm
