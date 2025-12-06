@@ -86,11 +86,21 @@ def HeadlessTracker():
                 cam_x = float(x1)
                 cam_y = float(y1)
                 
-                # Scale to Motor space (0-10000)
-                # Clamp to ensure we don't go out of bounds if detection is slightly off
-                # Invert X axis: Camera Left (0) -> Motor Right (10000)
-                motor_x = MotorMaxMM - int(np.clip((cam_x / Width) * MotorMaxMM, 0, MotorMaxMM))
-                motor_y = int(np.clip((cam_y / Height) * MotorMaxMM, 0, MotorMaxMM))
+                # Scale to Motor space (0-636 mm)
+                # Calibration based on user data:
+                # X: Cam 431 -> Motor 0; Cam 640 -> Motor 636
+                # Y: Cam 166 -> Motor 300
+                # Derived Scale ~ 3.04 mm/pixel
+                SCALE = 3.04
+                OFFSET_X = -1310
+                OFFSET_Y = -205
+
+                motor_x = int(cam_x * SCALE + OFFSET_X)
+                motor_y = int(cam_y * SCALE + OFFSET_Y)
+                
+                # Clamp to valid range
+                motor_x = int(np.clip(motor_x, 0, MotorMaxMM))
+                motor_y = int(np.clip(motor_y, 0, MotorMaxMM))
                 
                 # Prepare JSON data
                 data = {

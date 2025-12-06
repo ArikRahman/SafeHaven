@@ -56,6 +56,10 @@ Ensure you are in the root directory or adjust paths accordingly.
 *   **Camera**: Raspberry Pi Camera Module.
 *   **Safety**: Ensure Emergency Stop and Limit Switches are connected.
 
+### Coordinate System
+*   **Origin**: The system assumes the starting position is the **Top-Left** corner.
+*   **Coordinates**: In the user's Cartesian system, this Top-Left corner is defined as **(0, 0)**.
+
 ## Development
 
 *   **AI/ML**: The project uses YOLOv5/v8/v11 models (`yolov5s.pt`, `yolov8n.pt`).

@@ -85,7 +85,7 @@ Quick CLI usage examples:
 Main Commands:
   next             Move along the discrete vector list to the next vertical break
   origin           Move to origin (first coordinate in the vector list)
-  reset            Recalibrate current position to (0, 0) without moving
+  reset            Recalibrate current position to the start of the vector list (Origin) without moving
   up/down/left/right [=mm]
                    Move that direction by either the optional mm amount or the default step size
   go [amount] <dir>
@@ -318,7 +318,7 @@ def move_both(dx, dy, duty=duty_cycle):
     timeY = abs(dy) / speedY_mm_per_s if dy != 0 else 0
     max_time = max(timeX, timeY)
 
-    print(f"Moving: dx={dx} ({timeX:.2f}s), dy={dy} ({timeY:.2f}s). Total: {max_time:.2f}s")
+    print(f"Moving: dx={dx} ({timeX:.2f}s), dy={dy} ({timeY:.2f}s) @ {speedX_mm_per_s:.1f}mm/s. Total: {max_time:.2f}s")
 
     # start both
     if dx != 0:
@@ -694,6 +694,8 @@ def main():
         # speedY_pixels_per_s = (speedY_mm_per_s / total_distance) * total_pixels
         
         print(f"DEBUG: Calculated Speed: {speedX_mm_per_s:.2f} mm/s")
+    else:
+        print(f"DEBUG: Default Speed: {speedX_mm_per_s:.2f} mm/s")
 
     # Check for arcade mode first
     arcade_flag = False
@@ -954,11 +956,24 @@ def main():
 
     if "reset" in sys.argv:
         print("DEBUG: Executing 'reset' command")
-        # Reset current position to (0, 0) without moving motors
-        save_position(0, 0)
+        
+        # Allow margin override for reset too, to match origin
+        chosen_margin = MARGIN_MM
+        for arg in sys.argv:
+            if arg.startswith('--margin=') or arg.startswith('margin='):
+                try:
+                    chosen_margin = int(arg.split('=')[1])
+                except ValueError:
+                    pass
+
+        coords_inset = apply_margin(vectorListDiscrete, chosen_margin)
+        originX, originY = coords_inset[0]
+
+        # Reset current position to the origin of the path
+        save_position(originX, originY, coords_inset)
         with open('current_index.txt', 'w') as f:
             f.write('0')
-        print("Position recalibrated to (0, 0).")
+        print(f"Position recalibrated to Origin ({originX}, {originY}).")
         return
 
     # Directional micro-movements: up/down/left/right optionally with =<pixels>. Supports multiple at once
