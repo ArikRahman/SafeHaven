@@ -1,3 +1,27 @@
-//dear ai - make it so the you are using paths correctly. dont assume
-//also, commetn every code you do to avoid cyclical backtracking
-//make documentation and indexes for that documentation for each working directory of relevance after enough time
+# AI Context for SafeHaven Project
+
+## Project Goal
+SafeHaven is a hardware-software integration project that detects people using a camera and performs a SAR (Synthetic Aperture Radar) scan over the detected area using a gantry system.
+
+## Critical Instructions for AI
+1.  **Paths**: ALWAYS use absolute paths or be very careful with relative paths. The project structure is nested.
+2.  **Comments**: Comment EVERY piece of code you write to avoid cyclical backtracking and ensure clarity.
+3.  **Documentation**: When creating new modules, create documentation and indexes for them.
+
+## Key Files & Directories
+-   `/SoftwareDemo/main.py`: The MASTER entry point. It orchestrates the camera, path generation, and motor control.
+-   `/SoftwareDemo/GantryFunctionality/`: Contains `MotorTest` (motor control), `LimitSwitches`, and `ShutoffSwitch`.
+-   `/SoftwareDemo/PiCamera/`: Handles image capture and YOLO detection.
+-   `/SoftwareDemo/SnakepathAlgorithm/`: Generates the scanning path (`pathlist`) for the motors.
+-   `/Arduino/`: C++ code for the Arduino motor controller.
+-   `/MATLAB/`: Post-processing scripts for SAR data.
+
+## Hardware Context
+-   **Controller**: Raspberry Pi (running the Python code).
+-   **Motor Driver**: Arduino (receiving commands from Pi).
+-   **Sensors**: Pi Camera, mmWave Radar (implied for SAR), Limit Switches, E-Stop.
+
+## Development Status
+-   `SoftwareDemo` is the active integration folder.
+-   `Obsolete` folders contain deprecated code.
+-   `BoundaryBoxDetect` and `SnakePathAlgorithm` (root folders) are likely for standalone testing/development before integration into `SoftwareDemo`.
