@@ -87,16 +87,19 @@ def HeadlessTracker():
                 cam_y = float(y1)
                 
                 # Scale to Motor space (0-636 mm)
-                # Calibration based on user data:
-                # X: Cam 431 -> Motor 0; Cam 640 -> Motor 636
-                # Y: Cam 166 -> Motor 300
-                # Derived Scale ~ 3.04 mm/pixel
-                SCALE = 3.04
-                OFFSET_X = -1310
-                OFFSET_Y = -205
+                # X Calibration: Inverted
+                # Cam 431 -> Motor 0
+                # Cam 0   -> Motor 636 (Assumed left edge of frame is right limit)
+                # Formula: MotorX = 636 - (CamX / 431.0) * 636
+                
+                if cam_x > 431:
+                    motor_x = 0
+                else:
+                    motor_x = int(636 - (cam_x / 431.0) * 636)
 
-                motor_x = int(cam_x * SCALE + OFFSET_X)
-                motor_y = int(cam_y * SCALE + OFFSET_Y)
+                # Y Calibration: Simple scaling (Cam 0-480 -> Motor 0-636)
+                # Cam 221 -> 292mm (Close to user's 300mm)
+                motor_y = int((cam_y / Height) * MotorMaxMM)
                 
                 # Clamp to valid range
                 motor_x = int(np.clip(motor_x, 0, MotorMaxMM))
