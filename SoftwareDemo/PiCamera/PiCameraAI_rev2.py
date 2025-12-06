@@ -20,14 +20,17 @@ import numpy as np
 # One line command
     # source ~/yolo-env/bin/activate && python3 /home/corban/Documents/GitHub/SafeHaven/SoftwareDemo/PiCamera/PiCameraAI.py
 
-# Use yolov8-face-lite-t for face detection instead of generic person detection
-# Download from: https://github.com/derronqi/yolov8-face
-DefaultModelPath = "yolov8-lite-t-face.pt" # Path to face detection model
-                                # yolov8-lite-t is the lite version for faster inference on Raspberry Pi
+# Download from: https://github.com/lindevs/yolov8-face?tab=readme-ov-file
+DefaultModelPath = "yolov8n-face.pt" # Path to model
+#DefaultModelPath = "yolov8-lite-t.pt" # Path to model
+                                # You can try "yolo11n.pt" if is available
+                                # You can increase speed by setting image size to 480 or 419
 
 DefaultWidth, DefaultHeight = 640, 480  # Set camera resolution (lower res = more FPS)
                                         # Camera native resolution is 12MP = 4608 x 2592
                                         # Lower camera resolution to 1080p to save resources and output more frames
+
+MotorMaxPixels = 10000
 
 def SnapshotIndex():
     # Scan current directory and return next Snapshot_{n} index
@@ -46,7 +49,7 @@ def PersonCapture(
         model_path: str = DefaultModelPath,
         width: int = DefaultWidth,
         height: int = DefaultHeight,
-        window_name: str = "Human Detection (press S to save, Q to quit)"
+        window_name: str = "Face Detection (press S to save, Q to quit)"
 ):
     # Load lightweight YOLO model
     model = YOLO(model_path)
@@ -68,19 +71,60 @@ def PersonCapture(
         while True:
             frame = picam2.capture_array()
 
-            # YOLO inference - detect faces using yolov8-face model
-            # Note: yolov8-face only detects faces, no need to filter by class
+            # YOLO inference 
             results = model.predict(
                 source=frame,
-                imgsz=480,  # Image size for inference
+                classes=[0], # (face only = class 0)
+                imgsz=480,
                 device='cpu',
-                conf=0.35,  # Confidence threshold for face detection
-                iou=0.45,   # IOU threshold for NMS (Non-Maximum Suppression)
+                conf=0.35,
+                iou=0.45,
                 verbose=False
             )
 
             r0 = results[0]
             annotated = r0.plot()  # Draw boxes for preview
+
+            # Real-time dump to faceposition.json
+            if r0.boxes is not None and len(r0.boxes) > 0:
+                xyxy = r0.boxes.xyxy.detach().cpu().numpy()
+                confs = (
+                    r0.boxes.conf.detach().cpu().numpy()
+                    if r0.boxes.conf is not None
+                    else np.zeros((xyxy.shape[0],))
+                )
+                
+                best_i = int(np.argmax(confs))
+                x1, y1, x2, y2 = xyxy[best_i]
+                
+                # Top left coordinates (Camera space)
+                cam_x = float(x1)
+                cam_y = float(y1)
+                
+                # Scale to Motor space (0-10000)
+                motor_x = int(np.clip((cam_x / width) * MotorMaxPixels, 0, MotorMaxPixels))
+                motor_y = int(np.clip((cam_y / height) * MotorMaxPixels, 0, MotorMaxPixels))
+                
+                face_data = {
+                    "camera_coords": {
+                        "x": int(cam_x),
+                        "y": int(cam_y),
+                        "width": width,
+                        "height": height
+                    },
+                    "motor_coords": {
+                        "x": motor_x,
+                        "y": motor_y,
+                        "max_pixels": MotorMaxPixels
+                    },
+                    "timestamp": time.time()
+                }
+
+                try:
+                    with open("faceposition.json", "w") as f:
+                        json.dump(face_data, f, indent=4)
+                except IOError as e:
+                    print(f"Error writing to faceposition.json: {e}")
 
             # FPS overlay
             now = time.time()
@@ -154,17 +198,40 @@ def PersonCapture(
 
                 # Overwrite latest coordinate file each capture
                 latest_box = chosen
-                with open("box_coords.json", "w") as f:
-                    json.dump(
-                        {
-                            "datetime_local": snapshot_meta["datetime_local"],
-                            "detection": latest_box
-                        },
-                        f,
-                        indent=2
-                    )
+                
+                # Calculate motor coords
+                motor_x = int(np.clip((x1i / width) * MotorMaxPixels, 0, MotorMaxPixels))
+                motor_y = int(np.clip((y1i / height) * MotorMaxPixels, 0, MotorMaxPixels))
 
-                print(f"Saved {img_path} and {meta_path}")
+                face_data = {
+                    "camera_coords": {
+                        "x": x1i,
+                        "y": y1i,
+                        "width": width,
+                        "height": height
+                    },
+                    "motor_coords": {
+                        "x": motor_x,
+                        "y": motor_y,
+                        "max_pixels": MotorMaxPixels
+                    },
+                    "timestamp": time.time()
+                }
+
+                with open("faceposition.json", "w") as f:
+                    json.dump(face_data, f, indent=4)
+
+                # with open("box_coords.json", "w") as f:
+                #     json.dump(
+                #         {
+                #             "datetime_local": snapshot_meta["datetime_local"],
+                #             "detection": latest_box
+                #         },
+                #         f,
+                #         indent=2
+                #     )
+
+                print(f"Saved {img_path}, {meta_path}, and faceposition.json")
                 if latest_box is None:
                     print("No person detected at capture time; coordinates file contains null.")
 

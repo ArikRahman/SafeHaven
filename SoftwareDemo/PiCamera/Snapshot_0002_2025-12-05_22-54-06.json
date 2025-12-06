@@ -1,0 +1,35 @@
+{
+  "snapshot_index": 2,
+  "datetime_local": "2025-12-05 22:54:06",
+  "width": 640,
+  "height": 480,
+  "fps_estimate": 4.18,
+  "detection": {
+    "xyxy": [
+      189,
+      4,
+      325,
+      149
+    ],
+    "corners": {
+      "top_left": [
+        189,
+        4
+      ],
+      "top_right": [
+        325,
+        4
+      ],
+      "bottom_right": [
+        325,
+        149
+      ],
+      "bottom_left": [
+        189,
+        149
+      ]
+    },
+    "conf": 0.8512913584709167,
+    "cls": 0
+  }
+}

@@ -4,7 +4,7 @@ import threading
 
 # import SoftwareDemo.GantryFunctionality.MotorFunc.motorFunc as moFo
 from GantryFunctionality.MotorTest import motorTest_rev7 as moFo
-from PiCamera import PiCameraAI as PiCamAI
+from SoftwareDemo.PiCamera import PiCameraAI_rev2 as PiCamAI
 from GantryFunctionality.LimitSwitches import ReedSwitches as Reed
 from GantryFunctionality.ShutoffSwitch import EmergencyStop as Shutoff
 from SnakepathAlgorithm import SnakePathGen as sp 
