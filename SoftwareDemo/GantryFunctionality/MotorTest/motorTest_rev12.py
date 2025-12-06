@@ -186,7 +186,7 @@ vectorListDiscrete_test_inset = apply_margin(vectorListDiscrete_test, MARGIN_PIX
 def up(pixels):
     #these are commands calling, using old library, want to swap out, not direction but everything else
     duration = abs(pixels)/speedY_pixels_per_s
-    print(f"DEBUG: Moving UP {pixels} pixels, duration {duration:.2f}s")
+    # print(f"DEBUG: Moving UP {pixels} pixels, duration {duration:.2f}s")
     dirY.on() # Set direction to CW
     pulY.start(duty_cycle)
     sleep(duration) # Seconds
@@ -194,7 +194,7 @@ def up(pixels):
 
 def down(pixels):
     duration = abs(pixels)/speedY_pixels_per_s
-    print(f"DEBUG: Moving DOWN {pixels} pixels, duration {duration:.2f}s")
+    # print(f"DEBUG: Moving DOWN {pixels} pixels, duration {duration:.2f}s")
     dirY.off() # Set direction to CCW
     pulY.start(duty_cycle)
     sleep(duration) # Seconds
@@ -202,7 +202,7 @@ def down(pixels):
 
 def right(pixels):
     duration = abs(pixels)/speedX_pixels_per_s
-    print(f"DEBUG: Moving RIGHT {pixels} pixels, duration {duration:.2f}s")
+    # print(f"DEBUG: Moving RIGHT {pixels} pixels, duration {duration:.2f}s")
     dirX.on() # Set direction to CW
     pulX.start(duty_cycle)
     sleep(duration) # Seconds
@@ -210,7 +210,7 @@ def right(pixels):
 
 def left(pixels):
     duration = abs(pixels)/speedX_pixels_per_s
-    print(f"DEBUG: Moving LEFT {pixels} pixels, duration {duration:.2f}s")
+    # print(f"DEBUG: Moving LEFT {pixels} pixels, duration {duration:.2f}s")
     dirX.off() # Set direction to CCW
     pulX.start(duty_cycle)
     sleep(duration) # Seconds
@@ -308,8 +308,9 @@ def move_both(dx, dy, duty=duty_cycle):
     # compute duration; zero distances should have zero time
     timeX = abs(dx) / speedX_pixels_per_s if dx != 0 else 0
     timeY = abs(dy) / speedY_pixels_per_s if dy != 0 else 0
+    max_time = max(timeX, timeY)
 
-    print(f"Moving: dx={dx} ({timeX:.2f}s), dy={dy} ({timeY:.2f}s)")
+    print(f"Moving: dx={dx} ({timeX:.2f}s), dy={dy} ({timeY:.2f}s). Total: {max_time:.2f}s")
 
     # start both
     if dx != 0:
@@ -317,38 +318,53 @@ def move_both(dx, dy, duty=duty_cycle):
     if dy != 0:
         pulY.start(duty)
 
+    start_time = time()
+
+    def wait_with_countdown(duration):
+        end_time = time() + duration
+        while True:
+            now = time()
+            remaining_wait = end_time - now
+            if remaining_wait <= 0:
+                break
+            
+            total_elapsed = now - start_time
+            total_remaining = max_time - total_elapsed
+            if total_remaining < 0: total_remaining = 0
+            
+            print(f"Time remaining: {total_remaining:.1f}s   ", end='\r')
+            sleep(min(0.1, remaining_wait))
+
     # if both times are >0 then coordinate stopping times
     if timeX > 0 and timeY > 0:
         # sleep until the shorter one finishes
         if timeX == timeY:
-            sleep(timeX)
+            wait_with_countdown(timeX)
             pulX.stop()
             pulY.stop()
-            return
-
-        if timeX > timeY:
-            sleep(timeY)
+        elif timeX > timeY:
+            wait_with_countdown(timeY)
             # stop Y
             pulY.stop()
             # finish X
-            sleep(timeX - timeY)
+            wait_with_countdown(timeX - timeY)
             pulX.stop()
-            return
         else:
             # timeY > timeX
-            sleep(timeX)
+            wait_with_countdown(timeX)
             pulX.stop()
-            sleep(timeY - timeX)
+            wait_with_countdown(timeY - timeX)
             pulY.stop()
-            return
 
     # If we only need to move X or Y
-    if timeX > 0 and timeY == 0:
-        sleep(timeX)
+    elif timeX > 0 and timeY == 0:
+        wait_with_countdown(timeX)
         pulX.stop()
     elif timeY > 0 and timeX == 0:
-        sleep(timeY)
+        wait_with_countdown(timeY)
         pulY.stop()
+    
+    print(f"Move complete.                  ") # Clear line
 
 
 def read_key(timeout=0.1):
@@ -763,21 +779,10 @@ def main():
                     sleep(0.1)
                     continue
                 
-                print(f"Tracking: Moving to ({targetX}, {targetY}) dx={dx}, dy={dy}")
+                print(f"Tracking: Current({currentX}, {currentY}) -> Target({targetX}, {targetY})")
 
                 # Move both motors at once to target
-                if dx != 0 and dy != 0:
-                    move_both(dx, dy)
-                elif dx != 0:
-                    if dx > 0:
-                        right(dx)
-                    else:
-                        left(abs(dx))
-                elif dy != 0:
-                    if dy > 0:
-                        up(dy)
-                    else:
-                        down(abs(dy))
+                move_both(dx, dy)
                 
                 # Update current position tracking
                 currentX = targetX

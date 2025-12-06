@@ -10,7 +10,7 @@ import json
 ModelPath = "yolov8n-face.pt"
 Width, Height = 640, 480
 OutputParamsFile = "faceposition.json"
-MotorMaxPixels = 10000
+MotorMaxPixels = 8000
 
 def HeadlessTracker():
     # Check if model exists
