@@ -543,7 +543,8 @@ def arcade_mode_live(initialX, initialY, chosen_margin=MARGIN_MM, force_flag=Fal
     last_y_time = 0
     
     # Watchdog threshold: if no key for this long, stop that axis.
-    STOP_THRESHOLD = 0.15 
+    # Increased to 0.5s to cover the initial keyboard repeat delay (usually ~500ms).
+    STOP_THRESHOLD = 0.5 
 
     try:
         while True:
