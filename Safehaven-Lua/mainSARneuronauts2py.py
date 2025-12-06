@@ -245,7 +245,7 @@ def reconstruct_sar_image(sar_data, matched_filter, x_step_m, y_step_m, xy_size_
 
 def main():
     # Configuration
-    data_dir = os.path.join('Scan Data', 'sqplate(good)')
+    data_dir = 'dumps'
     X = 400
     Y = 40
     samples = 512
