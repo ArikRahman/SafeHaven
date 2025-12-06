@@ -13,8 +13,7 @@
 #   python3 motorTest_rev10.py --step=50 up            # override global step
 #   python3 motorTest_rev10.py left=200 --force        # 'force' allows ignore margin clamp and prevents saving position
 
-from gpiozero import DigitalOutputDevice
-from rpi_hardware_pwm import HardwarePWM
+from gpiozero import DigitalOutputDevice, PWMOutputDevice
 from time import sleep, time
 import sys
 import os
@@ -22,13 +21,6 @@ import json
 import tty
 import termios
 import select
-
-# Force pin modes for RPi 5 (PWM pins to Alt0, Dir pins to Output)
-# This ensures the pins are correctly muxed for the hardware PWM and GPIO control
-os.system("pinctrl set 12 a0")
-os.system("pinctrl set 13 a0")
-os.system("pinctrl set 6 op")
-os.system("pinctrl set 16 op")
 
 
 # Define the GPIO pins
@@ -39,11 +31,10 @@ DIR_PIN_Y = 16 # Direction pins y-axis
 
 
 # Parameters
-duty_cycle = 50  # 50% duty cycle for PWM (0-100)
-f_x = 800 # PWM frequency for X-axis in Hz
-f_y = 800 # PWM frequency for Y-axis in Hz
-#i changed from 1600 to 6400 after changing driver microstep settings
-steps_per_rev = 6400  # Microsteps per revolution for the motor, dictated by driver settings
+duty_cycle = 0.50  # 50% duty cycle for PWM
+f_x = 6400 # PWM frequency for X-axis in Hz
+f_y = 6400 # PWM frequency for Y-axis in Hz
+steps_per_rev = 1600  # Microsteps per revolution for the motor, dictated by driver settings
 length_per_rev = 10   # Length per revolution in mm
 total_distance = 675  # Total traveling distance in mm for both axes
 total_pixels = 10000  # Total pixels for both axes
@@ -104,8 +95,6 @@ Notes:
   - When using arcade mode, use WASD or arrow keys; space stops motors; q quits.
 '''
     print(help_text)
-    print(f"Gantry Config: {total_distance}mm ({total_pixels} pixels)")
-    print(f"Resolution: 1 pixel = {total_distance/total_pixels} mm")
     print("done")
     return
 
@@ -116,14 +105,18 @@ if any(arg in ('-h', '--help', 'help') for arg in sys.argv[1:]):
     sys.exit(0)
 
 # Initialize the pins as output devices
-# Using rpi-hardware-pwm for hardware PWM on Pi 5 (Chip 0)
-# GPIO 13 -> PWM0 (Channel 1)
-# GPIO 12 -> PWM0 (Channel 0)
-# Note: On this RPi 5, the RP1 PWM controller appears as pwmchip0.
-pulX = HardwarePWM(pwm_channel=1, hz=f_x, chip=0)
+#Change pwm config and change pwm ones, anywhere with pule reference or value ref
+#
+pulX = PWMOutputDevice(PUL_PIN_X, 
+                       active_high=True, 
+                       initial_value=0, 
+                       frequency=f_x)  # PWM for pulse control
 dirX = DigitalOutputDevice(DIR_PIN_X, 
                            active_high=True)  # Active high to rotate CW
-pulY = HardwarePWM(pwm_channel=0, hz=f_y, chip=0)
+pulY = PWMOutputDevice(PUL_PIN_Y, 
+                       active_high=True, 
+                       initial_value=0, 
+                       frequency=f_y)  # PWM for pulse control
 dirY = DigitalOutputDevice(DIR_PIN_Y, 
                            active_high=True)  # Active high to rotate CW
 
@@ -185,42 +178,34 @@ vectorListDiscrete_test_inset = apply_margin(vectorListDiscrete_test, MARGIN_PIX
 
 def up(pixels):
     #these are commands calling, using old library, want to swap out, not direction but everything else
-    duration = abs(pixels)/speedY_pixels_per_s
-    print(f"DEBUG: Moving UP {pixels} pixels, duration {duration:.2f}s")
     dirY.on() # Set direction to CW
-    pulY.start(duty_cycle)
-    sleep(duration) # Seconds
-    pulY.stop()
+    pulY.value = duty_cycle
+    sleep(abs(pixels)/speedY_pixels_per_s) # Seconds
+    pulY.value = 0
 
 def down(pixels):
-    duration = abs(pixels)/speedY_pixels_per_s
-    print(f"DEBUG: Moving DOWN {pixels} pixels, duration {duration:.2f}s")
     dirY.off() # Set direction to CCW
-    pulY.start(duty_cycle)
-    sleep(duration) # Seconds
-    pulY.stop()
+    pulY.value = duty_cycle
+    sleep(abs(pixels)/speedY_pixels_per_s) # Seconds
+    pulY.value = 0
 
 def right(pixels):
-    duration = abs(pixels)/speedX_pixels_per_s
-    print(f"DEBUG: Moving RIGHT {pixels} pixels, duration {duration:.2f}s")
     dirX.on() # Set direction to CW
-    pulX.start(duty_cycle)
-    sleep(duration) # Seconds
-    pulX.stop()
+    pulX.value = duty_cycle
+    sleep(abs(pixels)/speedX_pixels_per_s) # Seconds
+    pulX.value = 0
 
 def left(pixels):
-    duration = abs(pixels)/speedX_pixels_per_s
-    print(f"DEBUG: Moving LEFT {pixels} pixels, duration {duration:.2f}s")
     dirX.off() # Set direction to CCW
-    pulX.start(duty_cycle)
-    sleep(duration) # Seconds
-    pulX.stop()
+    pulX.value = duty_cycle
+    sleep(abs(pixels)/speedX_pixels_per_s) # Seconds
+    pulX.value = 0
 
 def stopX_Motor():
-    pulX.stop()
+    pulX.value = 0
 
 def stopY_Motor():
-    pulY.stop()
+    pulY.value = 0
 
 def stopAllMotor():
     stopX_Motor()
@@ -228,9 +213,9 @@ def stopAllMotor():
 
 # Cleanup
 def close():
-    pulX.stop()
+    pulX.close()
     dirX.close()
-    pulY.stop()
+    pulY.close()
     dirY.close()
 
 
@@ -309,46 +294,44 @@ def move_both(dx, dy, duty=duty_cycle):
     timeX = abs(dx) / speedX_pixels_per_s if dx != 0 else 0
     timeY = abs(dy) / speedY_pixels_per_s if dy != 0 else 0
 
-    print(f"Moving: dx={dx} ({timeX:.2f}s), dy={dy} ({timeY:.2f}s)")
-
     # start both
     if dx != 0:
-        pulX.start(duty)
+        pulX.value = duty
     if dy != 0:
-        pulY.start(duty)
+        pulY.value = duty
 
     # if both times are >0 then coordinate stopping times
     if timeX > 0 and timeY > 0:
         # sleep until the shorter one finishes
         if timeX == timeY:
             sleep(timeX)
-            pulX.stop()
-            pulY.stop()
+            pulX.value = 0
+            pulY.value = 0
             return
 
         if timeX > timeY:
             sleep(timeY)
             # stop Y
-            pulY.stop()
+            pulY.value = 0
             # finish X
             sleep(timeX - timeY)
-            pulX.stop()
+            pulX.value = 0
             return
         else:
             # timeY > timeX
             sleep(timeX)
-            pulX.stop()
+            pulX.value = 0
             sleep(timeY - timeX)
-            pulY.stop()
+            pulY.value = 0
             return
 
     # If we only need to move X or Y
     if timeX > 0 and timeY == 0:
         sleep(timeX)
-        pulX.stop()
+        pulX.value = 0
     elif timeY > 0 and timeX == 0:
         sleep(timeY)
-        pulY.stop()
+        pulY.value = 0
 
 
 def read_key(timeout=0.1):
@@ -484,22 +467,22 @@ def start_motion_xy(dir_x, dir_y):
     # X Axis
     if dir_x == 1:
         dirX.on()
-        pulX.start(duty_cycle)
+        pulX.value = duty_cycle
     elif dir_x == -1:
         dirX.off()
-        pulX.start(duty_cycle)
+        pulX.value = duty_cycle
     else:
-        pulX.stop()
+        pulX.value = 0
 
     # Y Axis
     if dir_y == 1:
         dirY.on()
-        pulY.start(duty_cycle)
+        pulY.value = duty_cycle
     elif dir_y == -1:
         dirY.off()
-        pulY.start(duty_cycle)
+        pulY.value = duty_cycle
     else:
-        pulY.stop()
+        pulY.value = 0
 
 def arcade_mode_live(initialX, initialY, chosen_margin=MARGIN_PIXELS, force_flag=False):
     """
@@ -611,65 +594,7 @@ def arcade_mode_live(initialX, initialY, chosen_margin=MARGIN_PIXELS, force_flag
 
 
 ######### Main #########
-def parse_speed(v):
-    if v is None: return None
-    s = str(v).lower()
-    if s.endswith('mms'):
-        try:
-            return float(s[:-3])
-        except:
-            return None
-    return None
-
 def main():
-    # Check for speed override first (applies to all modes)
-    target_speed_mm_s = None
-    for arg in sys.argv[1:]:
-        # check for speed token (e.g. 40mms)
-        # We need to handle 'speed=40mms' or just '40mms'
-        if '=' in arg:
-            key, val = arg.split('=', 1)
-            if key == 'speed':
-                s_val = parse_speed(val)
-                if s_val is not None:
-                    target_speed_mm_s = s_val
-        else:
-            # standalone token
-            spd = parse_speed(arg.lstrip('-'))
-            if spd is not None:
-                target_speed_mm_s = spd
-
-    # Apply speed override if present
-    if target_speed_mm_s is not None:
-        global f_x, f_y, speedX_rev_per_s, speedX_mm_per_s, speedX_pixels_per_s
-        global speedY_rev_per_s, speedY_mm_per_s, speedY_pixels_per_s
-
-        # Calculate new frequency
-        # f = speed_mm_s * steps_per_mm
-        # steps_per_mm = steps_per_rev / length_per_rev
-        new_freq = int(target_speed_mm_s * (steps_per_rev / length_per_rev))
-        
-        print(f"DEBUG: Speed requested: {target_speed_mm_s} mm/s")
-        print(f"DEBUG: New Frequency: {new_freq} Hz")
-        
-        # Update hardware PWM
-        pulX.change_frequency(new_freq)
-        pulY.change_frequency(new_freq)
-        
-        # Update global speed variables for sleep calculations
-        f_x = new_freq
-        f_y = new_freq
-        
-        speedX_rev_per_s = f_x / steps_per_rev
-        speedX_mm_per_s = speedX_rev_per_s * length_per_rev
-        speedX_pixels_per_s = (speedX_mm_per_s / total_distance) * total_pixels
-        
-        speedY_rev_per_s = f_y / steps_per_rev
-        speedY_mm_per_s = speedY_rev_per_s * length_per_rev
-        speedY_pixels_per_s = (speedY_mm_per_s / total_distance) * total_pixels
-        
-        print(f"DEBUG: Calculated Speed: {speedX_mm_per_s:.2f} mm/s ({speedX_pixels_per_s:.2f} px/s)")
-
     # Check for arcade mode first
     arcade_flag = False
     for arg in sys.argv:
@@ -712,7 +637,6 @@ def main():
 
     # Priority order: next -> origin -> directional commands
     if "next" in sys.argv:
-        print("DEBUG: Executing 'next' command")
         # Load current index
         if os.path.exists("current_index.txt"):
             with open("current_index.txt", "r") as f:
@@ -788,7 +712,6 @@ def main():
             os.remove("current_index.txt")
 
     if "origin" in sys.argv:
-        print("DEBUG: Executing 'origin' command")
         # Bring gantry to the origin (approximate to the in-margin origin)
         chosen_margin = MARGIN_PIXELS
         for arg in sys.argv:
@@ -819,8 +742,6 @@ def main():
 
         dx = originX - currentX
         dy = originY - currentY
-        
-        print(f"DEBUG: Origin move dx={dx}, dy={dy}")
 
         # Move both motors at once to origin
         if dx != 0 and dy != 0:
@@ -852,63 +773,41 @@ def main():
     # - python3 motorTest_rev10.py up right=100 --step=80
     dir_args = {}
     tokens = [arg.lstrip('-') for arg in sys.argv[1:]]
-    target_speed_mm_s = None
-
-    def parse_val(v):
-        if v is None: return None
-        s = str(v).lower()
-        if s.endswith('mm'):
-            try:
-                mm = float(s[:-2])
-                return int(mm * (total_pixels / total_distance))
-            except:
-                return None
-        try:
-            return int(v)
-        except:
-            return None
-
-    def is_val(s):
-        return parse_val(s) is not None
-
     i = 0
     while i < len(tokens):
         tok = tokens[i]
-        
-        # check for speed token (e.g. 40mms) - already handled globally but we need to skip it here
-        spd = parse_speed(tok)
-        if spd is not None:
-            # target_speed_mm_s = spd # Already done
-            i += 1
-            continue
-
         # inline form like right=100
         if '=' in tok:
             key, val = tok.split('=', 1)
             if key in ('up', 'down', 'left', 'right'):
-                dir_args[key] = parse_val(val)
-            elif key == 'speed':
-                # speed=40mms - already handled
-                i += 1
-                continue
+                try:
+                    dir_args[key] = int(val)
+                except Exception:
+                    dir_args[key] = None
             elif key == 'go':
                 # go=100 -> grab next token if it's a direction
-                go_val = parse_val(val)
+                try:
+                    go_val = int(val)
+                except Exception:
+                    go_val = None
                 dir_name = None
                 if i + 1 < len(tokens) and tokens[i + 1] in ('up', 'down', 'left', 'right'):
                     dir_name = tokens[i + 1]
                     i += 1
                 if dir_name is None:
                     dir_name = 'right'
-                dir_args[dir_name] = go_val
+                dir_args[dir_name] = (go_val if go_val is not None else None)
             i += 1
             continue
 
         # simple tokens: 'up', 'left', 'go', '100', 'right', etc
         if tok in ('up', 'down', 'left', 'right'):
-            # if the next token is a value, consume it
-            if i + 1 < len(tokens) and is_val(tokens[i + 1]):
-                val = parse_val(tokens[i + 1])
+            # if the next token is a number, consume it as a value
+            if i + 1 < len(tokens) and tokens[i + 1].lstrip('-').isdigit():
+                try:
+                    val = int(tokens[i + 1])
+                except Exception:
+                    val = None
                 dir_args[tok] = val
                 i += 2
                 continue
@@ -925,14 +824,14 @@ def main():
                 nxt = tokens[i + 1]
                 if nxt in ('up', 'down', 'left', 'right'):
                     dir_name = nxt
-                    if i + 2 < len(tokens) and is_val(tokens[i + 2]):
-                        amount = parse_val(tokens[i + 2])
+                    if i + 2 < len(tokens) and tokens[i + 2].lstrip('-').isdigit():
+                        amount = int(tokens[i + 2])
                         i += 3
                     else:
                         amount = None
                         i += 2
-                elif is_val(nxt):
-                    amount = parse_val(nxt)
+                elif nxt.lstrip('-').isdigit():
+                    amount = int(nxt)
                     # optional direction after numeric
                     if i + 2 < len(tokens) and tokens[i + 2] in ('up', 'down', 'left', 'right'):
                         dir_name = tokens[i + 2]
@@ -952,8 +851,11 @@ def main():
             continue
 
         # numeric standalone (e.g., '100' - assume right by default)
-        if is_val(tok):
-            amount = parse_val(tok)
+        if tok.lstrip('-').isdigit():
+            try:
+                amount = int(tok)
+            except Exception:
+                amount = None
             dir_args['right'] = amount
             i += 1
             continue
@@ -1023,11 +925,11 @@ def main():
             elif k == 'left':
                 dx -= int(step_val)
 
-        # Compute the target. If force_flag is set, ignore ALL clamping (including bounds).
-        # Otherwise, clamp to margin for safety.
+        # Compute the target. If force_flag is set, ignore margin clamping and only
+        # clamp to absolute bounds. Otherwise, clamp to margin for safety.
         if force_flag:
-            targetX = currentX + dx
-            targetY = currentY + dy
+            targetX = currentX if dx == 0 else clamp_to_bounds(currentX + dx, total_pixels)
+            targetY = currentY if dy == 0 else clamp_to_bounds(currentY + dy, total_pixels)
         else:
             targetX = currentX if dx == 0 else clamp_to_margin(currentX + dx, chosen_margin, total_pixels)
             targetY = currentY if dy == 0 else clamp_to_margin(currentY + dy, chosen_margin, total_pixels)

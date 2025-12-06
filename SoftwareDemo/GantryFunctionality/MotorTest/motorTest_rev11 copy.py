@@ -40,8 +40,8 @@ DIR_PIN_Y = 16 # Direction pins y-axis
 
 # Parameters
 duty_cycle = 50  # 50% duty cycle for PWM (0-100)
-f_x = 800 # PWM frequency for X-axis in Hz
-f_y = 800 # PWM frequency for Y-axis in Hz
+f_x = 3200 # PWM frequency for X-axis in Hz
+f_y = 3200 # PWM frequency for Y-axis in Hz
 #i changed from 1600 to 6400 after changing driver microstep settings
 steps_per_rev = 6400  # Microsteps per revolution for the motor, dictated by driver settings
 length_per_rev = 10   # Length per revolution in mm
@@ -712,7 +712,6 @@ def main():
 
     # Priority order: next -> origin -> directional commands
     if "next" in sys.argv:
-        print("DEBUG: Executing 'next' command")
         # Load current index
         if os.path.exists("current_index.txt"):
             with open("current_index.txt", "r") as f:
@@ -788,7 +787,6 @@ def main():
             os.remove("current_index.txt")
 
     if "origin" in sys.argv:
-        print("DEBUG: Executing 'origin' command")
         # Bring gantry to the origin (approximate to the in-margin origin)
         chosen_margin = MARGIN_PIXELS
         for arg in sys.argv:
@@ -819,8 +817,6 @@ def main():
 
         dx = originX - currentX
         dy = originY - currentY
-        
-        print(f"DEBUG: Origin move dx={dx}, dy={dy}")
 
         # Move both motors at once to origin
         if dx != 0 and dy != 0:

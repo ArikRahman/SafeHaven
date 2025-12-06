@@ -54,7 +54,7 @@ def main():
         moFo.close()
         return
 
-    if 0:
+    if 1:
         # Optional plot of snakepath
         plt.figure(figsize=(6, 6)) # Size of generated output
 
@@ -74,21 +74,22 @@ def main():
         plt.legend()
         plt.show()
 
-    # Safety stop (start off)
-    moFo.stopAllMotor()
-
-    # Start motor movement and follow snakepath
-    moFo.followSnakepath(pathlist)
-
-    # Check if abort initated after gantry movement
-    if RunState.stop_flag.is_set():
-        print("Abort requested during/after motion. Skipping homing/plotting.")
+    if 0:
+        # Safety stop (start off)
         moFo.stopAllMotor()
-        moFo.close()
-        return
 
-    # Conclude run
-    moFo.close()
+        # Start motor movement and follow snakepath
+        moFo.followSnakepath(pathlist)
+
+        # Check if abort initated after gantry movement
+        if RunState.stop_flag.is_set():
+            print("Abort requested during/after motion. Skipping homing/plotting.")
+            moFo.stopAllMotor()
+            moFo.close()
+            return
+
+        # Conclude run
+        moFo.close()
     print("Run complete...")
 
 if __name__ == "__main__":

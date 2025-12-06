@@ -20,10 +20,10 @@ from typing import Tuple, List
     # source ~/yolo-env/bin/activate && python3 SoftwareDemo/SnakePathAlgorithm.py
 
 # Box corner coordinate path on RP5
-# BOX_JSON = "/home/corban/Documents/GitHub/SafeHaven/SoftwareDemo/PiCamera/box_coords.json"
+BOX_JSON = "/home/corban/Documents/GitHub/SafeHaven/SoftwareDemo/PiCamera/box_coords.json"
 
 # Read/write file in the same working directory as main.py
-BOX_JSON = "box_coords.json"
+# BOX_JSON = "box_coords.json"
 
 # Box corner coordinate path on github
 # BOX_JSON = r"C:\GitHub\SafeHaven\SoftwareDemo\PiCamera\box_coords.json"

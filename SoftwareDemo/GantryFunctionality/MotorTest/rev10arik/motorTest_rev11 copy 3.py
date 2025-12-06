@@ -185,35 +185,27 @@ vectorListDiscrete_test_inset = apply_margin(vectorListDiscrete_test, MARGIN_PIX
 
 def up(pixels):
     #these are commands calling, using old library, want to swap out, not direction but everything else
-    duration = abs(pixels)/speedY_pixels_per_s
-    print(f"DEBUG: Moving UP {pixels} pixels, duration {duration:.2f}s")
     dirY.on() # Set direction to CW
     pulY.start(duty_cycle)
-    sleep(duration) # Seconds
+    sleep(abs(pixels)/speedY_pixels_per_s) # Seconds
     pulY.stop()
 
 def down(pixels):
-    duration = abs(pixels)/speedY_pixels_per_s
-    print(f"DEBUG: Moving DOWN {pixels} pixels, duration {duration:.2f}s")
     dirY.off() # Set direction to CCW
     pulY.start(duty_cycle)
-    sleep(duration) # Seconds
+    sleep(abs(pixels)/speedY_pixels_per_s) # Seconds
     pulY.stop()
 
 def right(pixels):
-    duration = abs(pixels)/speedX_pixels_per_s
-    print(f"DEBUG: Moving RIGHT {pixels} pixels, duration {duration:.2f}s")
     dirX.on() # Set direction to CW
     pulX.start(duty_cycle)
-    sleep(duration) # Seconds
+    sleep(abs(pixels)/speedX_pixels_per_s) # Seconds
     pulX.stop()
 
 def left(pixels):
-    duration = abs(pixels)/speedX_pixels_per_s
-    print(f"DEBUG: Moving LEFT {pixels} pixels, duration {duration:.2f}s")
     dirX.off() # Set direction to CCW
     pulX.start(duty_cycle)
-    sleep(duration) # Seconds
+    sleep(abs(pixels)/speedX_pixels_per_s) # Seconds
     pulX.stop()
 
 def stopX_Motor():
@@ -611,65 +603,7 @@ def arcade_mode_live(initialX, initialY, chosen_margin=MARGIN_PIXELS, force_flag
 
 
 ######### Main #########
-def parse_speed(v):
-    if v is None: return None
-    s = str(v).lower()
-    if s.endswith('mms'):
-        try:
-            return float(s[:-3])
-        except:
-            return None
-    return None
-
 def main():
-    # Check for speed override first (applies to all modes)
-    target_speed_mm_s = None
-    for arg in sys.argv[1:]:
-        # check for speed token (e.g. 40mms)
-        # We need to handle 'speed=40mms' or just '40mms'
-        if '=' in arg:
-            key, val = arg.split('=', 1)
-            if key == 'speed':
-                s_val = parse_speed(val)
-                if s_val is not None:
-                    target_speed_mm_s = s_val
-        else:
-            # standalone token
-            spd = parse_speed(arg.lstrip('-'))
-            if spd is not None:
-                target_speed_mm_s = spd
-
-    # Apply speed override if present
-    if target_speed_mm_s is not None:
-        global f_x, f_y, speedX_rev_per_s, speedX_mm_per_s, speedX_pixels_per_s
-        global speedY_rev_per_s, speedY_mm_per_s, speedY_pixels_per_s
-
-        # Calculate new frequency
-        # f = speed_mm_s * steps_per_mm
-        # steps_per_mm = steps_per_rev / length_per_rev
-        new_freq = int(target_speed_mm_s * (steps_per_rev / length_per_rev))
-        
-        print(f"DEBUG: Speed requested: {target_speed_mm_s} mm/s")
-        print(f"DEBUG: New Frequency: {new_freq} Hz")
-        
-        # Update hardware PWM
-        pulX.change_frequency(new_freq)
-        pulY.change_frequency(new_freq)
-        
-        # Update global speed variables for sleep calculations
-        f_x = new_freq
-        f_y = new_freq
-        
-        speedX_rev_per_s = f_x / steps_per_rev
-        speedX_mm_per_s = speedX_rev_per_s * length_per_rev
-        speedX_pixels_per_s = (speedX_mm_per_s / total_distance) * total_pixels
-        
-        speedY_rev_per_s = f_y / steps_per_rev
-        speedY_mm_per_s = speedY_rev_per_s * length_per_rev
-        speedY_pixels_per_s = (speedY_mm_per_s / total_distance) * total_pixels
-        
-        print(f"DEBUG: Calculated Speed: {speedX_mm_per_s:.2f} mm/s ({speedX_pixels_per_s:.2f} px/s)")
-
     # Check for arcade mode first
     arcade_flag = False
     for arg in sys.argv:
@@ -712,7 +646,6 @@ def main():
 
     # Priority order: next -> origin -> directional commands
     if "next" in sys.argv:
-        print("DEBUG: Executing 'next' command")
         # Load current index
         if os.path.exists("current_index.txt"):
             with open("current_index.txt", "r") as f:
@@ -788,7 +721,6 @@ def main():
             os.remove("current_index.txt")
 
     if "origin" in sys.argv:
-        print("DEBUG: Executing 'origin' command")
         # Bring gantry to the origin (approximate to the in-margin origin)
         chosen_margin = MARGIN_PIXELS
         for arg in sys.argv:
@@ -819,8 +751,6 @@ def main():
 
         dx = originX - currentX
         dy = originY - currentY
-        
-        print(f"DEBUG: Origin move dx={dx}, dy={dy}")
 
         # Move both motors at once to origin
         if dx != 0 and dy != 0:
@@ -868,6 +798,16 @@ def main():
         except:
             return None
 
+    def parse_speed(v):
+        if v is None: return None
+        s = str(v).lower()
+        if s.endswith('mms'):
+            try:
+                return float(s[:-3])
+            except:
+                return None
+        return None
+
     def is_val(s):
         return parse_val(s) is not None
 
@@ -875,10 +815,10 @@ def main():
     while i < len(tokens):
         tok = tokens[i]
         
-        # check for speed token (e.g. 40mms) - already handled globally but we need to skip it here
+        # check for speed token (e.g. 40mms)
         spd = parse_speed(tok)
         if spd is not None:
-            # target_speed_mm_s = spd # Already done
+            target_speed_mm_s = spd
             i += 1
             continue
 
@@ -888,9 +828,10 @@ def main():
             if key in ('up', 'down', 'left', 'right'):
                 dir_args[key] = parse_val(val)
             elif key == 'speed':
-                # speed=40mms - already handled
-                i += 1
-                continue
+                # speed=40mms
+                s_val = parse_speed(val)
+                if s_val is not None:
+                    target_speed_mm_s = s_val
             elif key == 'go':
                 # go=100 -> grab next token if it's a direction
                 go_val = parse_val(val)
@@ -960,6 +901,29 @@ def main():
 
         # unrecognized token; ignore
         i += 1
+
+    # Apply speed override if present
+    if target_speed_mm_s is not None:
+        # Calculate new frequency
+        # f = speed_mm_s * steps_per_mm
+        # steps_per_mm = steps_per_rev / length_per_rev
+        new_freq = target_speed_mm_s * (steps_per_rev / length_per_rev)
+        
+        # Update hardware PWM
+        pulX.change_frequency(new_freq)
+        pulY.change_frequency(new_freq)
+        
+        # Update global speed variables for sleep calculations
+        f_x = new_freq
+        f_y = new_freq
+        
+        speedX_rev_per_s = f_x / steps_per_rev
+        speedX_mm_per_s = speedX_rev_per_s * length_per_rev
+        speedX_pixels_per_s = (speedX_mm_per_s / total_distance) * total_pixels
+        
+        speedY_rev_per_s = f_y / steps_per_rev
+        speedY_mm_per_s = speedY_rev_per_s * length_per_rev
+        speedY_pixels_per_s = (speedY_mm_per_s / total_distance) * total_pixels
 
     # Parse global step and margin overrides
     chosen_step = STEP_PIXELS
