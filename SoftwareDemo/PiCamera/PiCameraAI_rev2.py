@@ -112,9 +112,10 @@ def PersonCapture(
                 else:
                     motor_x = int(636 - (cam_x / 431.0) * 636)
 
-                # Y Calibration: Simple scaling (Cam 0-480 -> Motor 0-636)
-                # Cam 221 -> 292mm (Close to user's 300mm)
-                motor_y = int((cam_y / height) * MotorMaxMM)
+                # Y Calibration: Inverted
+                # Cam Y=0 (Top) -> Motor Y=636 (Top)
+                # Cam Y=480 (Bottom) -> Motor Y=0 (Bottom)
+                motor_y = MotorMaxMM - int((cam_y / height) * MotorMaxMM)
                 
                 # Clamp to valid range
                 motor_x = int(np.clip(motor_x, 0, MotorMaxMM))
