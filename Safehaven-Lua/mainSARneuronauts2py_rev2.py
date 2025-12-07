@@ -1,4 +1,5 @@
 import os
+import argparse
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.fft import fft, fft2, ifft2, fftshift
@@ -244,8 +245,12 @@ def reconstruct_sar_image(sar_data, matched_filter, x_step_m, y_step_m, xy_size_
     return sar_image, x_range_t, y_range_t
 
 def main():
+    parser = argparse.ArgumentParser(description='SAR Reconstruction')
+    parser.add_argument('--folder', type=str, default='dumps', help='Folder containing scan data')
+    args = parser.parse_args()
+
     # Configuration
-    data_dir = 'dumps'
+    data_dir = args.folder
     X = 400
     Y = 40
     samples = 512
@@ -275,9 +280,9 @@ def main():
     
     # Z-axis iteration parameters
     # Original code used z0 = 323mm. We sweep around this value.
-    z_start_mm = 200
-    z_end_mm = 600
-    z_step_mm = 10 # Finer step for better inspection around target
+    z_start_mm = 300
+    z_end_mm = 800
+    z_step_mm = 3 # Finer step for better inspection around target
     z_values = np.arange(z_start_mm, z_end_mm + z_step_mm, z_step_mm)
     
     sar_stack = []
@@ -290,7 +295,7 @@ def main():
     
     for z_mm in z_values:
         z0 = z_mm * 1e-3
-        print(f"Processing Z = {z_mm} mm...")
+        #print(f"Processing Z = {z_mm} mm...")
         
         # Range focusing
         tI = 4.5225e-10
