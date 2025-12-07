@@ -2,6 +2,7 @@ import os
 import argparse
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.widgets import Slider
 from scipy.fft import fft, fft2, ifft2, fftshift
 
 
@@ -277,6 +278,8 @@ def main():
     parser.add_argument('--zstart', '--z_start', dest='zstart', type=str, default=None, help="Start Z value for sweep (e.g., '300', '300mm', '0.3m')")
     parser.add_argument('--zend', '--z_end', dest='zend', type=str, default=None, help="End Z value for sweep (e.g., '800', '800mm', '0.8m')")
     parser.add_argument('--xyonly', action='store_true', help='Only generate the X-Y image; skip X-Z and Y-Z heatmaps')
+    parser.add_argument('--3d_scatter', dest='scatter3d', action='store_true', help='Generate interactive 3D scatter plot')
+    parser.add_argument('--3d_scatter_intensity', dest='scatter3d_intensity', type=float, default=95.0, help='Initial percentile threshold for 3D scatter plot (0-100)')
     args = parser.parse_args()
 
     # Configuration
@@ -430,9 +433,121 @@ def main():
     plt.savefig('sar_heatmap_xy_max.png')
     print("Saved X-Y max projection to sar_heatmap_xy_max.png")
 
+    # 3.5 3D Scatter Plot (Volumetric Proxy)
+    if args.scatter3d:
+        print("Generating 3D Scatter Plot with Plotly...")
+        try:
+            import plotly.graph_objects as go
+        except ImportError:
+            print("Error: plotly not found. Please install it with 'pip install plotly' or 'uv pip install plotly'")
+        else:
+            # Create meshgrid for 3D plotting
+            # sar_stack is (Z, Y, X)
+            # We need coordinates corresponding to indices
+            # Z: z_values
+            # Y: y_axis
+            # X: x_axis
+            
+            # meshgrid indexing='ij' produces grids matching the array indexing (Z, Y, X)
+            Z_grid, Y_grid, X_grid = np.meshgrid(z_values, y_axis, x_axis, indexing='ij')
+            
+            # Flatten arrays for scatter plot
+            xs = X_grid.flatten()
+            ys = Y_grid.flatten()
+            zs = Z_grid.flatten()
+            vals = sar_stack.flatten()
+            
+            # Initial Thresholding
+            initial_percentile = args.scatter3d_intensity
+            
+            # We will create a slider that goes from initial_percentile up to 99.9%
+            # To do this efficiently in a standalone HTML, we can pre-generate the subsets for each slider step.
+            # However, storing many copies of the data can be heavy.
+            # A lighter way is to use a 'filter' transform if supported, or just limit the number of steps.
+            # Let's use 20 steps.
+            
+            percentiles = np.linspace(initial_percentile, 99.9, 20)
+            
+            # Base data (using the lowest threshold to ensure all points are available if we were using transforms, 
+            # but here we are using restyle with explicit arrays, so we just need the source data)
+            # Actually, for the initial plot, we use the first percentile.
+            
+            threshold_0 = np.percentile(vals, percentiles[0])
+            mask_0 = vals > threshold_0
+            
+            print(f"Filtering data: keeping points > {initial_percentile} percentile ({np.sum(mask_0)} points)")
+
+            # Create Plotly Figure
+            fig = go.Figure()
+
+            # Add the initial trace
+            fig.add_trace(go.Scatter3d(
+                x=xs[mask_0],
+                y=ys[mask_0],
+                z=zs[mask_0],
+                mode='markers',
+                marker=dict(
+                    size=3,
+                    color=vals[mask_0],
+                    colorscale='Jet',
+                    opacity=0.3,
+                    colorbar=dict(title='Intensity')
+                ),
+                name='SAR Data'
+            ))
+
+            # Create Slider Steps
+            steps = []
+            print("Generating slider steps...")
+            for p in percentiles:
+                thresh = np.percentile(vals, p)
+                mask = vals > thresh
+                
+                # We update x, y, z, and marker.color
+                step = dict(
+                    method="restyle",
+                    args=[{
+                        "x": [xs[mask]],
+                        "y": [ys[mask]],
+                        "z": [zs[mask]],
+                        "marker.color": [vals[mask]]
+                    }],
+                    label=f"{p:.1f}%"
+                )
+                steps.append(step)
+
+            sliders = [dict(
+                active=0,
+                currentvalue={"prefix": "Intensity Threshold: "},
+                pad={"t": 50},
+                steps=steps
+            )]
+
+            fig.update_layout(
+                title='3D SAR Reconstruction',
+                scene=dict(
+                    xaxis_title='Horizontal (mm)',
+                    yaxis_title='Vertical (mm)',
+                    zaxis_title='Depth Z (mm)',
+                    aspectmode='data' # Preserve aspect ratio
+                ),
+                margin=dict(l=0, r=0, b=0, t=40),
+                sliders=sliders
+            )
+
+            output_file = 'sar_3d_scatter.html'
+            fig.write_html(output_file)
+            print(f"Saved interactive 3D plot to {output_file}")
+            
+            # Attempt to open in browser
+            try:
+                import webbrowser
+                webbrowser.open(output_file)
+            except Exception:
+                pass
+
     # 4. Interactive Slider Plot (or single Z display)
     print("Opening interactive inspector...")
-    from matplotlib.widgets import Slider
 
     single_z_mode = (len(z_values) == 1)
 

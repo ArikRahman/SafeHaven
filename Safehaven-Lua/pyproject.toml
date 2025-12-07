@@ -12,7 +12,8 @@ dependencies = [
     "scikit-image",
     "tensorflow",
     "scikit-learn",
-    "opencv-python"
+    "opencv-python",
+    "plotly"
 ]
 
 #[build-system]
