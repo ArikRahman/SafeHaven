@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SafeHaven Command Executor</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>SafeHaven Command Executor</h1>
+    <form id="command-form">
+        <label for="command">Enter command:</label>
+        <input type="text" id="command" name="command" required>
+        <button type="submit">Execute</button>
+    </form>
+    <h2>Output:</h2>
+    <pre id="output"></pre>
+    <script>
+        document.getElementById('command-form').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const command = document.getElementById('command').value;
+            const outputElement = document.getElementById('output');
+            outputElement.textContent = 'Executing...';
+
+            const response = await fetch('/execute', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ command: command })
+            });
+
+            const result = await response.json();
+            if (result.error) {
+                outputElement.textContent = `Error: ${result.error}`;
+            } else {
+                outputElement.textContent = result.output;
+            }
+        });
+    </script>
+</body>
+</html>
