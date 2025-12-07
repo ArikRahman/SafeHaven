@@ -1,0 +1,801 @@
+[21:05:41]  --------------------------------------------------
+[21:05:41]  Step 1 of 40
+[21:05:41]  Target File: C:\Users\arikrahman\Documents\GitHub\SafeHaven\Safehaven-Lua\dumps\scan1.bin
+[21:05:41]  [RadarAPI]: ar1.CaptureCardConfig_StartRecord("C:\\Users\\arikrahman\\Documents\\GitHub\\SafeHaven\\Safehaven-Lua\\dumps\\scan1.bin", 1)
+[21:05:41]  [RadarAPI]: Sending start_record command to DCA1000
+[21:05:41]  [RadarAPI]: Status: Passed
+[21:05:42]  Scanning RIGHT ->
+[21:05:42]  Gantry Async (PWSH): right=280mm speed=36mms
+[21:05:42]  Waiting for motor to start...
+[21:05:44]  Timeout waiting for motor start! Proceeding anyway.
+[21:05:44]  [RadarAPI]: ar1.StartFrame()
+[21:05:44]  [RadarAPI]: Status: Passed
+[21:05:44]  Frame Started.
+[21:05:44]  Waiting 8200 ms for frame & motor...
+[21:05:44]  Frame start async event received!
+[21:05:51]  Frame End async event received!
+[21:05:51]  [RadarAPI]: Frame Ended
+[21:05:52]  Capture & Scan Complete.
+[21:05:52]  Stepping UP (Async)...
+[21:05:52]  Gantry Async (PWSH): up=8mm speed=36mms
+[21:05:53]  --------------------------------------------------
+[21:05:53]  Step 2 of 40
+[21:05:53]  Target File: C:\Users\arikrahman\Documents\GitHub\SafeHaven\Safehaven-Lua\dumps\scan2.bin
+[21:05:53]  [RadarAPI]: ar1.CaptureCardConfig_StartRecord("C:\\Users\\arikrahman\\Documents\\GitHub\\SafeHaven\\Safehaven-Lua\\dumps\\scan2.bin", 1)
+[21:05:53]  [RadarAPI]: Sending start_record command to DCA1000
+[21:05:53]  [RadarAPI]: Status: Passed
+[21:05:54]  Scanning LEFT <-
+[21:05:54]  Gantry Async (PWSH): left=280mm speed=36mms
+[21:05:54]  Waiting for motor to start...
+[21:05:56]  Timeout waiting for motor start! Proceeding anyway.
+[21:05:56]  [RadarAPI]: ar1.StartFrame()
+[21:05:56]  [RadarAPI]: Status: Passed
+[21:05:56]  Frame Started.
+[21:05:56]  Waiting 8200 ms for frame & motor...
+[21:05:56]  Frame start async event received!
+[21:06:03]  Frame End async event received!
+[21:06:03]  [RadarAPI]: Frame Ended
+[21:06:04]  Capture & Scan Complete.
+[21:06:04]  Stepping UP (Async)...
+[21:06:04]  Gantry Async (PWSH): up=8mm speed=36mms
+[21:06:05]  --------------------------------------------------
+[21:06:05]  Step 3 of 40
+[21:06:05]  Target File: C:\Users\arikrahman\Documents\GitHub\SafeHaven\Safehaven-Lua\dumps\scan3.bin
+[21:06:05]  [RadarAPI]: ar1.CaptureCardConfig_StartRecord("C:\\Users\\arikrahman\\Documents\\GitHub\\SafeHaven\\Safehaven-Lua\\dumps\\scan3.bin", 1)
+[21:06:05]  [RadarAPI]: Sending start_record command to DCA1000
+[21:06:05]  [RadarAPI]: Status: Passed
+[21:06:06]  Scanning RIGHT ->
+[21:06:06]  Gantry Async (PWSH): right=280mm speed=36mms
+[21:06:07]  Waiting for motor to start...
+[21:06:08]  Timeout waiting for motor start! Proceeding anyway.
+[21:06:08]  [RadarAPI]: ar1.StartFrame()
+[21:06:08]  [RadarAPI]: Status: Passed
+[21:06:08]  Frame Started.
+[21:06:08]  Waiting 8200 ms for frame & motor...
+[21:06:08]  Frame start async event received!
+[21:06:16]  [RadarAPI]: Frame Ended
+[21:06:16]  Frame End async event received!
+[21:06:17]  Capture & Scan Complete.
+[21:06:17]  Stepping UP (Async)...
+[21:06:17]  Gantry Async (PWSH): up=8mm speed=36mms
+[21:06:18]  --------------------------------------------------
+[21:06:18]  Step 4 of 40
+[21:06:18]  Target File: C:\Users\arikrahman\Documents\GitHub\SafeHaven\Safehaven-Lua\dumps\scan4.bin
+[21:06:18]  [RadarAPI]: ar1.CaptureCardConfig_StartRecord("C:\\Users\\arikrahman\\Documents\\GitHub\\SafeHaven\\Safehaven-Lua\\dumps\\scan4.bin", 1)
+[21:06:18]  [RadarAPI]: Sending start_record command to DCA1000
+[21:06:18]  [RadarAPI]: Status: Passed
+[21:06:19]  Scanning LEFT <-
+[21:06:19]  Gantry Async (PWSH): left=280mm speed=36mms
+[21:06:19]  Waiting for motor to start...
+[21:06:21]  Timeout waiting for motor start! Proceeding anyway.
+[21:06:21]  [RadarAPI]: ar1.StartFrame()
+[21:06:21]  [RadarAPI]: Status: Passed
+[21:06:21]  Frame start async event received!
+[21:06:21]  Frame Started.
+[21:06:21]  Waiting 8200 ms for frame & motor...
+[21:06:28]  [RadarAPI]: Frame Ended
+[21:06:28]  Frame End async event received!
+[21:06:29]  Capture & Scan Complete.
+[21:06:29]  Stepping UP (Async)...
+[21:06:29]  Gantry Async (PWSH): up=8mm speed=36mms
+[21:06:30]  --------------------------------------------------
+[21:06:30]  Step 5 of 40
+[21:06:30]  Target File: C:\Users\arikrahman\Documents\GitHub\SafeHaven\Safehaven-Lua\dumps\scan5.bin
+[21:06:30]  [RadarAPI]: ar1.CaptureCardConfig_StartRecord("C:\\Users\\arikrahman\\Documents\\GitHub\\SafeHaven\\Safehaven-Lua\\dumps\\scan5.bin", 1)
+[21:06:30]  [RadarAPI]: Sending start_record command to DCA1000
+[21:06:30]  [RadarAPI]: Status: Passed
+[21:06:31]  Scanning RIGHT ->
+[21:06:31]  Gantry Async (PWSH): right=280mm speed=36mms
+[21:06:32]  Waiting for motor to start...
+[21:06:33]  Timeout waiting for motor start! Proceeding anyway.
+[21:06:33]  [RadarAPI]: ar1.StartFrame()
+[21:06:33]  [RadarAPI]: Status: Passed
+[21:06:33]  Frame Started.
+[21:06:34]  Frame start async event received!
+[21:06:34]  Waiting 8200 ms for frame & motor...
+[21:06:41]  [RadarAPI]: Frame Ended
+[21:06:41]  Frame End async event received!
+[21:06:42]  Capture & Scan Complete.
+[21:06:42]  Stepping UP (Async)...
+[21:06:42]  Gantry Async (PWSH): up=8mm speed=36mms
+[21:06:42]  --------------------------------------------------
+[21:06:42]  Step 6 of 40
+[21:06:42]  Target File: C:\Users\arikrahman\Documents\GitHub\SafeHaven\Safehaven-Lua\dumps\scan6.bin
+[21:06:42]  [RadarAPI]: ar1.CaptureCardConfig_StartRecord("C:\\Users\\arikrahman\\Documents\\GitHub\\SafeHaven\\Safehaven-Lua\\dumps\\scan6.bin", 1)
+[21:06:42]  [RadarAPI]: Sending start_record command to DCA1000
+[21:06:42]  [RadarAPI]: Status: Passed
+[21:06:43]  Scanning LEFT <-
+[21:06:44]  Gantry Async (PWSH): left=280mm speed=36mms
+[21:06:44]  Waiting for motor to start...
+[21:06:46]  Timeout waiting for motor start! Proceeding anyway.
+[21:06:46]  [RadarAPI]: ar1.StartFrame()
+[21:06:46]  [RadarAPI]: Status: Passed
+[21:06:46]  Frame Started.
+[21:06:46]  Waiting 8200 ms for frame & motor...
+[21:06:46]  Frame start async event received!
+[21:06:53]  Frame End async event received!
+[21:06:53]  [RadarAPI]: Frame Ended
+[21:06:54]  Capture & Scan Complete.
+[21:06:54]  Stepping UP (Async)...
+[21:06:54]  Gantry Async (PWSH): up=8mm speed=36mms
+[21:06:54]  --------------------------------------------------
+[21:06:54]  Step 7 of 40
+[21:06:54]  Target File: C:\Users\arikrahman\Documents\GitHub\SafeHaven\Safehaven-Lua\dumps\scan7.bin
+[21:06:54]  [RadarAPI]: ar1.CaptureCardConfig_StartRecord("C:\\Users\\arikrahman\\Documents\\GitHub\\SafeHaven\\Safehaven-Lua\\dumps\\scan7.bin", 1)
+[21:06:55]  [RadarAPI]: Sending start_record command to DCA1000
+[21:06:55]  [RadarAPI]: Status: Passed
+[21:06:56]  Scanning RIGHT ->
+[21:06:56]  Gantry Async (PWSH): right=280mm speed=36mms
+[21:06:56]  Waiting for motor to start...
+[21:06:58]  Timeout waiting for motor start! Proceeding anyway.
+[21:06:58]  [RadarAPI]: ar1.StartFrame()
+[21:06:58]  [RadarAPI]: Status: Passed
+[21:06:58]  Frame Started.
+[21:06:58]  Frame start async event received!
+[21:06:58]  Waiting 8200 ms for frame & motor...
+[21:07:05]  [RadarAPI]: Frame Ended
+[21:07:05]  Frame End async event received!
+[21:07:06]  Capture & Scan Complete.
+[21:07:06]  Stepping UP (Async)...
+[21:07:06]  Gantry Async (PWSH): up=8mm speed=36mms
+[21:07:07]  --------------------------------------------------
+[21:07:07]  Step 8 of 40
+[21:07:07]  Target File: C:\Users\arikrahman\Documents\GitHub\SafeHaven\Safehaven-Lua\dumps\scan8.bin
+[21:07:07]  [RadarAPI]: ar1.CaptureCardConfig_StartRecord("C:\\Users\\arikrahman\\Documents\\GitHub\\SafeHaven\\Safehaven-Lua\\dumps\\scan8.bin", 1)
+[21:07:07]  [RadarAPI]: Sending start_record command to DCA1000
+[21:07:07]  [RadarAPI]: Status: Passed
+[21:07:08]  Scanning LEFT <-
+[21:07:08]  Gantry Async (PWSH): left=280mm speed=36mms
+[21:07:08]  Waiting for motor to start...
+[21:07:10]  Timeout waiting for motor start! Proceeding anyway.
+[21:07:10]  [RadarAPI]: ar1.StartFrame()
+[21:07:10]  [RadarAPI]: Status: Passed
+[21:07:10]  Frame Started.
+[21:07:10]  Waiting 8200 ms for frame & motor...
+[21:07:10]  Frame start async event received!
+[21:07:17]  Frame End async event received!
+[21:07:17]  [RadarAPI]: Frame Ended
+[21:07:18]  Capture & Scan Complete.
+[21:07:18]  Stepping UP (Async)...
+[21:07:18]  Gantry Async (PWSH): up=8mm speed=36mms
+[21:07:19]  --------------------------------------------------
+[21:07:19]  Step 9 of 40
+[21:07:19]  Target File: C:\Users\arikrahman\Documents\GitHub\SafeHaven\Safehaven-Lua\dumps\scan9.bin
+[21:07:19]  [RadarAPI]: ar1.CaptureCardConfig_StartRecord("C:\\Users\\arikrahman\\Documents\\GitHub\\SafeHaven\\Safehaven-Lua\\dumps\\scan9.bin", 1)
+[21:07:19]  [RadarAPI]: Sending start_record command to DCA1000
+[21:07:19]  [RadarAPI]: Status: Passed
+[21:07:20]  Scanning RIGHT ->
+[21:07:20]  Gantry Async (PWSH): right=280mm speed=36mms
+[21:07:20]  Waiting for motor to start...
+[21:07:22]  Timeout waiting for motor start! Proceeding anyway.
+[21:07:22]  [RadarAPI]: ar1.StartFrame()
+[21:07:22]  [RadarAPI]: Status: Passed
+[21:07:22]  Frame Started.
+[21:07:22]  Frame start async event received!
+[21:07:22]  Waiting 8200 ms for frame & motor...
+[21:07:29]  [RadarAPI]: Frame Ended
+[21:07:29]  Frame End async event received!
+[21:07:30]  Capture & Scan Complete.
+[21:07:30]  Stepping UP (Async)...
+[21:07:31]  Gantry Async (PWSH): up=8mm speed=36mms
+[21:07:31]  --------------------------------------------------
+[21:07:31]  Step 10 of 40
+[21:07:31]  Target File: C:\Users\arikrahman\Documents\GitHub\SafeHaven\Safehaven-Lua\dumps\scan10.bin
+[21:07:31]  [RadarAPI]: ar1.CaptureCardConfig_StartRecord("C:\\Users\\arikrahman\\Documents\\GitHub\\SafeHaven\\Safehaven-Lua\\dumps\\scan10.bin", 1)
+[21:07:31]  [RadarAPI]: Sending start_record command to DCA1000
+[21:07:31]  [RadarAPI]: Status: Passed
+[21:07:32]  Scanning LEFT <-
+[21:07:32]  Gantry Async (PWSH): left=280mm speed=36mms
+[21:07:33]  Waiting for motor to start...
+[21:07:34]  Timeout waiting for motor start! Proceeding anyway.
+[21:07:34]  [RadarAPI]: ar1.StartFrame()
+[21:07:34]  [RadarAPI]: Status: Passed
+[21:07:35]  Frame Started.
+[21:07:35]  Waiting 8200 ms for frame & motor...
+[21:07:35]  Frame start async event received!
+[21:07:42]  Frame End async event received!
+[21:07:42]  [RadarAPI]: Frame Ended
+[21:07:43]  Capture & Scan Complete.
+[21:07:43]  Stepping UP (Async)...
+[21:07:43]  Gantry Async (PWSH): up=8mm speed=36mms
+[21:07:43]  --------------------------------------------------
+[21:07:43]  Step 11 of 40
+[21:07:43]  Target File: C:\Users\arikrahman\Documents\GitHub\SafeHaven\Safehaven-Lua\dumps\scan11.bin
+[21:07:43]  [RadarAPI]: ar1.CaptureCardConfig_StartRecord("C:\\Users\\arikrahman\\Documents\\GitHub\\SafeHaven\\Safehaven-Lua\\dumps\\scan11.bin", 1)
+[21:07:43]  [RadarAPI]: Sending start_record command to DCA1000
+[21:07:43]  [RadarAPI]: Status: Passed
+[21:07:44]  Scanning RIGHT ->
+[21:07:45]  Gantry Async (PWSH): right=280mm speed=36mms
+[21:07:45]  Waiting for motor to start...
+[21:07:47]  Timeout waiting for motor start! Proceeding anyway.
+[21:07:47]  [RadarAPI]: ar1.StartFrame()
+[21:07:47]  [RadarAPI]: Status: Passed
+[21:07:47]  Frame start async event received!
+[21:07:47]  Frame Started.
+[21:07:47]  Waiting 8200 ms for frame & motor...
+[21:07:54]  [RadarAPI]: Frame Ended
+[21:07:54]  Frame End async event received!
+[21:07:55]  Capture & Scan Complete.
+[21:07:55]  Stepping UP (Async)...
+[21:07:55]  Gantry Async (PWSH): up=8mm speed=36mms
+[21:07:56]  --------------------------------------------------
+[21:07:56]  Step 12 of 40
+[21:07:56]  Target File: C:\Users\arikrahman\Documents\GitHub\SafeHaven\Safehaven-Lua\dumps\scan12.bin
+[21:07:56]  [RadarAPI]: ar1.CaptureCardConfig_StartRecord("C:\\Users\\arikrahman\\Documents\\GitHub\\SafeHaven\\Safehaven-Lua\\dumps\\scan12.bin", 1)
+[21:07:56]  [RadarAPI]: Sending start_record command to DCA1000
+[21:07:56]  [RadarAPI]: Status: Passed
+[21:07:57]  Scanning LEFT <-
+[21:07:57]  Gantry Async (PWSH): left=280mm speed=36mms
+[21:07:57]  Waiting for motor to start...
+[21:07:59]  Timeout waiting for motor start! Proceeding anyway.
+[21:07:59]  [RadarAPI]: ar1.StartFrame()
+[21:07:59]  [RadarAPI]: Status: Passed
+[21:07:59]  Frame Started.
+[21:07:59]  Waiting 8200 ms for frame & motor...
+[21:07:59]  Frame start async event received!
+[21:08:06]  Frame End async event received!
+[21:08:06]  [RadarAPI]: Frame Ended
+[21:08:07]  Capture & Scan Complete.
+[21:08:07]  Stepping UP (Async)...
+[21:08:07]  Gantry Async (PWSH): up=8mm speed=36mms
+[21:08:08]  --------------------------------------------------
+[21:08:08]  Step 13 of 40
+[21:08:08]  Target File: C:\Users\arikrahman\Documents\GitHub\SafeHaven\Safehaven-Lua\dumps\scan13.bin
+[21:08:08]  [RadarAPI]: ar1.CaptureCardConfig_StartRecord("C:\\Users\\arikrahman\\Documents\\GitHub\\SafeHaven\\Safehaven-Lua\\dumps\\scan13.bin", 1)
+[21:08:08]  [RadarAPI]: Sending start_record command to DCA1000
+[21:08:08]  [RadarAPI]: Status: Passed
+[21:08:09]  Scanning RIGHT ->
+[21:08:09]  Gantry Async (PWSH): right=280mm speed=36mms
+[21:08:09]  Waiting for motor to start...
+[21:08:11]  Timeout waiting for motor start! Proceeding anyway.
+[21:08:11]  [RadarAPI]: ar1.StartFrame()
+[21:08:11]  [RadarAPI]: Status: Passed
+[21:08:11]  Frame start async event received!
+[21:08:11]  Frame Started.
+[21:08:11]  Waiting 8200 ms for frame & motor...
+[21:08:18]  [RadarAPI]: Frame Ended
+[21:08:18]  Frame End async event received!
+[21:08:19]  Capture & Scan Complete.
+[21:08:19]  Stepping UP (Async)...
+[21:08:20]  Gantry Async (PWSH): up=8mm speed=36mms
+[21:08:20]  --------------------------------------------------
+[21:08:20]  Step 14 of 40
+[21:08:20]  Target File: C:\Users\arikrahman\Documents\GitHub\SafeHaven\Safehaven-Lua\dumps\scan14.bin
+[21:08:20]  [RadarAPI]: ar1.CaptureCardConfig_StartRecord("C:\\Users\\arikrahman\\Documents\\GitHub\\SafeHaven\\Safehaven-Lua\\dumps\\scan14.bin", 1)
+[21:08:20]  [RadarAPI]: Sending start_record command to DCA1000
+[21:08:20]  [RadarAPI]: Status: Passed
+[21:08:22]  Scanning LEFT <-
+[21:08:22]  Gantry Async (PWSH): left=280mm speed=36mms
+[21:08:22]  Waiting for motor to start...
+[21:08:24]  Timeout waiting for motor start! Proceeding anyway.
+[21:08:24]  [RadarAPI]: ar1.StartFrame()
+[21:08:24]  [RadarAPI]: Status: Passed
+[21:08:24]  Frame Started.
+[21:08:24]  Waiting 8200 ms for frame & motor...
+[21:08:24]  Frame start async event received!
+[21:08:31]  [RadarAPI]: Frame Ended
+[21:08:31]  Frame End async event received!
+[21:08:32]  Capture & Scan Complete.
+[21:08:32]  Stepping UP (Async)...
+[21:08:32]  Gantry Async (PWSH): up=8mm speed=36mms
+[21:08:32]  --------------------------------------------------
+[21:08:32]  Step 15 of 40
+[21:08:32]  Target File: C:\Users\arikrahman\Documents\GitHub\SafeHaven\Safehaven-Lua\dumps\scan15.bin
+[21:08:32]  [RadarAPI]: ar1.CaptureCardConfig_StartRecord("C:\\Users\\arikrahman\\Documents\\GitHub\\SafeHaven\\Safehaven-Lua\\dumps\\scan15.bin", 1)
+[21:08:32]  [RadarAPI]: Sending start_record command to DCA1000
+[21:08:33]  [RadarAPI]: Status: Passed
+[21:08:34]  Scanning RIGHT ->
+[21:08:34]  Gantry Async (PWSH): right=280mm speed=36mms
+[21:08:34]  Waiting for motor to start...
+[21:08:36]  Timeout waiting for motor start! Proceeding anyway.
+[21:08:36]  [RadarAPI]: ar1.StartFrame()
+[21:08:36]  [RadarAPI]: Status: Passed
+[21:08:36]  Frame Started.
+[21:08:36]  Waiting 8200 ms for frame & motor...
+[21:08:36]  Frame start async event received!
+[21:08:43]  [RadarAPI]: Frame Ended
+[21:08:43]  Frame End async event received!
+[21:08:44]  Capture & Scan Complete.
+[21:08:44]  Stepping UP (Async)...
+[21:08:44]  Gantry Async (PWSH): up=8mm speed=36mms
+[21:08:44]  --------------------------------------------------
+[21:08:44]  Step 16 of 40
+[21:08:45]  Target File: C:\Users\arikrahman\Documents\GitHub\SafeHaven\Safehaven-Lua\dumps\scan16.bin
+[21:08:45]  [RadarAPI]: ar1.CaptureCardConfig_StartRecord("C:\\Users\\arikrahman\\Documents\\GitHub\\SafeHaven\\Safehaven-Lua\\dumps\\scan16.bin", 1)
+[21:08:45]  [RadarAPI]: Sending start_record command to DCA1000
+[21:08:45]  [RadarAPI]: Status: Passed
+[21:08:46]  Scanning LEFT <-
+[21:08:46]  Gantry Async (PWSH): left=280mm speed=36mms
+[21:08:46]  Waiting for motor to start...
+[21:08:48]  Timeout waiting for motor start! Proceeding anyway.
+[21:08:48]  [RadarAPI]: ar1.StartFrame()
+[21:08:48]  [RadarAPI]: Status: Passed
+[21:08:48]  Frame Started.
+[21:08:48]  Waiting 8200 ms for frame & motor...
+[21:08:48]  Frame start async event received!
+[21:08:55]  Frame End async event received!
+[21:08:55]  [RadarAPI]: Frame Ended
+[21:08:56]  Capture & Scan Complete.
+[21:08:56]  Stepping UP (Async)...
+[21:08:56]  Gantry Async (PWSH): up=8mm speed=36mms
+[21:08:56]  --------------------------------------------------
+[21:08:57]  Step 17 of 40
+[21:08:57]  Target File: C:\Users\arikrahman\Documents\GitHub\SafeHaven\Safehaven-Lua\dumps\scan17.bin
+[21:08:57]  [RadarAPI]: ar1.CaptureCardConfig_StartRecord("C:\\Users\\arikrahman\\Documents\\GitHub\\SafeHaven\\Safehaven-Lua\\dumps\\scan17.bin", 1)
+[21:08:57]  [RadarAPI]: Sending start_record command to DCA1000
+[21:08:57]  [RadarAPI]: Status: Passed
+[21:08:58]  Scanning RIGHT ->
+[21:08:58]  Gantry Async (PWSH): right=280mm speed=36mms
+[21:08:58]  Waiting for motor to start...
+[21:09:00]  Timeout waiting for motor start! Proceeding anyway.
+[21:09:00]  [RadarAPI]: ar1.StartFrame()
+[21:09:00]  [RadarAPI]: Status: Passed
+[21:09:00]  Frame Started.
+[21:09:00]  Waiting 8200 ms for frame & motor...
+[21:09:00]  Frame start async event received!
+[21:09:07]  [RadarAPI]: Frame Ended
+[21:09:07]  Frame End async event received!
+[21:09:08]  Capture & Scan Complete.
+[21:09:08]  Stepping UP (Async)...
+[21:09:08]  Gantry Async (PWSH): up=8mm speed=36mms
+[21:09:09]  --------------------------------------------------
+[21:09:09]  Step 18 of 40
+[21:09:09]  Target File: C:\Users\arikrahman\Documents\GitHub\SafeHaven\Safehaven-Lua\dumps\scan18.bin
+[21:09:09]  [RadarAPI]: ar1.CaptureCardConfig_StartRecord("C:\\Users\\arikrahman\\Documents\\GitHub\\SafeHaven\\Safehaven-Lua\\dumps\\scan18.bin", 1)
+[21:09:09]  [RadarAPI]: Sending start_record command to DCA1000
+[21:09:09]  [RadarAPI]: Status: Passed
+[21:09:10]  Scanning LEFT <-
+[21:09:10]  Gantry Async (PWSH): left=280mm speed=36mms
+[21:09:10]  Waiting for motor to start...
+[21:09:12]  Timeout waiting for motor start! Proceeding anyway.
+[21:09:12]  [RadarAPI]: ar1.StartFrame()
+[21:09:12]  [RadarAPI]: Status: Passed
+[21:09:12]  Frame Started.
+[21:09:12]  Waiting 8200 ms for frame & motor...
+[21:09:12]  Frame start async event received!
+[21:09:19]  Frame End async event received!
+[21:09:19]  [RadarAPI]: Frame Ended
+[21:09:20]  Capture & Scan Complete.
+[21:09:20]  Stepping UP (Async)...
+[21:09:20]  Gantry Async (PWSH): up=8mm speed=36mms
+[21:09:21]  --------------------------------------------------
+[21:09:21]  Step 19 of 40
+[21:09:21]  Target File: C:\Users\arikrahman\Documents\GitHub\SafeHaven\Safehaven-Lua\dumps\scan19.bin
+[21:09:21]  [RadarAPI]: ar1.CaptureCardConfig_StartRecord("C:\\Users\\arikrahman\\Documents\\GitHub\\SafeHaven\\Safehaven-Lua\\dumps\\scan19.bin", 1)
+[21:09:21]  [RadarAPI]: Sending start_record command to DCA1000
+[21:09:21]  [RadarAPI]: Status: Passed
+[21:09:22]  Scanning RIGHT ->
+[21:09:22]  Gantry Async (PWSH): right=280mm speed=36mms
+[21:09:23]  Waiting for motor to start...
+[21:09:24]  Timeout waiting for motor start! Proceeding anyway.
+[21:09:24]  [RadarAPI]: ar1.StartFrame()
+[21:09:24]  [RadarAPI]: Status: Passed
+[21:09:25]  Frame start async event received!
+[21:09:25]  Frame Started.
+[21:09:25]  Waiting 8200 ms for frame & motor...
+[21:09:32]  [RadarAPI]: Frame Ended
+[21:09:32]  Frame End async event received!
+[21:09:33]  Capture & Scan Complete.
+[21:09:33]  Stepping UP (Async)...
+[21:09:33]  Gantry Async (PWSH): up=8mm speed=36mms
+[21:09:33]  --------------------------------------------------
+[21:09:33]  Step 20 of 40
+[21:09:33]  Target File: C:\Users\arikrahman\Documents\GitHub\SafeHaven\Safehaven-Lua\dumps\scan20.bin
+[21:09:33]  [RadarAPI]: ar1.CaptureCardConfig_StartRecord("C:\\Users\\arikrahman\\Documents\\GitHub\\SafeHaven\\Safehaven-Lua\\dumps\\scan20.bin", 1)
+[21:09:33]  [RadarAPI]: Sending start_record command to DCA1000
+[21:09:33]  [RadarAPI]: Status: Passed
+[21:09:35]  Scanning LEFT <-
+[21:09:35]  Gantry Async (PWSH): left=280mm speed=36mms
+[21:09:35]  Waiting for motor to start...
+[21:09:37]  Timeout waiting for motor start! Proceeding anyway.
+[21:09:37]  [RadarAPI]: ar1.StartFrame()
+[21:09:37]  [RadarAPI]: Status: Passed
+[21:09:37]  Frame start async event received!
+[21:09:37]  Frame Started.
+[21:09:37]  Waiting 8200 ms for frame & motor...
+[21:09:44]  [RadarAPI]: Frame Ended
+[21:09:44]  Frame End async event received!
+[21:09:45]  Capture & Scan Complete.
+[21:09:45]  Stepping UP (Async)...
+[21:09:45]  Gantry Async (PWSH): up=8mm speed=36mms
+[21:09:45]  --------------------------------------------------
+[21:09:45]  Step 21 of 40
+[21:09:45]  Target File: C:\Users\arikrahman\Documents\GitHub\SafeHaven\Safehaven-Lua\dumps\scan21.bin
+[21:09:46]  [RadarAPI]: ar1.CaptureCardConfig_StartRecord("C:\\Users\\arikrahman\\Documents\\GitHub\\SafeHaven\\Safehaven-Lua\\dumps\\scan21.bin", 1)
+[21:09:46]  [RadarAPI]: Sending start_record command to DCA1000
+[21:09:46]  [RadarAPI]: Status: Passed
+[21:09:47]  Scanning RIGHT ->
+[21:09:47]  Gantry Async (PWSH): right=280mm speed=36mms
+[21:09:47]  Waiting for motor to start...
+[21:09:49]  Timeout waiting for motor start! Proceeding anyway.
+[21:09:49]  [RadarAPI]: ar1.StartFrame()
+[21:09:49]  [RadarAPI]: Status: Passed
+[21:09:49]  Frame start async event received!
+[21:09:49]  Frame Started.
+[21:09:49]  Waiting 8200 ms for frame & motor...
+[21:09:56]  Frame End async event received!
+[21:09:56]  [RadarAPI]: Frame Ended
+[21:09:57]  Capture & Scan Complete.
+[21:09:57]  Stepping UP (Async)...
+[21:09:57]  Gantry Async (PWSH): up=8mm speed=36mms
+[21:09:58]  --------------------------------------------------
+[21:09:58]  Step 22 of 40
+[21:09:58]  Target File: C:\Users\arikrahman\Documents\GitHub\SafeHaven\Safehaven-Lua\dumps\scan22.bin
+[21:09:58]  [RadarAPI]: ar1.CaptureCardConfig_StartRecord("C:\\Users\\arikrahman\\Documents\\GitHub\\SafeHaven\\Safehaven-Lua\\dumps\\scan22.bin", 1)
+[21:09:58]  [RadarAPI]: Sending start_record command to DCA1000
+[21:09:58]  [RadarAPI]: Status: Passed
+[21:09:59]  Scanning LEFT <-
+[21:09:59]  Gantry Async (PWSH): left=280mm speed=36mms
+[21:10:00]  Waiting for motor to start...
+[21:10:01]  Timeout waiting for motor start! Proceeding anyway.
+[21:10:01]  [RadarAPI]: ar1.StartFrame()
+[21:10:02]  [RadarAPI]: Status: Passed
+[21:10:02]  Frame Started.
+[21:10:02]  Waiting 8200 ms for frame & motor...
+[21:10:02]  Frame start async event received!
+[21:10:09]  [RadarAPI]: Frame Ended
+[21:10:09]  Frame End async event received!
+[21:10:10]  Capture & Scan Complete.
+[21:10:10]  Stepping UP (Async)...
+[21:10:10]  Gantry Async (PWSH): up=8mm speed=36mms
+[21:10:11]  --------------------------------------------------
+[21:10:11]  Step 23 of 40
+[21:10:11]  Target File: C:\Users\arikrahman\Documents\GitHub\SafeHaven\Safehaven-Lua\dumps\scan23.bin
+[21:10:11]  [RadarAPI]: ar1.CaptureCardConfig_StartRecord("C:\\Users\\arikrahman\\Documents\\GitHub\\SafeHaven\\Safehaven-Lua\\dumps\\scan23.bin", 1)
+[21:10:11]  [RadarAPI]: Sending start_record command to DCA1000
+[21:10:11]  [RadarAPI]: Status: Passed
+[21:10:12]  Scanning RIGHT ->
+[21:10:12]  Gantry Async (PWSH): right=280mm speed=36mms
+[21:10:13]  Waiting for motor to start...
+[21:10:14]  Timeout waiting for motor start! Proceeding anyway.
+[21:10:14]  [RadarAPI]: ar1.StartFrame()
+[21:10:14]  [RadarAPI]: Status: Passed
+[21:10:14]  Frame Started.
+[21:10:14]  Frame start async event received!
+[21:10:14]  Waiting 8200 ms for frame & motor...
+[21:10:21]  [RadarAPI]: Frame Ended
+[21:10:22]  Frame End async event received!
+[21:10:23]  Capture & Scan Complete.
+[21:10:23]  Stepping UP (Async)...
+[21:10:23]  Gantry Async (PWSH): up=8mm speed=36mms
+[21:10:23]  --------------------------------------------------
+[21:10:23]  Step 24 of 40
+[21:10:23]  Target File: C:\Users\arikrahman\Documents\GitHub\SafeHaven\Safehaven-Lua\dumps\scan24.bin
+[21:10:23]  [RadarAPI]: ar1.CaptureCardConfig_StartRecord("C:\\Users\\arikrahman\\Documents\\GitHub\\SafeHaven\\Safehaven-Lua\\dumps\\scan24.bin", 1)
+[21:10:23]  [RadarAPI]: Sending start_record command to DCA1000
+[21:10:23]  [RadarAPI]: Status: Passed
+[21:10:24]  Scanning LEFT <-
+[21:10:24]  Gantry Async (PWSH): left=280mm speed=36mms
+[21:10:25]  Waiting for motor to start...
+[21:10:26]  Timeout waiting for motor start! Proceeding anyway.
+[21:10:26]  [RadarAPI]: ar1.StartFrame()
+[21:10:27]  [RadarAPI]: Status: Passed
+[21:10:27]  Frame start async event received!
+[21:10:27]  Frame Started.
+[21:10:27]  Waiting 8200 ms for frame & motor...
+[21:10:34]  Frame End async event received!
+[21:10:34]  [RadarAPI]: Frame Ended
+[21:10:35]  Capture & Scan Complete.
+[21:10:35]  Stepping UP (Async)...
+[21:10:35]  Gantry Async (PWSH): up=8mm speed=36mms
+[21:10:36]  --------------------------------------------------
+[21:10:36]  Step 25 of 40
+[21:10:36]  Target File: C:\Users\arikrahman\Documents\GitHub\SafeHaven\Safehaven-Lua\dumps\scan25.bin
+[21:10:36]  [RadarAPI]: ar1.CaptureCardConfig_StartRecord("C:\\Users\\arikrahman\\Documents\\GitHub\\SafeHaven\\Safehaven-Lua\\dumps\\scan25.bin", 1)
+[21:10:36]  [RadarAPI]: Sending start_record command to DCA1000
+[21:10:36]  [RadarAPI]: Status: Passed
+[21:10:37]  Scanning RIGHT ->
+[21:10:37]  Gantry Async (PWSH): right=280mm speed=36mms
+[21:10:37]  Waiting for motor to start...
+[21:10:39]  Timeout waiting for motor start! Proceeding anyway.
+[21:10:39]  [RadarAPI]: ar1.StartFrame()
+[21:10:39]  [RadarAPI]: Status: Passed
+[21:10:39]  Frame Started.
+[21:10:39]  Waiting 8200 ms for frame & motor...
+[21:10:39]  Frame start async event received!
+[21:10:46]  [RadarAPI]: Frame Ended
+[21:10:46]  Frame End async event received!
+[21:10:47]  Capture & Scan Complete.
+[21:10:47]  Stepping UP (Async)...
+[21:10:47]  Gantry Async (PWSH): up=8mm speed=36mms
+[21:10:48]  --------------------------------------------------
+[21:10:48]  Step 26 of 40
+[21:10:48]  Target File: C:\Users\arikrahman\Documents\GitHub\SafeHaven\Safehaven-Lua\dumps\scan26.bin
+[21:10:48]  [RadarAPI]: ar1.CaptureCardConfig_StartRecord("C:\\Users\\arikrahman\\Documents\\GitHub\\SafeHaven\\Safehaven-Lua\\dumps\\scan26.bin", 1)
+[21:10:48]  [RadarAPI]: Sending start_record command to DCA1000
+[21:10:48]  [RadarAPI]: Status: Passed
+[21:10:49]  Scanning LEFT <-
+[21:10:49]  Gantry Async (PWSH): left=280mm speed=36mms
+[21:10:50]  Waiting for motor to start...
+[21:10:51]  Timeout waiting for motor start! Proceeding anyway.
+[21:10:51]  [RadarAPI]: ar1.StartFrame()
+[21:10:51]  [RadarAPI]: Status: Passed
+[21:10:51]  Frame start async event received!
+[21:10:51]  Frame Started.
+[21:10:51]  Waiting 8200 ms for frame & motor...
+[21:10:59]  [RadarAPI]: Frame Ended
+[21:10:59]  Frame End async event received!
+[21:11:00]  Capture & Scan Complete.
+[21:11:00]  Stepping UP (Async)...
+[21:11:00]  Gantry Async (PWSH): up=8mm speed=36mms
+[21:11:00]  --------------------------------------------------
+[21:11:00]  Step 27 of 40
+[21:11:00]  Target File: C:\Users\arikrahman\Documents\GitHub\SafeHaven\Safehaven-Lua\dumps\scan27.bin
+[21:11:00]  [RadarAPI]: ar1.CaptureCardConfig_StartRecord("C:\\Users\\arikrahman\\Documents\\GitHub\\SafeHaven\\Safehaven-Lua\\dumps\\scan27.bin", 1)
+[21:11:00]  [RadarAPI]: Sending start_record command to DCA1000
+[21:11:00]  [RadarAPI]: Status: Passed
+[21:11:01]  Scanning RIGHT ->
+[21:11:01]  Gantry Async (PWSH): right=280mm speed=36mms
+[21:11:02]  Waiting for motor to start...
+[21:11:04]  Timeout waiting for motor start! Proceeding anyway.
+[21:11:04]  [RadarAPI]: ar1.StartFrame()
+[21:11:04]  [RadarAPI]: Status: Passed
+[21:11:04]  Frame Started.
+[21:11:04]  Waiting 8200 ms for frame & motor...
+[21:11:04]  Frame start async event received!
+[21:11:11]  [RadarAPI]: Frame Ended
+[21:11:11]  Frame End async event received!
+[21:11:12]  Capture & Scan Complete.
+[21:11:12]  Stepping UP (Async)...
+[21:11:12]  Gantry Async (PWSH): up=8mm speed=36mms
+[21:11:13]  --------------------------------------------------
+[21:11:13]  Step 28 of 40
+[21:11:13]  Target File: C:\Users\arikrahman\Documents\GitHub\SafeHaven\Safehaven-Lua\dumps\scan28.bin
+[21:11:13]  [RadarAPI]: ar1.CaptureCardConfig_StartRecord("C:\\Users\\arikrahman\\Documents\\GitHub\\SafeHaven\\Safehaven-Lua\\dumps\\scan28.bin", 1)
+[21:11:13]  [RadarAPI]: Sending start_record command to DCA1000
+[21:11:13]  [RadarAPI]: Status: Passed
+[21:11:14]  Scanning LEFT <-
+[21:11:14]  Gantry Async (PWSH): left=280mm speed=36mms
+[21:11:15]  Waiting for motor to start...
+[21:11:16]  Timeout waiting for motor start! Proceeding anyway.
+[21:11:16]  [RadarAPI]: ar1.StartFrame()
+[21:11:16]  [RadarAPI]: Status: Passed
+[21:11:16]  Frame start async event received!
+[21:11:16]  Frame Started.
+[21:11:17]  Waiting 8200 ms for frame & motor...
+[21:11:23]  Frame End async event received!
+[21:11:24]  [RadarAPI]: Frame Ended
+[21:11:25]  Capture & Scan Complete.
+[21:11:25]  Stepping UP (Async)...
+[21:11:25]  Gantry Async (PWSH): up=8mm speed=36mms
+[21:11:25]  --------------------------------------------------
+[21:11:25]  Step 29 of 40
+[21:11:25]  Target File: C:\Users\arikrahman\Documents\GitHub\SafeHaven\Safehaven-Lua\dumps\scan29.bin
+[21:11:25]  [RadarAPI]: ar1.CaptureCardConfig_StartRecord("C:\\Users\\arikrahman\\Documents\\GitHub\\SafeHaven\\Safehaven-Lua\\dumps\\scan29.bin", 1)
+[21:11:25]  [RadarAPI]: Sending start_record command to DCA1000
+[21:11:25]  [RadarAPI]: Status: Passed
+[21:11:27]  Scanning RIGHT ->
+[21:11:27]  Gantry Async (PWSH): right=280mm speed=36mms
+[21:11:27]  Waiting for motor to start...
+[21:11:29]  Timeout waiting for motor start! Proceeding anyway.
+[21:11:29]  [RadarAPI]: ar1.StartFrame()
+[21:11:29]  [RadarAPI]: Status: Passed
+[21:11:29]  Frame start async event received!
+[21:11:29]  Frame Started.
+[21:11:29]  Waiting 8200 ms for frame & motor...
+[21:11:36]  [RadarAPI]: Frame Ended
+[21:11:36]  Frame End async event received!
+[21:11:37]  Capture & Scan Complete.
+[21:11:37]  Stepping UP (Async)...
+[21:11:37]  Gantry Async (PWSH): up=8mm speed=36mms
+[21:11:38]  --------------------------------------------------
+[21:11:38]  Step 30 of 40
+[21:11:38]  Target File: C:\Users\arikrahman\Documents\GitHub\SafeHaven\Safehaven-Lua\dumps\scan30.bin
+[21:11:38]  [RadarAPI]: ar1.CaptureCardConfig_StartRecord("C:\\Users\\arikrahman\\Documents\\GitHub\\SafeHaven\\Safehaven-Lua\\dumps\\scan30.bin", 1)
+[21:11:38]  [RadarAPI]: Sending start_record command to DCA1000
+[21:11:38]  [RadarAPI]: Status: Passed
+[21:11:39]  Scanning LEFT <-
+[21:11:39]  Gantry Async (PWSH): left=280mm speed=36mms
+[21:11:39]  Waiting for motor to start...
+[21:11:41]  Timeout waiting for motor start! Proceeding anyway.
+[21:11:41]  [RadarAPI]: ar1.StartFrame()
+[21:11:41]  [RadarAPI]: Status: Passed
+[21:11:41]  Frame start async event received!
+[21:11:41]  Frame Started.
+[21:11:41]  Waiting 8200 ms for frame & motor...
+[21:11:48]  Frame End async event received!
+[21:11:48]  [RadarAPI]: Frame Ended
+[21:11:50]  Capture & Scan Complete.
+[21:11:50]  Stepping UP (Async)...
+[21:11:50]  Gantry Async (PWSH): up=8mm speed=36mms
+[21:11:50]  --------------------------------------------------
+[21:11:50]  Step 31 of 40
+[21:11:50]  Target File: C:\Users\arikrahman\Documents\GitHub\SafeHaven\Safehaven-Lua\dumps\scan31.bin
+[21:11:50]  [RadarAPI]: ar1.CaptureCardConfig_StartRecord("C:\\Users\\arikrahman\\Documents\\GitHub\\SafeHaven\\Safehaven-Lua\\dumps\\scan31.bin", 1)
+[21:11:50]  [RadarAPI]: Sending start_record command to DCA1000
+[21:11:50]  [RadarAPI]: Status: Passed
+[21:11:51]  Scanning RIGHT ->
+[21:11:51]  Gantry Async (PWSH): right=280mm speed=36mms
+[21:11:52]  Waiting for motor to start...
+[21:11:53]  Timeout waiting for motor start! Proceeding anyway.
+[21:11:53]  [RadarAPI]: ar1.StartFrame()
+[21:11:53]  [RadarAPI]: Status: Passed
+[21:11:54]  Frame Started.
+[21:11:54]  Waiting 8200 ms for frame & motor...
+[21:11:54]  Frame start async event received!
+[21:12:01]  [RadarAPI]: Frame Ended
+[21:12:01]  Frame End async event received!
+[21:12:02]  Capture & Scan Complete.
+[21:12:02]  Stepping UP (Async)...
+[21:12:02]  Gantry Async (PWSH): up=8mm speed=36mms
+[21:12:02]  --------------------------------------------------
+[21:12:02]  Step 32 of 40
+[21:12:02]  Target File: C:\Users\arikrahman\Documents\GitHub\SafeHaven\Safehaven-Lua\dumps\scan32.bin
+[21:12:02]  [RadarAPI]: ar1.CaptureCardConfig_StartRecord("C:\\Users\\arikrahman\\Documents\\GitHub\\SafeHaven\\Safehaven-Lua\\dumps\\scan32.bin", 1)
+[21:12:02]  [RadarAPI]: Sending start_record command to DCA1000
+[21:12:02]  [RadarAPI]: Status: Passed
+[21:12:04]  Scanning LEFT <-
+[21:12:04]  Gantry Async (PWSH): left=280mm speed=36mms
+[21:12:04]  Waiting for motor to start...
+[21:12:06]  Timeout waiting for motor start! Proceeding anyway.
+[21:12:06]  [RadarAPI]: ar1.StartFrame()
+[21:12:06]  [RadarAPI]: Status: Passed
+[21:12:06]  Frame Started.
+[21:12:06]  Frame start async event received!
+[21:12:06]  Waiting 8200 ms for frame & motor...
+[21:12:13]  [RadarAPI]: Frame Ended
+[21:12:13]  Frame End async event received!
+[21:12:14]  Capture & Scan Complete.
+[21:12:14]  Stepping UP (Async)...
+[21:12:14]  Gantry Async (PWSH): up=8mm speed=36mms
+[21:12:15]  --------------------------------------------------
+[21:12:15]  Step 33 of 40
+[21:12:15]  Target File: C:\Users\arikrahman\Documents\GitHub\SafeHaven\Safehaven-Lua\dumps\scan33.bin
+[21:12:15]  [RadarAPI]: ar1.CaptureCardConfig_StartRecord("C:\\Users\\arikrahman\\Documents\\GitHub\\SafeHaven\\Safehaven-Lua\\dumps\\scan33.bin", 1)
+[21:12:15]  [RadarAPI]: Sending start_record command to DCA1000
+[21:12:15]  [RadarAPI]: Status: Passed
+[21:12:16]  Scanning RIGHT ->
+[21:12:16]  Gantry Async (PWSH): right=280mm speed=36mms
+[21:12:17]  Waiting for motor to start...
+[21:12:18]  Timeout waiting for motor start! Proceeding anyway.
+[21:12:18]  [RadarAPI]: ar1.StartFrame()
+[21:12:18]  [RadarAPI]: Status: Passed
+[21:12:18]  Frame Started.
+[21:12:18]  Waiting 8200 ms for frame & motor...
+[21:12:18]  Frame start async event received!
+[21:12:26]  Frame End async event received!
+[21:12:26]  [RadarAPI]: Frame Ended
+[21:12:27]  Capture & Scan Complete.
+[21:12:27]  Stepping UP (Async)...
+[21:12:27]  Gantry Async (PWSH): up=8mm speed=36mms
+[21:12:27]  --------------------------------------------------
+[21:12:27]  Step 34 of 40
+[21:12:27]  Target File: C:\Users\arikrahman\Documents\GitHub\SafeHaven\Safehaven-Lua\dumps\scan34.bin
+[21:12:27]  [RadarAPI]: ar1.CaptureCardConfig_StartRecord("C:\\Users\\arikrahman\\Documents\\GitHub\\SafeHaven\\Safehaven-Lua\\dumps\\scan34.bin", 1)
+[21:12:27]  [RadarAPI]: Sending start_record command to DCA1000
+[21:12:27]  [RadarAPI]: Status: Passed
+[21:12:29]  Scanning LEFT <-
+[21:12:29]  Gantry Async (PWSH): left=280mm speed=36mms
+[21:12:29]  Waiting for motor to start...
+[21:12:31]  Timeout waiting for motor start! Proceeding anyway.
+[21:12:31]  [RadarAPI]: ar1.StartFrame()
+[21:12:31]  [RadarAPI]: Status: Passed
+[21:12:31]  Frame Started.
+[21:12:31]  Waiting 8200 ms for frame & motor...
+[21:12:31]  Frame start async event received!
+[21:12:38]  Frame End async event received!
+[21:12:38]  [RadarAPI]: Frame Ended
+[21:12:39]  Capture & Scan Complete.
+[21:12:39]  Stepping UP (Async)...
+[21:12:39]  Gantry Async (PWSH): up=8mm speed=36mms
+[21:12:39]  --------------------------------------------------
+[21:12:39]  Step 35 of 40
+[21:12:39]  Target File: C:\Users\arikrahman\Documents\GitHub\SafeHaven\Safehaven-Lua\dumps\scan35.bin
+[21:12:40]  [RadarAPI]: ar1.CaptureCardConfig_StartRecord("C:\\Users\\arikrahman\\Documents\\GitHub\\SafeHaven\\Safehaven-Lua\\dumps\\scan35.bin", 1)
+[21:12:40]  [RadarAPI]: Sending start_record command to DCA1000
+[21:12:40]  [RadarAPI]: Status: Passed
+[21:12:41]  Scanning RIGHT ->
+[21:12:41]  Gantry Async (PWSH): right=280mm speed=36mms
+[21:12:41]  Waiting for motor to start...
+[21:12:43]  Timeout waiting for motor start! Proceeding anyway.
+[21:12:43]  [RadarAPI]: ar1.StartFrame()
+[21:12:43]  [RadarAPI]: Status: Passed
+[21:12:43]  Frame start async event received!
+[21:12:43]  Frame Started.
+[21:12:43]  Waiting 8200 ms for frame & motor...
+[21:12:50]  [RadarAPI]: Frame Ended
+[21:12:50]  Frame End async event received!
+[21:12:51]  Capture & Scan Complete.
+[21:12:51]  Stepping UP (Async)...
+[21:12:51]  Gantry Async (PWSH): up=8mm speed=36mms
+[21:12:52]  --------------------------------------------------
+[21:12:52]  Step 36 of 40
+[21:12:52]  Target File: C:\Users\arikrahman\Documents\GitHub\SafeHaven\Safehaven-Lua\dumps\scan36.bin
+[21:12:52]  [RadarAPI]: ar1.CaptureCardConfig_StartRecord("C:\\Users\\arikrahman\\Documents\\GitHub\\SafeHaven\\Safehaven-Lua\\dumps\\scan36.bin", 1)
+[21:12:52]  [RadarAPI]: Sending start_record command to DCA1000
+[21:12:52]  [RadarAPI]: Status: Passed
+[21:12:53]  Scanning LEFT <-
+[21:12:53]  Gantry Async (PWSH): left=280mm speed=36mms
+[21:12:53]  Waiting for motor to start...
+[21:12:55]  Timeout waiting for motor start! Proceeding anyway.
+[21:12:55]  [RadarAPI]: ar1.StartFrame()
+[21:12:55]  [RadarAPI]: Status: Passed
+[21:12:55]  Frame Started.
+[21:12:55]  Waiting 8200 ms for frame & motor...
+[21:12:55]  Frame start async event received!
+[21:13:02]  Frame End async event received!
+[21:13:02]  [RadarAPI]: Frame Ended
+[21:13:04]  Capture & Scan Complete.
+[21:13:04]  Stepping UP (Async)...
+[21:13:04]  Gantry Async (PWSH): up=8mm speed=36mms
+[21:13:04]  --------------------------------------------------
+[21:13:04]  Step 37 of 40
+[21:13:04]  Target File: C:\Users\arikrahman\Documents\GitHub\SafeHaven\Safehaven-Lua\dumps\scan37.bin
+[21:13:04]  [RadarAPI]: ar1.CaptureCardConfig_StartRecord("C:\\Users\\arikrahman\\Documents\\GitHub\\SafeHaven\\Safehaven-Lua\\dumps\\scan37.bin", 1)
+[21:13:04]  [RadarAPI]: Sending start_record command to DCA1000
+[21:13:04]  [RadarAPI]: Status: Passed
+[21:13:05]  Scanning RIGHT ->
+[21:13:05]  Gantry Async (PWSH): right=280mm speed=36mms
+[21:13:06]  Waiting for motor to start...
+[21:13:08]  Timeout waiting for motor start! Proceeding anyway.
+[21:13:08]  [RadarAPI]: ar1.StartFrame()
+[21:13:08]  [RadarAPI]: Status: Passed
+[21:13:08]  Frame Started.
+[21:13:08]  Waiting 8200 ms for frame & motor...
+[21:13:08]  Frame start async event received!
+[21:13:15]  [RadarAPI]: Frame Ended
+[21:13:15]  Frame End async event received!
+[21:13:16]  Capture & Scan Complete.
+[21:13:16]  Stepping UP (Async)...
+[21:13:16]  Gantry Async (PWSH): up=8mm speed=36mms
+[21:13:16]  --------------------------------------------------
+[21:13:16]  Step 38 of 40
+[21:13:16]  Target File: C:\Users\arikrahman\Documents\GitHub\SafeHaven\Safehaven-Lua\dumps\scan38.bin
+[21:13:16]  [RadarAPI]: ar1.CaptureCardConfig_StartRecord("C:\\Users\\arikrahman\\Documents\\GitHub\\SafeHaven\\Safehaven-Lua\\dumps\\scan38.bin", 1)
+[21:13:16]  [RadarAPI]: Sending start_record command to DCA1000
+[21:13:17]  [RadarAPI]: Status: Passed
+[21:13:18]  Scanning LEFT <-
+[21:13:18]  Gantry Async (PWSH): left=280mm speed=36mms
+[21:13:18]  Waiting for motor to start...
+[21:13:20]  Timeout waiting for motor start! Proceeding anyway.
+[21:13:20]  [RadarAPI]: ar1.StartFrame()
+[21:13:20]  [RadarAPI]: Status: Passed
+[21:13:20]  Frame Started.
+[21:13:20]  Waiting 8200 ms for frame & motor...
+[21:13:20]  Frame start async event received!
+[21:13:27]  Frame End async event received!
+[21:13:27]  [RadarAPI]: Frame Ended
+[21:13:28]  Capture & Scan Complete.
+[21:13:28]  Stepping UP (Async)...
+[21:13:28]  Gantry Async (PWSH): up=8mm speed=36mms
+[21:13:29]  --------------------------------------------------
+[21:13:29]  Step 39 of 40
+[21:13:29]  Target File: C:\Users\arikrahman\Documents\GitHub\SafeHaven\Safehaven-Lua\dumps\scan39.bin
+[21:13:29]  [RadarAPI]: ar1.CaptureCardConfig_StartRecord("C:\\Users\\arikrahman\\Documents\\GitHub\\SafeHaven\\Safehaven-Lua\\dumps\\scan39.bin", 1)
+[21:13:29]  [RadarAPI]: Sending start_record command to DCA1000
+[21:13:29]  [RadarAPI]: Status: Passed
+[21:13:30]  Scanning RIGHT ->
+[21:13:30]  Gantry Async (PWSH): right=280mm speed=36mms
+[21:13:30]  Waiting for motor to start...
+[21:13:32]  Timeout waiting for motor start! Proceeding anyway.
+[21:13:32]  [RadarAPI]: ar1.StartFrame()
+[21:13:32]  [RadarAPI]: Status: Passed
+[21:13:32]  Frame Started.
+[21:13:32]  Frame start async event received!
+[21:13:32]  Waiting 8200 ms for frame & motor...
+[21:13:39]  [RadarAPI]: Frame Ended
+[21:13:39]  Frame End async event received!
+[21:13:40]  Capture & Scan Complete.
+[21:13:40]  Stepping UP (Async)...
+[21:13:40]  Gantry Async (PWSH): up=8mm speed=36mms
+[21:13:41]  --------------------------------------------------
+[21:13:41]  Step 40 of 40
+[21:13:41]  Target File: C:\Users\arikrahman\Documents\GitHub\SafeHaven\Safehaven-Lua\dumps\scan40.bin
+[21:13:41]  [RadarAPI]: ar1.CaptureCardConfig_StartRecord("C:\\Users\\arikrahman\\Documents\\GitHub\\SafeHaven\\Safehaven-Lua\\dumps\\scan40.bin", 1)
+[21:13:41]  [RadarAPI]: Sending start_record command to DCA1000
+[21:13:41]  [RadarAPI]: Status: Passed
+[21:13:43]  Scanning LEFT <-
+[21:13:43]  Gantry Async (PWSH): left=280mm speed=36mms
+[21:13:43]  Waiting for motor to start...
+[21:13:45]  Timeout waiting for motor start! Proceeding anyway.
+[21:13:45]  [RadarAPI]: ar1.StartFrame()
+[21:13:45]  [RadarAPI]: Status: Passed
+[21:13:45]  Frame Started.
+[21:13:45]  Frame start async event received!
+[21:13:45]  Waiting 8200 ms for frame & motor...
+[21:13:52]  [RadarAPI]: Frame Ended
+[21:13:52]  Frame End async event received!
+[21:13:53]  Capture & Scan Complete.
+[21:13:53]  SAR Data Capture Finished Successfully!
+[21:13:53]  
+[21:13:53]  ***Script completed successfully.***

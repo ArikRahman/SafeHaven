@@ -247,7 +247,7 @@ def main():
     # Configuration
     data_dir = 'dumps'
     X = 400
-    Y = 40
+    Y = 100 # Updated to match new high-res scan
     samples = 512
     
     def filename_fn(y):
@@ -260,7 +260,7 @@ def main():
     n_fft_time = 1024
     # z0 will be iterated
     dx = 290/400
-    dy = 205/100 # Note: As per original MATLAB code
+    dy = 2 # Updated to 2mm to match physical step size
     n_fft_space = 1024
     
     c = 299792458.0
@@ -276,8 +276,8 @@ def main():
     # Z-axis iteration parameters
     # Original code used z0 = 323mm. We sweep around this value.
     z_start_mm = 200
-    z_end_mm = 600
-    z_step_mm = 10 # Finer step for better inspection around target
+    z_end_mm = 450
+    z_step_mm = 5 # Finer step for better inspection around target
     z_values = np.arange(z_start_mm, z_end_mm + z_step_mm, z_step_mm)
     
     sar_stack = []

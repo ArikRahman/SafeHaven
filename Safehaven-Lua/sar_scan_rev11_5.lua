@@ -1,17 +1,17 @@
--- SAR Data Capture Script Revision 11
--- Automates capturing 40 scans for SAR processing with integrated Gantry control.
--- Based on sar_scan_rev10.lua.
+-- SAR Data Capture Script Revision 12
+-- Automates capturing 100 scans for SAR processing with integrated Gantry control.
+-- Based on sar_scan_rev11.lua.
 -- Changes:
---   - Swapped Order: Triggers Gantry (Async) BEFORE Radar.
---   - Polls for "MOTOR_STARTED" marker in log file before starting radar.
---   - This ensures the motor is moving when the scan begins.
+--   - High-Resolution Mode: Reduced Y-step to 2mm (<= lambda/2) to prevent aliasing.
+--   - Increased num_y_steps to 100 to maintain 200mm vertical coverage.
+--   - Optimized for weapon classification with IWR1443/DCA1000EVM.
 
 -- =================================================================================
 -- CONFIGURATION
 -- =================================================================================
 local base_path = "C:\\Users\\arikrahman\\Documents\\GitHub\\SafeHaven\\Safehaven-Lua\\dumps\\"
 local log_file = base_path .. "gantry_log.txt"
-local num_y_steps = 40         -- Number of steps in the Y direction
+local num_y_steps = 100        -- Number of steps in the Y direction (Increased for resolution)
 local frame_periodicity = 18   -- ms
 local num_frames = 400         -- Total frames per scan
 -- Frame Duration = 400 * 18ms = 7200ms (7.2s)
@@ -21,7 +21,7 @@ local ssh_host = "corban@10.244.182.88"
 local remote_dir = "/home/corban/Documents/GitHub/SafeHaven/SoftwareDemo/GantryFunctionality/MotorTest"
 local python_script = "motorTest_rev13.py"
 local x_dist_mm = 280
-local y_step_mm = 2
+local y_step_mm = 2            -- Reduced to 2mm (<= lambda/2) to prevent aliasing
 local speed_mms = 36
 
 -- =================================================================================
@@ -55,7 +55,7 @@ end
 -- =================================================================================
 -- INITIALIZATION
 -- =================================================================================
-WriteToLog("Starting SAR Scan Revision 11 (Async + Motor First)...\n", "blue")
+WriteToLog("Starting SAR Scan Revision 12 (High-Res Mode)...\n", "blue")
 
 -- 1. Stop any running processes
 ar1.StopFrame()

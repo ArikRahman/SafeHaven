@@ -1,17 +1,18 @@
--- SAR Data Capture Script Revision 11
--- Automates capturing 40 scans for SAR processing with integrated Gantry control.
--- Based on sar_scan_rev10.lua.
+-- SAR Data Capture Script Revision 13
+-- Automates capturing 100 scans for SAR processing with integrated Gantry control.
+-- Based on sar_scan_rev12.lua.
 -- Changes:
---   - Swapped Order: Triggers Gantry (Async) BEFORE Radar.
---   - Polls for "MOTOR_STARTED" marker in log file before starting radar.
---   - This ensures the motor is moving when the scan begins.
+--   - Fixes synchronization issue where radar started before motor.
+--   - Clears log file before each move to prevent false positives.
+--   - Increases motor start timeout to 5 seconds to account for SSH latency.
+--   - Uses high-resolution parameters (2mm step, 100 steps).
 
 -- =================================================================================
 -- CONFIGURATION
 -- =================================================================================
 local base_path = "C:\\Users\\arikrahman\\Documents\\GitHub\\SafeHaven\\Safehaven-Lua\\dumps\\"
 local log_file = base_path .. "gantry_log.txt"
-local num_y_steps = 40         -- Number of steps in the Y direction
+local num_y_steps = 40        -- Number of steps in the Y direction (Increased for resolution)
 local frame_periodicity = 18   -- ms
 local num_frames = 400         -- Total frames per scan
 -- Frame Duration = 400 * 18ms = 7200ms (7.2s)
@@ -21,7 +22,7 @@ local ssh_host = "corban@10.244.182.88"
 local remote_dir = "/home/corban/Documents/GitHub/SafeHaven/SoftwareDemo/GantryFunctionality/MotorTest"
 local python_script = "motorTest_rev13.py"
 local x_dist_mm = 280
-local y_step_mm = 2
+local y_step_mm = 2            -- Reduced to 2mm (<= lambda/2) to prevent aliasing
 local speed_mms = 36
 
 -- =================================================================================
@@ -55,7 +56,7 @@ end
 -- =================================================================================
 -- INITIALIZATION
 -- =================================================================================
-WriteToLog("Starting SAR Scan Revision 11 (Async + Motor First)...\n", "blue")
+WriteToLog("Starting SAR Scan Revision 13 (High-Res + Sync Fix)...\n", "blue")
 
 -- 1. Stop any running processes
 ar1.StopFrame()
@@ -119,12 +120,16 @@ for y = 1, num_y_steps do
     end
     
     -- Execute Motion (Non-Blocking)
+    -- Clear log file first to ensure we catch the NEW start signal
+    local f = io.open(log_file, "w")
+    if f then f:close() end
+
     RunRemoteCommandAsync(move_args)
     
     -- Poll for motor start confirmation
     WriteToLog("Waiting for motor to start...\n", "black")
     local poll_count = 0
-    local max_polls = 100 -- 1 second at 10ms intervals
+    local max_polls = 500 -- Increased to 5 seconds (500 * 10ms) to allow for SSH connection time
     local motor_started = false
     while poll_count < max_polls and not motor_started do
         local file = io.open(log_file, "r")
