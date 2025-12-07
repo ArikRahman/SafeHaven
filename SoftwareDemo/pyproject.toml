@@ -9,6 +9,7 @@ dependencies = [
     "opencv-python",
     "pynput",
     "ultralytics",
+    "gpiozero",
 ]
 
 #[build-system]

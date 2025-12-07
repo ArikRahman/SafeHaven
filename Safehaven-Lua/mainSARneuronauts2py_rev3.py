@@ -297,11 +297,11 @@ def main():
     # Parameters
     n_fft_time = 1024
     # z0 will be iterated
-    #dx = 290/400
-    #dy = 205/100 # Note: As per original MATLAB code
+    dx = 290/400
+    dy = 205/100 # Note: As per original MATLAB code
     
-    dx = 280/400
-    dy = 1.0
+    # dx = 280/400
+    # dy = 1.0
     n_fft_space = 1024
 
 
@@ -476,22 +476,35 @@ def main():
             # Initial Thresholding
             initial_percentile = args.scatter3d_intensity
             
-            # We will create a slider that goes from initial_percentile up to 99.9%
-            # To do this efficiently in a standalone HTML, we can pre-generate the subsets for each slider step.
-            # However, storing many copies of the data can be heavy.
-            # A lighter way is to use a 'filter' transform if supported, or just limit the number of steps.
-            # Let's use 20 steps.
-            
-            percentiles = np.linspace(initial_percentile, 99.9, 20)
-            
             # Base data (using the lowest threshold to ensure all points are available if we were using transforms, 
             # but here we are using restyle with explicit arrays, so we just need the source data)
             # Actually, for the initial plot, we use the first percentile.
             
+            # We will create a slider that goes from initial_percentile up to 99.9%
+            # To do this efficiently in a standalone HTML, we can pre-generate the subsets for each slider step.
+            # However, storing many copies of the data can be heavy.
+            
+            # Dynamic step count based on data size to prevent browser crashes
+            threshold_0_val = np.percentile(vals, initial_percentile)
+            mask_0 = vals > threshold_0_val
+            num_points = np.sum(mask_0)
+            
+            print(f"Filtering data: keeping points > {initial_percentile} percentile ({num_points} points)")
+            
+            if num_points > 200000:
+                print("WARNING: High point count (>200k). Reducing slider steps to 5 to prevent browser crash.")
+                num_steps = 5
+            elif num_points > 50000:
+                print("Notice: Moderate point count (>50k). Reducing slider steps to 10.")
+                num_steps = 10
+            else:
+                num_steps = 20
+            
+            percentiles = np.linspace(initial_percentile, 99.9, num_steps)
+            
+            # Recalculate threshold_0 based on the first step of the linspace (which is initial_percentile)
             threshold_0 = np.percentile(vals, percentiles[0])
             mask_0 = vals > threshold_0
-            
-            print(f"Filtering data: keeping points > {initial_percentile} percentile ({np.sum(mask_0)} points)")
 
             # Create Plotly Figure
             fig = go.Figure()

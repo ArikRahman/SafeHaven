@@ -1,7 +1,16 @@
 from gpiozero import Button
 import time
-from MotorTest import motorTest_rev7 as motor
-from GantryFunctionality import RunState
+import sys
+import os
+
+# Add the project root (SoftwareDemo) to sys.path
+# script_dir = os.path.dirname(os.path.abspath(__file__))
+# project_root = os.path.abspath(os.path.join(script_dir, '../../'))
+# if project_root not in sys.path:
+    # sys.path.insert(0, project_root)
+
+# from GantryFunctionality.MotorTest import motorTest_rev7 as motor
+# from GantryFunctionality import RunState
 
 STOP_BUTTON_PIN = 24   # Stop button pin on GPIO 24
 DEBOUNCE = 0.05        # 50ms debounce 

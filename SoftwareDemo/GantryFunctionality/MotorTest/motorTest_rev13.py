@@ -13,9 +13,12 @@
 #   python3 motorTest_rev10.py --step=50 up            # override global step
 #   python3 motorTest_rev10.py left=200 --force        # 'force' allows ignore margin clamp and prevents saving position
 
-from gpiozero import DigitalOutputDevice
+from gpiozero import DigitalOutputDevice, Button
 from rpi_hardware_pwm import HardwarePWM
 from time import sleep, time
+import threading
+import os
+import sys
 import sys
 import os
 import json
@@ -244,6 +247,30 @@ def close():
     dirX.close()
     pulY.stop()
     dirY.close()
+
+
+def monitor_emergency_stop():
+    """
+    Monitors the emergency stop button in a background thread.
+    Stops all motors and exits the program immediately if pressed.
+    """
+    # Emergency Stop Configuration
+    STOP_BUTTON_PIN = 24
+    DEBOUNCE = 0.05
+    
+    try:
+        stop_button = Button(STOP_BUTTON_PIN, pull_up=True, bounce_time=DEBOUNCE)
+    except Exception as e:
+        # print(f"Warning: Could not initialize E-Stop button on GPIO {STOP_BUTTON_PIN}: {e}")
+        return
+
+    while True:
+        if stop_button.is_pressed:
+            print("\n\n!!! EMERGENCY STOP TRIGGERED !!!")
+            print("Stopping all motors and exiting...")
+            stopAllMotor()
+            os._exit(1) # Force exit immediately
+        sleep(0.05)
 
 
 def save_position(currentX, currentY, coords=None, filename='position.txt'):
@@ -800,6 +827,10 @@ def parse_speed(v):
     return None
 
 def main():
+    # Start E-Stop Monitor
+    estop_thread = threading.Thread(target=monitor_emergency_stop, daemon=True)
+    estop_thread.start()
+
     # Check for silent mode to suppress output
     # We use 'silent' (no dashes) to avoid confusion with uv flags
     if "silent" in sys.argv or "--no-debug" in sys.argv:
