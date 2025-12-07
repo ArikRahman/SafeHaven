@@ -192,7 +192,7 @@ def create_matched_filter(x_point_m, x_step_m, y_point_m, y_step_m, z_target):
     return matched_filter
 
 
-def reconstruct_sar_image(sar_data, matched_filter, x_step_m, y_step_m, xy_size_t):
+def reconstruct_sar_image(sar_data, matched_filter, x_step_m, y_step_m, x_size_t, y_size_t):
     """
     Reconstruct SAR image.
     """
@@ -238,8 +238,8 @@ def reconstruct_sar_image(sar_data, matched_filter, x_step_m, y_step_m, xy_size_
     y_range_t = y_step_m * np.arange(-(y_point_t-1)/2, (y_point_t-1)/2 + 1)
     
     # Indices
-    ind_x = (x_range_t > -xy_size_t/2) & (x_range_t < xy_size_t/2)
-    ind_y = (y_range_t > -xy_size_t/2) & (y_range_t < xy_size_t/2)
+    ind_x = (x_range_t > -x_size_t/2) & (x_range_t < x_size_t/2)
+    ind_y = (y_range_t > -y_size_t/2) & (y_range_t < y_size_t/2)
     
     # Apply crop
     # np.ix_ constructs open meshes from multiple sequences
@@ -297,9 +297,13 @@ def main():
     # Parameters
     n_fft_time = 1024
     # z0 will be iterated
-    dx = 290/400
-    dy = 205/100 # Note: As per original MATLAB code
+    #dx = 290/400
+    #dy = 205/100 # Note: As per original MATLAB code
+    
+    dx = 280/400
+    dy = 1.0
     n_fft_space = 1024
+
 
     c = 299792458.0
     fS = 9121e3
@@ -376,8 +380,20 @@ def main():
         
         # Create SAR Image
         # print("Reconstructing SAR Image...")
-        im_size = 200
-        sar_image, x_axis, y_axis = reconstruct_sar_image(sar_data, matched_filter, dx, dy, im_size)
+        
+        # Use scan dimensions for axis alignment
+        scan_width_x = 280
+        scan_height_y = 40
+        
+        # Use a larger display size to see the full reconstruction (beyond the scan area)
+        display_width_x = 400
+        display_height_y = 300
+        
+        sar_image, x_axis, y_axis = reconstruct_sar_image(sar_data, matched_filter, dx, dy, display_width_x, display_height_y)
+        
+        # Shift axes so that (0,0) corresponds to the bottom-left of the physical scan area
+        x_axis += scan_width_x / 2
+        y_axis += scan_height_y / 2
         
         # Store magnitude
         # MATLAB: fliplr(sarImage)
