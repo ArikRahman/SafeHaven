@@ -258,10 +258,7 @@ def main():
     
     # Parameters
     n_fft_time = 1024
-    z0 = 300e-3
-    #z0 = 323e-3
-    #adjust this for how far target is
-    #default for cranidetect was the
+    # z0 will be iterated
     dx = 290/400
     dy = 205/100 # Note: As per original MATLAB code
     n_fft_space = 1024
@@ -276,51 +273,135 @@ def main():
     # MATLAB: fft(rawData, nFFTtime) -> operates on first dimension (samples)
     raw_data_fft = fft(raw_data, n=n_fft_time, axis=0)
     
-    # Range focusing
-    tI = 4.5225e-10
-    k_idx = int(round(K * Ts * (2 * z0 / c + tI) * n_fft_time))
+    # Z-axis iteration parameters
+    # Original code used z0 = 323mm. We sweep around this value.
+    z_start_mm = 200
+    z_end_mm = 450
+    z_step_mm = 5 # Finer step for better inspection around target
+    z_values = np.arange(z_start_mm, z_end_mm + z_step_mm, z_step_mm)
     
-    # Extract slice
-    # MATLAB: sarData = squeeze(rawDataFFT(k+1,:,:));
-    # Python: k_idx is 0-based.
-    sar_data = raw_data_fft[k_idx, :, :]
+    sar_stack = []
     
-    # Create Matched Filter
-    print("Creating Matched Filter...")
-    matched_filter = create_matched_filter(n_fft_space, dx, n_fft_space, dy, z0*1e3)
+    print(f"Starting Z-sweep from {z_start_mm}mm to {z_end_mm}mm with {z_step_mm}mm step...")
     
-    # Create SAR Image
-    print("Reconstructing SAR Image...")
-    im_size = 200
-    sar_image, x_axis, y_axis = reconstruct_sar_image(sar_data, matched_filter, dx, dy, im_size)
+    # Variables to hold axis info (assuming constant across Z)
+    x_axis = None
+    y_axis = None
     
-    # Plot
-    print("Plotting...")
-    plt.figure()
-    # MATLAB: mesh(xRangeT,yRangeT,abs(fliplr(sarImage))...)
-    # fliplr flips left/right (columns).
-    # We can use pcolormesh or imshow.
+    for z_mm in z_values:
+        z0 = z_mm * 1e-3
+        print(f"Processing Z = {z_mm} mm...")
+        
+        # Range focusing
+        tI = 4.5225e-10
+        k_idx = int(round(K * Ts * (2 * z0 / c + tI) * n_fft_time))
+        
+        # Extract slice
+        # MATLAB: sarData = squeeze(rawDataFFT(k+1,:,:));
+        # Python: k_idx is 0-based.
+        sar_data = raw_data_fft[k_idx, :, :]
+        
+        # Create Matched Filter
+        # print("Creating Matched Filter...")
+        matched_filter = create_matched_filter(n_fft_space, dx, n_fft_space, dy, z0*1e3)
+        
+        # Create SAR Image
+        # print("Reconstructing SAR Image...")
+        im_size = 200
+        sar_image, x_axis, y_axis = reconstruct_sar_image(sar_data, matched_filter, dx, dy, im_size)
+        
+        # Store magnitude
+        # MATLAB: fliplr(sarImage)
+        sar_stack.append(np.abs(np.fliplr(sar_image)))
+
+    sar_stack = np.array(sar_stack) # Shape (N_z, Y, X)
     
-    # Note on orientation:
-    # MATLAB mesh(x, y, Z) plots Z against x and y.
-    # fliplr(sarImage) reverses the x-axis direction of the image content?
-    # Let's just plot abs(sar_image) and see.
-    # Usually we want to align with how MATLAB displays it.
+    # Generate Heatmaps
+    print("Generating Heatmaps...")
     
-    # MATLAB: fliplr(sarImage)
-    to_plot = np.abs(np.fliplr(sar_image))
+    # 1. Maximum Intensity Projection along Y axis (View X vs Z)
+    # sar_stack is (Z, Y, X). Max over axis 1 (Y). Result (Z, X).
+    mip_xz = np.max(sar_stack, axis=1)
     
-    plt.pcolormesh(x_axis, y_axis, to_plot, cmap='jet', shading='gouraud')
+    plt.figure(figsize=(10, 6))
+    # pcolormesh expects X, Y. Here X is x_axis, Y is z_values.
+    # mip_xz shape is (Z, X).
+    plt.pcolormesh(x_axis, z_values, mip_xz, cmap='jet', shading='gouraud')
+    plt.xlabel('Horizontal (mm)')
+    plt.ylabel('Depth Z (mm)')
+    plt.title('SAR X-Z Maximum Intensity Projection')
+    plt.colorbar(label='Intensity')
+    plt.savefig('sar_heatmap_xz.png')
+    print("Saved X-Z heatmap to sar_heatmap_xz.png")
+    
+    # 2. Maximum Intensity Projection along X axis (View Y vs Z)
+    # sar_stack is (Z, Y, X). Max over axis 2 (X). Result (Z, Y).
+    mip_yz = np.max(sar_stack, axis=2)
+    
+    plt.figure(figsize=(10, 6))
+    # pcolormesh expects X, Y. Here X is y_axis, Y is z_values.
+    plt.pcolormesh(y_axis, z_values, mip_yz, cmap='jet', shading='gouraud')
+    plt.xlabel('Vertical (mm)')
+    plt.ylabel('Depth Z (mm)')
+    plt.title('SAR Y-Z Maximum Intensity Projection')
+    plt.colorbar(label='Intensity')
+    plt.savefig('sar_heatmap_yz.png')
+    print("Saved Y-Z heatmap to sar_heatmap_yz.png")
+
+    # 3. Best Focus Image (Max over Z)
+    # Max over axis 0 (Z). Result (Y, X).
+    mip_xy = np.max(sar_stack, axis=0)
+    
+    plt.figure(figsize=(10, 6))
+    plt.pcolormesh(x_axis, y_axis, mip_xy, cmap='jet', shading='gouraud')
     plt.xlabel('Horizontal (mm)')
     plt.ylabel('Vertical (mm)')
-    plt.title('SAR Image - Matched Filter Response')
+    plt.title('SAR X-Y Maximum Intensity Projection (All Z)')
     plt.axis('equal')
-    plt.colorbar()
+    plt.colorbar(label='Intensity')
+    plt.savefig('sar_heatmap_xy_max.png')
+    print("Saved X-Y max projection to sar_heatmap_xy_max.png")
     
-    # Save output
-    output_file = 'sar_image_python.png'
-    plt.savefig(output_file)
-    print(f"Saved image to {output_file}")
+    # 4. Interactive Slider Plot
+    print("Opening interactive inspector...")
+    from matplotlib.widgets import Slider
+    
+    fig_int, ax_int = plt.subplots(figsize=(10, 8))
+    plt.subplots_adjust(bottom=0.25)
+    
+    initial_idx = len(z_values) // 2
+    
+    # Note: pcolormesh with gouraud shading
+    mesh = ax_int.pcolormesh(x_axis, y_axis, sar_stack[initial_idx], cmap='jet', shading='gouraud')
+    ax_int.set_xlabel('Horizontal (mm)')
+    ax_int.set_ylabel('Vertical (mm)')
+    title_obj = ax_int.set_title(f'SAR Image at Z = {z_values[initial_idx]} mm')
+    ax_int.axis('equal')
+    fig_int.colorbar(mesh, ax=ax_int, label='Intensity')
+    
+    ax_slider = plt.axes([0.25, 0.1, 0.65, 0.03])
+    slider = Slider(
+        ax=ax_slider,
+        label='Depth Z (mm)',
+        valmin=z_values[0],
+        valmax=z_values[-1],
+        valinit=z_values[initial_idx],
+        valstep=z_step_mm
+    )
+    
+    def update(val):
+        # Find nearest index
+        z_selected = slider.val
+        idx = int(round((z_selected - z_start_mm) / z_step_mm))
+        idx = max(0, min(idx, len(z_values) - 1))
+        
+        # Update data
+        mesh.set_array(sar_stack[idx].ravel())
+        title_obj.set_text(f'SAR Image at Z = {z_values[idx]} mm')
+        fig_int.canvas.draw_idle()
+        
+    slider.on_changed(update)
+    
     plt.show()
 
 if __name__ == "__main__":

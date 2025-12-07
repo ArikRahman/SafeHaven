@@ -1,9 +1,10 @@
 # SafeHaven SAR Data Capture
 
 ## Goal
-The goal of this project is to capture Synthetic Aperture Radar (SAR) data using an IWR1443 radar and DCA1000 capture card.
+The goal of this project is to capture Synthetic Aperture Radar (SAR) data using an IWR1443 radar and DCA1000 capture card for a weapon classification project
 We need to automate the capture process to synchronize with a gantry system that moves the radar vertically.
 dear AI comment every damn lin
+
 ## Scripts
 
 ### `fix.lua`
