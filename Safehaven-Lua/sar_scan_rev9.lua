@@ -1,10 +1,9 @@
--- SAR Data Capture Script Revision 6.2
+-- SAR Data Capture Script Revision 9
 -- Automates capturing 40 scans for SAR processing with integrated Gantry control.
--- Based on sar_scan_rev5.lua and sar_scan_rev4.lua.
--- Fixes:
---   - Reverts to 'start /wait' execution method from Rev 4 (proven to work).
---   - Removes 'Read-Host' for fully automated execution.
---   - Swapped Order: Radar Starts BEFORE Gantry to ensure capture during motion.
+-- Based on sar_scan_rev6.2.
+-- Changes:
+--   - Y-Axis Step is now ASYNCHRONOUS (Non-blocking).
+--   - Removes the wait time between scans for faster throughput.
 
 -- =================================================================================
 -- CONFIGURATION
@@ -42,9 +41,7 @@ function RunRemoteCommand(args)
     local ssh_cmd_str = string.format("ssh -t %s \\\"%s\\\"", ssh_host, remote_shell_cmd)
     
     -- The full PowerShell command line:
-    -- Uses 'start /wait' to ensure the command executes in a proper environment (like Rev 4).
-    -- Removed 'Read-Host' so it closes automatically.
-    -- Uses 'Tee-Object' to log output.
+    -- Uses 'start /wait' to ensure the command executes in a proper environment.
     local full_cmd = string.format("start \"Gantry\" /wait \"%s\" -NoProfile -Command \"%s | Tee-Object -FilePath '%s'\"", pwsh_exe, ssh_cmd_str, log_file)
     
     WriteToLog("Gantry Command (PWSH): " .. args .. "\n", "black")
@@ -59,10 +56,24 @@ function RunRemoteCommand(args)
     return result, duration
 end
 
+function RunRemoteCommandAsync(args)
+    -- Same as above, but NON-BLOCKING for Y-steps
+    local pwsh_exe = "C:\\Program Files\\PowerShell\\7\\pwsh.exe"
+    local remote_cmd_inner = string.format("cd %s; uv run %s %s", remote_dir, python_script, args)
+    local remote_shell_cmd = string.format("zsh -l -i -c '%s'", remote_cmd_inner)
+    local ssh_cmd_str = string.format("ssh -t %s \\\"%s\\\"", ssh_host, remote_shell_cmd)
+    
+    -- Uses 'start /min' WITHOUT /wait. Returns immediately.
+    local full_cmd = string.format("start \"Gantry\" /min \"%s\" -NoProfile -Command \"%s | Tee-Object -FilePath '%s'\"", pwsh_exe, ssh_cmd_str, log_file)
+    
+    WriteToLog("Gantry Async (PWSH): " .. args .. "\n", "black")
+    os.execute(full_cmd)
+end
+
 -- =================================================================================
 -- INITIALIZATION
 -- =================================================================================
-WriteToLog("Starting SAR Scan Revision 6 (Synced Gantry)...\n", "blue")
+WriteToLog("Starting SAR Scan Revision 9 (Async Y-Step)...\n", "blue")
 
 -- 1. Stop any running processes
 ar1.StopFrame()
@@ -116,8 +127,7 @@ for y = 1, num_y_steps do
     RSTD.Sleep(1000) -- Wait for DCA to arm
     
     -- 2. Start Frame (Trigger Radar)
-    -- We trigger the radar BEFORE the motor to ensure we capture the entire movement.
-    -- Note: There will be a small delay (~250ms) before the motor actually starts moving due to SSH latency.
+    -- Trigger Radar BEFORE Gantry (Rev 6.2 logic)
     if (ar1.StartFrame() == 0) then
         WriteToLog("Frame Started. Triggering Gantry...\n", "green")
     else
@@ -125,7 +135,7 @@ for y = 1, num_y_steps do
         break
     end
     
-    -- 3. Trigger Gantry Motion
+    -- 3. Trigger Gantry Motion (X-Axis)
     local move_args = ""
     if (y % 2 ~= 0) then
         move_args = string.format("right=%dmm speed=%dmms", x_dist_mm, speed_mms)
@@ -135,25 +145,34 @@ for y = 1, num_y_steps do
         WriteToLog("Scanning LEFT <-\n", "magenta")
     end
     
-    -- Execute Motion (Blocks script execution until motor finishes)
+    -- Execute Motion (Blocking)
     local _, cmd_duration = RunRemoteCommand(move_args)
     
     -- 4. Wait for Frame Completion
-    -- Since Frame starts AFTER command, we wait the full frame duration + buffer
-    local wait_time = frame_duration_ms + safety_buffer_ms
-    WriteToLog(string.format("Waiting %d ms for frame & motor...\n", wait_time), "black")
-    RSTD.Sleep(wait_time)
+    -- Calculate if we need to wait any longer.
+    -- The motor command (blocking) might have taken longer than the frame duration.
+    local required_time = frame_duration_ms + safety_buffer_ms
+    local remaining_wait = required_time - cmd_duration
+    
+    if remaining_wait > 0 then
+        WriteToLog(string.format("Waiting remaining %.0f ms for frame...\n", remaining_wait), "black")
+        RSTD.Sleep(remaining_wait)
+    else
+        WriteToLog("Frame and Motor complete. Proceeding immediately.\n", "gray")
+    end
     
     WriteToLog("Capture & Scan Complete.\n", "green")
     
     -- 5. Move Y-Axis (Step Up) if not last step
     if y < num_y_steps then
-        WriteToLog("Stepping UP...\n", "magenta")
+        WriteToLog("Stepping UP (Async)...\n", "magenta")
         local step_args = string.format("up=%dmm speed=%dmms", y_step_mm, speed_mms)
-        RunRemoteCommand(step_args)
         
-        -- Small pause before next iteration
-        RSTD.Sleep(500)
+        -- Use Async command here to avoid waiting
+        RunRemoteCommandAsync(step_args)
+        
+        -- Removed the 500ms sleep. The next loop iteration's setup time 
+        -- (StartRecord + 1000ms sleep) is sufficient for the 8mm move.
     end
 end
 
