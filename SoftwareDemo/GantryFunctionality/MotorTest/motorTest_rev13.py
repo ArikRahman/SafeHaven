@@ -796,6 +796,13 @@ def parse_speed(v):
     return None
 
 def main():
+    # Check for silent mode to suppress output
+    # We use 'silent' (no dashes) to avoid confusion with uv flags
+    if "silent" in sys.argv or "--no-debug" in sys.argv:
+        f = open(os.devnull, 'w')
+        sys.stdout = f
+        sys.stderr = f
+
     # Check for speed override first (applies to all modes)
     target_speed_mm_s = None
     for arg in sys.argv[1:]:
