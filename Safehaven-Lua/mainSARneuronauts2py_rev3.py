@@ -4,6 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.fft import fft, fft2, ifft2, fftshift
 
+
 def load_data_cube(filename, samples, X, Y, option):
     """
     Load binary data and format into a 3D data cube.
@@ -124,6 +125,7 @@ def load_data_cube(filename, samples, X, Y, option):
 
     return data_cube
 
+
 def stack(samples, X, Y, option, data_dir, filename_fn):
     """
     Load data cubes and stack them along the Y dimension.
@@ -151,6 +153,7 @@ def stack(samples, X, Y, option, data_dir, filename_fn):
         
     return data_stack
 
+
 def create_matched_filter(x_point_m, x_step_m, y_point_m, y_step_m, z_target):
     """
     Creates Matched Filter.
@@ -162,7 +165,7 @@ def create_matched_filter(x_point_m, x_step_m, y_point_m, y_step_m, z_target):
     # MATLAB: x = xStepM * (-(xPointM-1)/2 : (xPointM-1)/2) * 1e-3;
     # Python: np.arange(-(x_point_m-1)/2, (x_point_m-1)/2 + 0.1) ?
     # Let's use linspace or arange carefully.
-    # (-(xPointM-1)/2 : (xPointM-1)/2) generates xPointM points centered at 0.
+    # (-(xPointM-1)/2 : (x_point_m-1)/2) generates xPointM points centered at 0.
     
     x_vec = x_step_m * np.arange(-(x_point_m-1)/2, (x_point_m-1)/2 + 1) * 1e-3
     y_vec = y_step_m * np.arange(-(y_point_m-1)/2, (y_point_m-1)/2 + 1) * 1e-3
@@ -186,6 +189,7 @@ def create_matched_filter(x_point_m, x_step_m, y_point_m, y_step_m, z_target):
     matched_filter = np.exp(-1j * 2 * k * np.sqrt(X_grid**2 + Y_grid**2 + z0**2))
     
     return matched_filter
+
 
 def reconstruct_sar_image(sar_data, matched_filter, x_step_m, y_step_m, xy_size_t):
     """
@@ -244,9 +248,35 @@ def reconstruct_sar_image(sar_data, matched_filter, x_step_m, y_step_m, xy_size_
     
     return sar_image, x_range_t, y_range_t
 
+
+def parse_z_value(z_str):
+    """
+    Parse a Z index string and return value in millimeters as a float.
+    Accepts formats like '300', '300mm', '0.3m'.
+    """
+    if z_str is None:
+        return None
+    s = str(z_str).strip().lower()
+    try:
+        if s.endswith('mm'):
+            return float(s[:-2])
+        elif s.endswith('m'):
+            # meters to mm
+            return float(s[:-1]) * 1000.0
+        else:
+            return float(s)
+    except Exception:
+        raise argparse.ArgumentTypeError(f"Invalid zindex value: {z_str}")
+
+
 def main():
-    parser = argparse.ArgumentParser(description='SAR Reconstruction')
+    parser = argparse.ArgumentParser(description='SAR Reconstruction (rev3)')
     parser.add_argument('--folder', type=str, default='dumps', help='Folder containing scan data')
+    parser.add_argument('--zindex', type=str, default=None, help="Single Z slice to process (e.g., '300', '300mm', '0.3m')")
+    parser.add_argument('--zstep', type=str, default=None, help="Step size for Z sweep (e.g., '3', '3mm', '0.003m')")
+    parser.add_argument('--zstart', '--z_start', dest='zstart', type=str, default=None, help="Start Z value for sweep (e.g., '300', '300mm', '0.3m')")
+    parser.add_argument('--zend', '--z_end', dest='zend', type=str, default=None, help="End Z value for sweep (e.g., '800', '800mm', '0.8m')")
+    parser.add_argument('--xyonly', action='store_true', help='Only generate the X-Y image; skip X-Z and Y-Z heatmaps')
     args = parser.parse_args()
 
     # Configuration
@@ -254,45 +284,72 @@ def main():
     X = 400
     Y = 40
     samples = 512
-    
+
     def filename_fn(y):
         return f"scan{y}_Raw_0.bin"
         
     print("Loading data...")
     raw_data = stack(samples, X, Y, 1, data_dir, filename_fn)
-    
+
     # Parameters
     n_fft_time = 1024
     # z0 will be iterated
     dx = 290/400
     dy = 205/100 # Note: As per original MATLAB code
     n_fft_space = 1024
-    
+
     c = 299792458.0
     fS = 9121e3
     Ts = 1/fS
     K = 63.343e12
-    
+
     # Range FFT
     print("Processing Range FFT...")
     # MATLAB: fft(rawData, nFFTtime) -> operates on first dimension (samples)
     raw_data_fft = fft(raw_data, n=n_fft_time, axis=0)
-    
+
     # Z-axis iteration parameters
     # Original code used z0 = 323mm. We sweep around this value.
     z_start_mm = 300
     z_end_mm = 800
-    z_step_mm = 3 # Finer step for better inspection around target
-    z_values = np.arange(z_start_mm, z_end_mm + z_step_mm, z_step_mm)
-    
+    z_step_mm = 3 # Default step (mm)
+
+    # If the user passed a single zindex, override the sweep
+    z_index_val = parse_z_value(args.zindex) if args.zindex is not None else None
+    # zstart/zend overrides, parse and validate if present
+    if args.zstart is not None:
+        z_start_parsed = parse_z_value(args.zstart)
+        if z_start_parsed is None:
+            raise ValueError(f"Invalid zstart value: {args.zstart}")
+        z_start_mm = z_start_parsed
+    if args.zend is not None:
+        z_end_parsed = parse_z_value(args.zend)
+        if z_end_parsed is None:
+            raise ValueError(f"Invalid zend value: {args.zend}")
+        z_end_mm = z_end_parsed
+    if z_start_mm >= z_end_mm:
+        raise ValueError(f"zstart ({z_start_mm}mm) must be less than zend ({z_end_mm}mm)")
+    # If the user passed a zstep value, override default z_step_mm
+    if args.zstep is not None:
+        z_step_val = parse_z_value(args.zstep)
+        if z_step_val <= 0:
+            raise ValueError(f"Invalid zstep: {z_step_val}. Must be > 0.")
+        z_step_mm = z_step_val
+    if z_index_val is not None:
+        z_values = np.array([z_index_val])
+        print(f"Processing single Z = {z_index_val} mm specified via --zindex")
+    else:
+        z_values = np.arange(z_start_mm, z_end_mm + z_step_mm, z_step_mm)
+        print(f"Starting Z-sweep from {z_start_mm}mm to {z_end_mm}mm with {z_step_mm}mm step...")
+    if args.xyonly:
+        print("XY-only flag set; skipping X-Z and Y-Z heatmap generation.")
+
     sar_stack = []
-    
-    print(f"Starting Z-sweep from {z_start_mm}mm to {z_end_mm}mm with {z_step_mm}mm step...")
-    
+
     # Variables to hold axis info (assuming constant across Z)
     x_axis = None
     y_axis = None
-    
+
     for z_mm in z_values:
         z0 = z_mm * 1e-3
         print(f"Processing Z = {z_mm} mm...")
@@ -300,6 +357,10 @@ def main():
         # Range focusing
         tI = 4.5225e-10
         k_idx = int(round(K * Ts * (2 * z0 / c + tI) * n_fft_time))
+        # Safety check: ensure we are in the valid FFT index range
+        if k_idx < 0 or k_idx >= raw_data_fft.shape[0]:
+            print(f"Computed range-FFT index {k_idx} out of bounds (0, {raw_data_fft.shape[0]-1}); skipping this Z value")
+            continue
         
         # Extract slice
         # MATLAB: sarData = squeeze(rawDataFFT(k+1,:,:));
@@ -320,43 +381,45 @@ def main():
         sar_stack.append(np.abs(np.fliplr(sar_image)))
 
     sar_stack = np.array(sar_stack) # Shape (N_z, Y, X)
-    
+
     # Generate Heatmaps
     print("Generating Heatmaps...")
-    
+
     # 1. Maximum Intensity Projection along Y axis (View X vs Z)
     # sar_stack is (Z, Y, X). Max over axis 1 (Y). Result (Z, X).
-    mip_xz = np.max(sar_stack, axis=1)
-    
-    plt.figure(figsize=(10, 6))
-    # pcolormesh expects X, Y. Here X is x_axis, Y is z_values.
-    # mip_xz shape is (Z, X).
-    plt.pcolormesh(x_axis, z_values, mip_xz, cmap='jet', shading='gouraud')
-    plt.xlabel('Horizontal (mm)')
-    plt.ylabel('Depth Z (mm)')
-    plt.title('SAR X-Z Maximum Intensity Projection')
-    plt.colorbar(label='Intensity')
-    plt.savefig('sar_heatmap_xz.png')
-    print("Saved X-Z heatmap to sar_heatmap_xz.png")
-    
+    if not args.xyonly:
+        mip_xz = np.max(sar_stack, axis=1)
+
+        plt.figure(figsize=(10, 6))
+        # pcolormesh expects X, Y. Here X is x_axis, Y is z_values.
+        # mip_xz shape is (Z, X).
+        plt.pcolormesh(x_axis, z_values, mip_xz, cmap='jet', shading='gouraud')
+        plt.xlabel('Horizontal (mm)')
+        plt.ylabel('Depth Z (mm)')
+        plt.title('SAR X-Z Maximum Intensity Projection')
+        plt.colorbar(label='Intensity')
+        plt.savefig('sar_heatmap_xz.png')
+        print("Saved X-Z heatmap to sar_heatmap_xz.png")
+
     # 2. Maximum Intensity Projection along X axis (View Y vs Z)
     # sar_stack is (Z, Y, X). Max over axis 2 (X). Result (Z, Y).
-    mip_yz = np.max(sar_stack, axis=2)
-    
-    plt.figure(figsize=(10, 6))
-    # pcolormesh expects X, Y. Here X is y_axis, Y is z_values.
-    plt.pcolormesh(y_axis, z_values, mip_yz, cmap='jet', shading='gouraud')
-    plt.xlabel('Vertical (mm)')
-    plt.ylabel('Depth Z (mm)')
-    plt.title('SAR Y-Z Maximum Intensity Projection')
-    plt.colorbar(label='Intensity')
-    plt.savefig('sar_heatmap_yz.png')
-    print("Saved Y-Z heatmap to sar_heatmap_yz.png")
+    if not args.xyonly:
+        mip_yz = np.max(sar_stack, axis=2)
+
+        plt.figure(figsize=(10, 6))
+        # pcolormesh expects X, Y. Here X is y_axis, Y is z_values.
+        plt.pcolormesh(y_axis, z_values, mip_yz, cmap='jet', shading='gouraud')
+        plt.xlabel('Vertical (mm)')
+        plt.ylabel('Depth Z (mm)')
+        plt.title('SAR Y-Z Maximum Intensity Projection')
+        plt.colorbar(label='Intensity')
+        plt.savefig('sar_heatmap_yz.png')
+        print("Saved Y-Z heatmap to sar_heatmap_yz.png")
 
     # 3. Best Focus Image (Max over Z)
     # Max over axis 0 (Z). Result (Y, X).
     mip_xy = np.max(sar_stack, axis=0)
-    
+
     plt.figure(figsize=(10, 6))
     plt.pcolormesh(x_axis, y_axis, mip_xy, cmap='jet', shading='gouraud')
     plt.xlabel('Horizontal (mm)')
@@ -366,48 +429,57 @@ def main():
     plt.colorbar(label='Intensity')
     plt.savefig('sar_heatmap_xy_max.png')
     print("Saved X-Y max projection to sar_heatmap_xy_max.png")
-    
-    # 4. Interactive Slider Plot
+
+    # 4. Interactive Slider Plot (or single Z display)
     print("Opening interactive inspector...")
     from matplotlib.widgets import Slider
-    
+
+    single_z_mode = (len(z_values) == 1)
+
     fig_int, ax_int = plt.subplots(figsize=(10, 8))
     plt.subplots_adjust(bottom=0.25)
-    
-    initial_idx = len(z_values) // 2
-    
-    # Note: pcolormesh with gouraud shading
-    mesh = ax_int.pcolormesh(x_axis, y_axis, sar_stack[initial_idx], cmap='jet', shading='gouraud')
-    ax_int.set_xlabel('Horizontal (mm)')
-    ax_int.set_ylabel('Vertical (mm)')
-    title_obj = ax_int.set_title(f'SAR Image at Z = {z_values[initial_idx]} mm')
-    ax_int.axis('equal')
-    fig_int.colorbar(mesh, ax=ax_int, label='Intensity')
-    
-    ax_slider = plt.axes([0.25, 0.1, 0.65, 0.03])
-    slider = Slider(
-        ax=ax_slider,
-        label='Depth Z (mm)',
-        valmin=z_values[0],
-        valmax=z_values[-1],
-        valinit=z_values[initial_idx],
-        valstep=z_step_mm
-    )
-    
-    def update(val):
-        # Find nearest index
-        z_selected = slider.val
-        idx = int(round((z_selected - z_start_mm) / z_step_mm))
-        idx = max(0, min(idx, len(z_values) - 1))
-        
-        # Update data
-        mesh.set_array(sar_stack[idx].ravel())
-        title_obj.set_text(f'SAR Image at Z = {z_values[idx]} mm')
-        fig_int.canvas.draw_idle()
-        
-    slider.on_changed(update)
-    
-    plt.show()
+
+    # If a single Z was selected, just display that single image without a slider
+    if single_z_mode:
+        idx = 0
+        mesh = ax_int.pcolormesh(x_axis, y_axis, sar_stack[idx], cmap='jet', shading='gouraud')
+        ax_int.set_xlabel('Horizontal (mm)')
+        ax_int.set_ylabel('Vertical (mm)')
+        title_obj = ax_int.set_title(f'SAR Image at Z = {z_values[idx]} mm')
+        ax_int.axis('equal')
+        fig_int.colorbar(mesh, ax=ax_int, label='Intensity')
+        plt.show()
+    else:
+        initial_idx = len(z_values) // 2
+        # Note: pcolormesh with gouraud shading
+        mesh = ax_int.pcolormesh(x_axis, y_axis, sar_stack[initial_idx], cmap='jet', shading='gouraud')
+        ax_int.set_xlabel('Horizontal (mm)')
+        ax_int.set_ylabel('Vertical (mm)')
+        title_obj = ax_int.set_title(f'SAR Image at Z = {z_values[initial_idx]} mm')
+        ax_int.axis('equal')
+        fig_int.colorbar(mesh, ax=ax_int, label='Intensity')
+
+        ax_slider = plt.axes([0.25, 0.1, 0.65, 0.03])
+        slider = Slider(
+            ax=ax_slider,
+            label='Depth Z (mm)',
+            valmin=z_values[0],
+            valmax=z_values[-1],
+            valinit=z_values[initial_idx],
+            valstep=z_step_mm
+        )
+
+        def update(val):
+            # Find nearest index in z_values to the slider's current value
+            z_selected = slider.val
+            idx = int(np.argmin(np.abs(z_values - z_selected)))
+            # Update data
+            mesh.set_array(sar_stack[idx].ravel())
+            title_obj.set_text(f'SAR Image at Z = {z_values[idx]} mm')
+            fig_int.canvas.draw_idle()
+
+        slider.on_changed(update)
+        plt.show()
 
 if __name__ == "__main__":
     main()
