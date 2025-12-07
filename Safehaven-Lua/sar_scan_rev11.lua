@@ -21,7 +21,7 @@ local ssh_host = "corban@10.244.182.88"
 local remote_dir = "/home/corban/Documents/GitHub/SafeHaven/SoftwareDemo/GantryFunctionality/MotorTest"
 local python_script = "motorTest_rev13.py"
 local x_dist_mm = 280
-local y_step_mm = 2
+local y_step_mm = 1
 local speed_mms = 36
 
 -- =================================================================================

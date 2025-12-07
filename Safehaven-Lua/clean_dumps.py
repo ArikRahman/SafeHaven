@@ -1,15 +1,13 @@
-import os
 import shutil
 import re
+import os
 from pathlib import Path
-from datetime import datetime
 
-# CONFIGURATION
-DUMPS_DIR = Path(r"./dumps")  # Adjust path to your dumps folder
-TIME_THRESHOLD_SEC = 60       # Files older than this (relative to newest file) are considered 'old'
+# --- CONFIGURATION ---
+DUMPS_DIR = Path(r"./dumps")
+ANCHOR_FILE_NAME = "scan1_Raw_0.bin"
 
 def get_scan_index(filename):
-    """Extracts index from 'scanX_Raw_0.bin'."""
     match = re.search(r'scan(\d+)_Raw_0\.bin', filename.name)
     return int(match.group(1)) if match else None
 
@@ -18,55 +16,68 @@ def main():
         print(f"Error: Directory {DUMPS_DIR} not found.")
         return
 
-    # 1. Gather all scan files
-    all_files = list(DUMPS_DIR.glob("scan*_Raw_0.bin"))
-    if not all_files:
-        print("No scan files found.")
+    anchor_file = DUMPS_DIR / ANCHOR_FILE_NAME
+
+    # 1. Establish the Timeline Anchor
+    if not anchor_file.exists():
+        print(f"[ERROR] Anchor file '{ANCHOR_FILE_NAME}' not found!")
+        print("Cannot determine the 'new' session time without scan1. Aborting.")
         return
 
-    # 2. Identify the 'Fresh' Timestamp
-    # We assume the newest file represents the current valid session.
-    newest_file = max(all_files, key=lambda f: f.stat().st_mtime)
-    latest_mtime = newest_file.stat().st_mtime
-    print(f"Latest scan detected: {newest_file.name} ({datetime.fromtimestamp(latest_mtime)})")
-
-    # 3. Identify and Remove Old Files
-    valid_files = []
+    anchor_mtime = anchor_file.stat().st_mtime
+    print(f"Anchor found: {anchor_file.name}")
+    print(f"Session Start Time: {os.path.getmtime(anchor_file)}")
     
-    # Sort by index to process sequentially
-    sorted_files = sorted(all_files, key=get_scan_index)
+    # 2. Delete Older Files
+    all_files = list(DUMPS_DIR.glob("scan*_Raw_0.bin"))
     
-    # We need the range of indices to know where holes are
-    max_index = get_scan_index(sorted_files[-1])
-    min_index = get_scan_index(sorted_files[0])
-
-    print("\n--- Cleaning Stale Files ---")
-    for file_path in sorted_files:
-        mtime = file_path.stat().st_mtime
-        age_diff = latest_mtime - mtime
-
-        if age_diff > TIME_THRESHOLD_SEC:
-            print(f"[DELETE] {file_path.name}: {int(age_diff)}s older than latest.")
-            file_path.unlink()  # Delete the file
-        else:
-            valid_files.append(file_path)
-
-    # 4. Pad Missing Scans (Forward Fill)
-    print("\n--- Padding Missing Scans ---")
+    print("\n--- Cleaning Files Older than scan1 ---")
+    deleted_count = 0
     
-    # We iterate through the expected sequence 
-    for i in range(min_index, max_index + 1):
-        current_file = DUMPS_DIR / f"scan{i}_Raw_0.bin"
+    for f in all_files:
+        # Skip the anchor itself
+        if f.name == ANCHOR_FILE_NAME:
+            continue
+            
+        # If file is strictly older than scan1, delete it
+        if f.stat().st_mtime < anchor_mtime:
+            # Check difference to avoid sub-second jitter issues if necessary, 
+            # but usually 'stale' files are seconds/minutes older.
+            time_diff = anchor_mtime - f.stat().st_mtime
+            print(f"[DELETE] {f.name} (Older by {time_diff:.2f}s)")
+            f.unlink()
+            deleted_count += 1
+    
+    if deleted_count == 0:
+        print("No old files found.")
+
+    # 3. Forward Fill (Pad Missing)
+    # Re-scan directory to see what's left
+    valid_files = list(DUMPS_DIR.glob("scan*_Raw_0.bin"))
+    if not valid_files:
+        return
+
+    indices = [get_scan_index(f) for f in valid_files if get_scan_index(f) is not None]
+    if not indices: 
+        return
+        
+    max_idx = max(indices)
+    
+    print(f"\n--- Padding Gaps (Up to scan{max_idx}) ---")
+    
+    # Start from 2 because 1 is our anchor and must exist for this script to run
+    for i in range(2, max_idx + 1):
+        curr_file = DUMPS_DIR / f"scan{i}_Raw_0.bin"
         prev_file = DUMPS_DIR / f"scan{i-1}_Raw_0.bin"
-
-        if not current_file.exists():
+        
+        if not curr_file.exists():
             if prev_file.exists():
-                print(f"[PAD] Missing {current_file.name}. Copying from {prev_file.name}...")
-                shutil.copy2(prev_file, current_file)
+                print(f"[PAD] Missing {curr_file.name}. Copying from {prev_file.name}...")
+                shutil.copy2(prev_file, curr_file)
             else:
-                print(f"[WARN] Cannot pad {current_file.name}. Previous file {prev_file.name} is also missing.")
+                print(f"[WARN] Cannot pad {curr_file.name}. Predecessor {prev_file.name} is also missing.")
 
-    print("\nDataset repair complete.")
+    print("\nDone.")
 
 if __name__ == "__main__":
     main()
