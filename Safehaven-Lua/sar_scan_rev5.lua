@@ -1,8 +1,11 @@
--- SAR Data Capture Script Revision 4.1
+-- SAR Data Capture Script Revision 5
 -- Automates capturing 40 scans for SAR processing with integrated Gantry control.
--- Based on sar_scan_rev3.lua.
+-- Based on sar_scan_rev4.lua.
 -- Executes SSH commands to drive the gantry via Raspberry Pi.
--- Fixes: Timing issues (Frame already triggered) and SSH execution (removed -t, -i).
+-- Features:
+--   - Uses PowerShell 7 (pwsh) for reliable execution.
+--   - Uses interactive SSH session (-t, -i) to load user profile and find 'uv'.
+--   - Runs silently (no debug window) for automated operation.
 
 -- =================================================================================
 -- CONFIGURATION
@@ -32,7 +35,7 @@ function RunRemoteCommand(args)
     
     -- The command we want to run on the remote machine:
     -- zsh -l -i -c 'cd <dir>; uv run <script> <args>'
-    -- Added -i to force interactive mode (loads profile) as requested
+    -- Added -i to force interactive mode (loads profile)
     local remote_cmd_inner = string.format("cd %s; uv run %s %s", remote_dir, python_script, args)
     local remote_shell_cmd = string.format("zsh -l -i -c '%s'", remote_cmd_inner)
     
@@ -41,10 +44,8 @@ function RunRemoteCommand(args)
     local ssh_cmd_str = string.format("ssh -t %s \\\"%s\\\"", ssh_host, remote_shell_cmd)
     
     -- The full PowerShell command line:
-    -- We use 'start /wait' to open a visible window and wait for it.
-    -- We use 'Tee-Object' to show output AND save to log.
-    -- We use 'Read-Host' to pause execution so the user can see the output.
-    local full_cmd = string.format("start \"Gantry Debug\" /wait \"%s\" -NoProfile -Command \"%s | Tee-Object -FilePath '%s'; Read-Host 'Press Enter to continue...'\"", pwsh_exe, ssh_cmd_str, log_file)
+    -- Run silently (no window), redirect output to log file
+    local full_cmd = string.format("\"%s\" -NoProfile -Command \"%s > '%s' 2>&1\"", pwsh_exe, ssh_cmd_str, log_file)
     
     WriteToLog("Gantry Command (PWSH): " .. args .. "\n", "black")
     -- WriteToLog("Full Cmd: " .. full_cmd .. "\n", "gray")
@@ -62,7 +63,7 @@ end
 -- =================================================================================
 -- INITIALIZATION
 -- =================================================================================
-WriteToLog("Starting SAR Scan Revision 4.1 (Automated Gantry)...\n", "blue")
+WriteToLog("Starting SAR Scan Revision 5 (Automated Gantry)...\n", "blue")
 
 -- 1. Stop any running processes
 ar1.StopFrame()
