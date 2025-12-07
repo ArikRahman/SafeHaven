@@ -197,6 +197,7 @@ def up(dist_mm):
     # print(f"DEBUG: Moving UP {dist_mm} mm, duration {duration:.2f}s")
     dirY.on() # Set direction to CW
     pulY.start(duty_cycle)
+    print("MOTOR_STARTED")
     sleep(duration) # Seconds
     pulY.stop()
 
@@ -205,6 +206,7 @@ def down(dist_mm):
     # print(f"DEBUG: Moving DOWN {dist_mm} mm, duration {duration:.2f}s")
     dirY.off() # Set direction to CCW
     pulY.start(duty_cycle)
+    print("MOTOR_STARTED")
     sleep(duration) # Seconds
     pulY.stop()
 
@@ -213,6 +215,7 @@ def right(dist_mm):
     # print(f"DEBUG: Moving RIGHT {dist_mm} mm, duration {duration:.2f}s")
     dirX.on() # Set direction to CW
     pulX.start(duty_cycle)
+    print("MOTOR_STARTED")
     sleep(duration) # Seconds
     pulX.stop()
 
@@ -221,6 +224,7 @@ def left(dist_mm):
     # print(f"DEBUG: Moving LEFT {dist_mm} mm, duration {duration:.2f}s")
     dirX.off() # Set direction to CCW
     pulX.start(duty_cycle)
+    print("MOTOR_STARTED")
     sleep(duration) # Seconds
     pulX.stop()
 

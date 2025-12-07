@@ -258,7 +258,10 @@ def main():
     
     # Parameters
     n_fft_time = 1024
-    z0 = 323e-3
+    z0 = 600e-3
+    #z0 = 323e-3
+    #adjust this for how far target is
+    #default for cranidetect was the
     dx = 290/400
     dy = 205/100 # Note: As per original MATLAB code
     n_fft_space = 1024

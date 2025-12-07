@@ -3,7 +3,7 @@
 -- Based on sar_scan_rev10.lua.
 -- Changes:
 --   - Swapped Order: Triggers Gantry (Async) BEFORE Radar.
---   - Adds a small 200ms delay to allow SSH to launch before Radar starts.
+--   - Polls for "MOTOR_STARTED" marker in log file before starting radar.
 --   - This ensures the motor is moving when the scan begins.
 
 -- =================================================================================
@@ -97,7 +97,6 @@ WriteToLog("Starting Capture Loop for " .. num_y_steps .. " steps.\n", "blue")
 
 local frame_duration_ms = num_frames * frame_periodicity
 local safety_buffer_ms = 1000
-local ssh_launch_delay_ms = 200 -- Time to allow SSH to spawn before starting radar
 
 for y = 1, num_y_steps do
     local filename = base_path .. "scan" .. y .. ".bin"
@@ -122,8 +121,29 @@ for y = 1, num_y_steps do
     -- Execute Motion (Non-Blocking)
     RunRemoteCommandAsync(move_args)
     
-    -- Wait briefly for SSH to launch and motor to potentially start
-    RSTD.Sleep(ssh_launch_delay_ms)
+    -- Poll for motor start confirmation
+    WriteToLog("Waiting for motor to start...\n", "black")
+    local poll_count = 0
+    local max_polls = 100 -- 1 second at 10ms intervals
+    local motor_started = false
+    while poll_count < max_polls and not motor_started do
+        local file = io.open(log_file, "r")
+        if file then
+            local content = file:read("*all")
+            file:close()
+            if string.find(content, "MOTOR_STARTED") then
+                motor_started = true
+                WriteToLog("Motor started confirmed!\n", "green")
+            end
+        end
+        if not motor_started then
+            RSTD.Sleep(10) -- Poll every 10ms
+            poll_count = poll_count + 1
+        end
+    end
+    if not motor_started then
+        WriteToLog("Timeout waiting for motor start! Proceeding anyway.\n", "red")
+    end
     
     -- 3. Start Frame (Trigger Radar)
     -- Trigger Radar AFTER Gantry
