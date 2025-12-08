@@ -485,6 +485,23 @@ def parse_z_value(z_str):
         raise argparse.ArgumentTypeError(f"Invalid zindex value: {z_str}")
 
 
+def get_unique_filename(base_name):
+    """
+    Returns a unique filename by appending a counter if the file already exists.
+    E.g., 'output.html' -> 'output_1.html', 'output_2.html', etc.
+    """
+    if not os.path.exists(base_name):
+        return base_name
+    
+    name, ext = os.path.splitext(base_name)
+    counter = 1
+    while True:
+        new_name = f"{name}_{counter}{ext}"
+        if not os.path.exists(new_name):
+            return new_name
+        counter += 1
+
+
 def main():
     parser = argparse.ArgumentParser(description='SAR Reconstruction (rev3)')
     parser.add_argument('--folder', type=str, default='dumps', help='Folder containing scan data')
@@ -521,7 +538,7 @@ def main():
     
 
     #This is our config 12-07
-    dx = 280/400
+    dx = 36 * 0.018  # = 0.648 mm (Speed * Periodicity)
     dy = 1.0
     n_fft_space = 1024
 
@@ -791,7 +808,7 @@ def main():
                 sliders=sliders
             )
 
-            output_file = 'sar_3d_scatter.html'
+            output_file = get_unique_filename('sar_3d_scatter.html')
             fig.write_html(output_file)
             print(f"Saved interactive 3D plot to {output_file}")
             
@@ -878,7 +895,7 @@ def main():
             )]
         )
 
-        output_file = 'sar_interactive_slices.html'
+        output_file = get_unique_filename('sar_interactive_slices.html')
         fig.write_html(output_file)
         print(f"Saved interactive slice viewer to {output_file}")
         
