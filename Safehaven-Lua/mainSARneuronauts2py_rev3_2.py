@@ -41,11 +41,26 @@ def load_data_cube(filename, samples, X, Y, option):
     # Channel 1: indices 0, 4, 8... in bindata
     # Channel 2: indices 1, 5, 9... in bindata
     
-    # Let's construct the channels first
-    ch1 = data_int[0::8] + 1j * data_int[4::8]
-    ch2 = data_int[1::8] + 1j * data_int[5::8]
-    ch3 = data_int[2::8] + 1j * data_int[6::8]
-    ch4 = data_int[3::8] + 1j * data_int[7::8]
+    # Check for 2 RX vs 4 RX based on file size
+    # Expected samples per channel = X * samples (assuming Y=1 per file)
+    expected_samples_per_channel = X * samples
+    
+    # 4 RX: 4 * 2 (I+Q) * int16 = 8 int16s per sample.
+    # 2 RX: 2 * 2 (I+Q) * int16 = 4 int16s per sample.
+    
+    if len(data_int) == expected_samples_per_channel * 4:
+        # 2 RX Mode (I1 I2 Q1 Q2 format)
+        # print(f"Detected 2 RX channels in {filename}")
+        ch1 = data_int[0::4] + 1j * data_int[2::4]
+        ch2 = data_int[1::4] + 1j * data_int[3::4]
+        ch3 = np.zeros_like(ch1)
+        ch4 = np.zeros_like(ch1)
+    else:
+        # Default to 4 RX Mode (I1 I2 I3 I4 Q1 Q2 Q3 Q4 format)
+        ch1 = data_int[0::8] + 1j * data_int[4::8]
+        ch2 = data_int[1::8] + 1j * data_int[5::8]
+        ch3 = data_int[2::8] + 1j * data_int[6::8]
+        ch4 = data_int[3::8] + 1j * data_int[7::8]
     
     # Now we need to select based on option.
     # The MATLAB code constructs 'bindata' interleaving these, then slices 'bindata'.

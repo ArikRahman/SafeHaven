@@ -163,6 +163,8 @@ for y = 1, num_y_steps do
             if string.find(content, "MOTOR_STARTED") then
                 motor_started = true
                 WriteToLog("Motor started confirmed!\n", "green")
+                WriteToLog("Waiting 0.5s for motor stabilization...\n", "black")
+                RSTD.Sleep(500)
             end
         end
         if not motor_started then
