@@ -1012,77 +1012,46 @@ def main():
 
     if "origin" in sys.argv:
         print("DEBUG: Executing 'origin' command")
-        # Force move to physical origin (Top-Left) to hit reed switches
-        # Move Left 1000mm and Up 1000mm (ignoring software limits)
-        print("Homing to physical origin (Left/Up 1000mm)...")
+        # Bring gantry to the origin (approximate to the in-margin origin)
+        chosen_margin = MARGIN_MM
+        for arg in sys.argv:
+            if arg.startswith('--margin=') or arg.startswith('margin='):
+                try:
+                    chosen_margin = int(arg.split('=')[1])
+                except ValueError:
+                    pass
+
+        coords_inset = apply_margin(vectorListDiscrete, chosen_margin)
+
+        originX, originY = coords_inset[0]  # use the first coordinate in list as origin
+
+        # Determine current position from position.txt if available, or from current_index
+        pos_info = load_position()
+        if pos_info and 'current_pos' in pos_info:
+            currentX, currentY = pos_info['current_pos']
+        else:
+            if os.path.exists('current_index.txt'):
+                with open('current_index.txt', 'r') as f:
+                    try:
+                        current_index = int(f.read().strip())
+                    except Exception:
+                        current_index = 0
+            else:
+                current_index = 0
+            currentX, currentY = coords_inset[current_index]
+
+        dx = originX - currentX
+        dy = originY - currentY
         
-        # Move Left 1000
-        dirX.off() # Left
-        pulX.start(duty_cycle)
-        
-        # Move Up 1000
-        dirY.on() # Up (assuming Up is positive Y, wait, usually origin is 0,0. Let's check directions)
-        # In this code:
-        # up() uses dirY.on() -> CW
-        # down() uses dirY.off() -> CCW
-        # left() uses dirX.off() -> CCW
-        # right() uses dirX.on() -> CW
-        #
-        # If origin is (0,0), we want to go Left (decreasing X) and Down (decreasing Y)?
-        # Or is origin Top-Left?
-        # The vector list starts at (0, 10000) -> scaled to (0, 636).
-        # Wait, (0, 10000) is the first point.
-        # Let's look at scale_vec:
-        # (0, 10000) -> (0, 636)
-        # (0, 9915) -> (0, 630)
-        # ...
-        # (0, 10000) seems to be "Top-Left" if Y is inverted?
-        #
-        # Let's check HeadlessPersonTracker.py:
-        # Cam Y=0 (Top) -> Motor Y=636 (Top)
-        # Cam Y=480 (Bottom) -> Motor Y=0 (Bottom)
-        # So Y=636 is Top. Y=0 is Bottom.
-        #
-        # If "origin" means (0,0) in the coordinate system, that is Bottom-Left.
-        # But usually "homing" means going to the limit switches.
-        # If the user says "force it left and up 1000 until it hits reed switches",
-        # then they want Left and Up.
-        # Left = dirX.off()
-        # Up = dirY.on()
-        
-        pulY.start(duty_cycle)
-        
-        # Calculate duration for 1000mm
-        # We can just sleep for the max time needed
-        duration_x = 1000 / speedX_mm_per_s
-        duration_y = 1000 / speedY_mm_per_s
-        max_duration = max(duration_x, duration_y)
-        
-        print(f"Moving for {max_duration:.2f}s...")
-        sleep(max_duration)
-        
-        stopAllMotor()
-        
-        # Set current position to (0, 636) (Top-Left) or whatever the physical switches define.
-        # If they are at Left/Up limits, that corresponds to X=0, Y=636 (based on tracker logic).
-        # But wait, the user said "force it left and up".
-        # If X=0 is Left and Y=636 is Top.
-        # Then we are at (0, 636).
-        
-        # However, the vector list starts at (0, 10000) -> (0, 636).
-        # So (0, 636) is the start of the path.
-        
-        originX = 0
-        originY = 636 # Top-Left
-        
-        print(f"Homing complete. Setting position to ({originX}, {originY})")
+        print(f"DEBUG: Origin move dx={dx}, dy={dy}")
+
+        # Use arcade-style movement to avoid grating sound
+        currentX, currentY = move_to_position_arcade_style(originX, originY, currentX, currentY)
 
         # stop and save new position (origin); update index to 0
+        stopAllMotor()
         with open('current_index.txt', 'w') as f:
             f.write('0')
-        
-        # We need to save the coords too
-        coords_inset = apply_margin(vectorListDiscrete, MARGIN_MM)
         save_position(originX, originY, coords_inset)
         return
 

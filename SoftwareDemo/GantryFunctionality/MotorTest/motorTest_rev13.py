@@ -801,6 +801,10 @@ def facetrack_live_mode(initialX, initialY):
     # Control loop parameters
     dt = 0.05 # 20Hz update rate
     DEADBAND = 10 # mm
+    
+    # State for direction reversal protection
+    last_dir_x = 0
+    last_dir_y = 0
 
     try:
         while True:
@@ -854,9 +858,21 @@ def facetrack_live_mode(initialX, initialY):
             
             if abs(dy) > DEADBAND:
                 dir_y = 1 if dy > 0 else -1
-                
+            
+            # Anti-Jamming: Prevent instant direction reversal
+            # If reversing, force a stop for one cycle (0.05s) to let momentum settle
+            if dir_x != 0 and last_dir_x != 0 and dir_x != last_dir_x:
+                dir_x = 0
+            
+            if dir_y != 0 and last_dir_y != 0 and dir_y != last_dir_y:
+                dir_y = 0
+
             # Start/Update Motion
             start_motion_xy(dir_x, dir_y)
+            
+            # Update last direction state
+            last_dir_x = dir_x
+            last_dir_y = dir_y
             
             # 4. Update Position Estimate
             if dir_x != 0:
@@ -1100,46 +1116,66 @@ def main_logic():
 
     if "origin" in sys.argv:
         print("DEBUG: Executing 'origin' command")
-        # Bring gantry to the origin (approximate to the in-margin origin)
-        chosen_margin = MARGIN_MM
-        for arg in sys.argv:
-            if arg.startswith('--margin=') or arg.startswith('margin='):
-                try:
-                    chosen_margin = int(arg.split('=')[1])
-                except ValueError:
-                    pass
-
-        coords_inset = apply_margin(vectorListDiscrete, chosen_margin)
-
-        originX, originY = coords_inset[0]  # use the first coordinate in list as origin
-
-        # Determine current position from position.txt if available, or from current_index
-        pos_info = load_position()
-        if pos_info and 'current_pos' in pos_info:
-            currentX, currentY = pos_info['current_pos']
-        else:
-            if os.path.exists('current_index.txt'):
-                with open('current_index.txt', 'r') as f:
-                    try:
-                        current_index = int(f.read().strip())
-                    except Exception:
-                        current_index = 0
-            else:
-                current_index = 0
-            currentX, currentY = coords_inset[current_index]
-
-        dx = originX - currentX
-        dy = originY - currentY
+        # Force move to physical origin (Top-Left) to hit reed switches
+        # Move Left 1000mm and Up 1000mm (ignoring software limits)
+        print("Homing to physical origin (Left/Up 1000mm)...")
         
-        print(f"DEBUG: Origin move dx={dx}, dy={dy}")
+        # Move Left 1000
+        dirX.off() # Left
+        pulX.start(duty_cycle)
+        x_running = True
+        
+        # Move Up 1000
+        dirY.on() # Up
+        pulY.start(duty_cycle)
+        y_running = True
+        
+        # Calculate duration for 1000mm
+        duration_x = 1000 / speedX_mm_per_s
+        duration_y = 1000 / speedY_mm_per_s
+        max_duration = max(duration_x, duration_y)
+        
+        print(f"Moving for {max_duration:.2f}s (monitoring limits)...")
+        
+        start_time = time()
+        while (time() - start_time < max_duration) and (x_running or y_running):
+            limits = get_triggered_limits()
+            
+            # Check X Limit (Left -> X_MIN)
+            if x_running:
+                if 'X_MIN' in limits:
+                    print("X Limit (Left/Min) hit. Stopping X.")
+                    pulX.stop()
+                    x_running = False
+                elif time() - start_time > duration_x:
+                     pulX.stop()
+                     x_running = False
 
-        # Use arcade-style movement to avoid grating sound
-        currentX, currentY = move_to_position_arcade_style(originX, originY, currentX, currentY)
+            # Check Y Limit (Up -> Y_MAX)
+            if y_running:
+                if 'Y_MAX' in limits:
+                    print("Y Limit (Up/Max) hit. Stopping Y.")
+                    pulY.stop()
+                    y_running = False
+                elif time() - start_time > duration_y:
+                     pulY.stop()
+                     y_running = False
+            
+            sleep(0.01)
+        
+        stopAllMotor()
+        
+        originX = 0
+        originY = 636 # Top-Left
+        
+        print(f"Homing complete. Setting position to ({originX}, {originY})")
 
         # stop and save new position (origin); update index to 0
-        stopAllMotor()
         with open('current_index.txt', 'w') as f:
             f.write('0')
+        
+        # We need to save the coords too
+        coords_inset = apply_margin(vectorListDiscrete, MARGIN_MM)
         save_position(originX, originY, coords_inset)
         return
 

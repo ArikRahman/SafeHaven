@@ -11,6 +11,7 @@ ModelPath = "yolov8n-face.pt"
 Width, Height = 640, 480
 OutputParamsFile = "faceposition.json"
 MotorMaxMM = 636
+SmoothingFactor = 0.15 # Controls smoothness (0.0 to 1.0). Lower = smoother but more lag.
 
 def HeadlessTracker():
     # Check if model exists
@@ -49,6 +50,10 @@ def HeadlessTracker():
     time.sleep(2)
     print(f"Tracking started. Writing coordinates to {OutputParamsFile}")
     print("Press Ctrl+C to stop.")
+
+    # State variables for smoothing
+    prev_motor_x = None
+    prev_motor_y = None
 
     try:
         while True:
@@ -103,8 +108,20 @@ def HeadlessTracker():
                 motor_y = MotorMaxMM - int((cam_y / Height) * MotorMaxMM)
                 
                 # Clamp to valid range
-                motor_x = int(np.clip(motor_x, 0, MotorMaxMM))
-                motor_y = int(np.clip(motor_y, 0, MotorMaxMM))
+                target_motor_x = int(np.clip(motor_x, 0, MotorMaxMM))
+                target_motor_y = int(np.clip(motor_y, 0, MotorMaxMM))
+                
+                # Apply Smoothing (Exponential Moving Average)
+                if prev_motor_x is not None:
+                    motor_x = int(prev_motor_x + SmoothingFactor * (target_motor_x - prev_motor_x))
+                    motor_y = int(prev_motor_y + SmoothingFactor * (target_motor_y - prev_motor_y))
+                else:
+                    motor_x = target_motor_x
+                    motor_y = target_motor_y
+
+                # Update state
+                prev_motor_x = motor_x
+                prev_motor_y = motor_y
                 
                 # Prepare JSON data
                 data = {
