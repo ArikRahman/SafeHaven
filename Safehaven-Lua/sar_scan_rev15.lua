@@ -52,12 +52,12 @@ function RunRemoteCommandAsync(args)
 end
 
 function ResetGantryPosition()
-    WriteToLog("Resetting Gantry Position (Origin=Bottom, then Right 200mm, Up 70mm)...\n", "magenta")
+    WriteToLog("Resetting Gantry Position (Facetrack Wait-and-See, then Down 200mm)...\n", "magenta")
     
     local pwsh_exe = "C:\\Program Files\\PowerShell\\7\\pwsh.exe"
     
     -- The exact command requested by user
-    local remote_cmd = "cd /home/corban/Documents/GitHub/SafeHaven/SoftwareDemo/GantryFunctionality/MotorTest; uv run motorTest_rev13.py origin=bottom; cd /home/corban/Documents/GitHub/SafeHaven/SoftwareDemo/GantryFunctionality/MotorTest; uv run motorTest_rev13.py right=200mm up=70mm"
+    local remote_cmd = "cd /home/corban/Documents/GitHub/SafeHaven/SoftwareDemo/GantryFunctionality/MotorTest; uv run motorTest_rev13.py facetrack --wait-and-see; cd /home/corban/Documents/GitHub/SafeHaven/SoftwareDemo/GantryFunctionality/MotorTest; uv run motorTest_rev13.py down=200mm"
     
     local remote_shell_cmd = string.format("zsh -l -i -c '%s'", remote_cmd)
     local ssh_cmd_str = string.format("ssh -t %s \\\"%s\\\"", ssh_host, remote_shell_cmd)
