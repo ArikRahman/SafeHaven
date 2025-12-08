@@ -54,7 +54,7 @@ length_per_rev = 10   # Length per revolution in mm
 total_distance = 636  # Total traveling distance in mm for both axes
 # total_pixels = 10000  # REMOVED - using mm directly
 AXIS_MAX_MM = 636
-MARGIN_MM = 20  # How far from the borders we want motions to stay (in mm)
+MARGIN_MM = 0  # How far from the borders we want motions to stay (in mm)
 STEP_MM = 20  # Default 'small' step used for direction-only commands
 
 # X-axis speed calculations
@@ -966,6 +966,16 @@ def main_logic():
     else:
         print(f"DEBUG: Default Speed: {speedX_mm_per_s:.2f} mm/s")
 
+    # Check for position request
+    if "--position" in sys.argv:
+        pos_info = load_position()
+        if pos_info and 'current_pos' in pos_info:
+            currentX, currentY = pos_info['current_pos']
+            print(f"Current Position: ({currentX}, {currentY})")
+        else:
+            print("Position unknown (no position.txt found).")
+        return
+
     # Check for arcade mode first
     arcade_flag = False
     for arg in sys.argv:
@@ -1114,22 +1124,48 @@ def main_logic():
         stopAllMotor()
         return
 
-    if "origin" in sys.argv:
-        print("DEBUG: Executing 'origin' command")
-        # Force move to physical origin (Top-Left) to hit reed switches
-        # Move Left 1000mm and Up 1000mm (ignoring software limits)
-        print("Homing to physical origin (Left/Up 1000mm)...")
+    # Check for origin command (supports origin, origin=top, origin=bottom)
+    origin_arg = None
+    for arg in sys.argv:
+        if arg == "origin":
+            origin_arg = "top" # Default
+        elif arg.startswith("origin="):
+            origin_arg = arg.split("=")[1].lower()
+
+    if origin_arg:
+        print(f"DEBUG: Executing 'origin' command (Target: {origin_arg})")
         
-        # Move Left 1000
-        dirX.off() # Left
-        pulX.start(duty_cycle)
-        x_running = True
-        
-        # Move Up 1000
-        dirY.on() # Up
-        pulY.start(duty_cycle)
-        y_running = True
-        
+        if origin_arg == "bottom":
+            # Homing to Bottom-Left (Left/Down 1000mm)
+            print("Homing to physical origin (Left/Down 1000mm)...")
+            
+            # Move Left 1000
+            dirX.off() # Left
+            pulX.start(duty_cycle)
+            x_running = True
+            
+            # Move Down 1000
+            dirY.off() # Down (CCW)
+            pulY.start(duty_cycle)
+            y_running = True
+            
+            target_y_pos = 0 # Bottom
+        else:
+            # Default: Homing to Top-Left (Left/Up 1000mm)
+            print("Homing to physical origin (Left/Up 1000mm)...")
+            
+            # Move Left 1000
+            dirX.off() # Left
+            pulX.start(duty_cycle)
+            x_running = True
+            
+            # Move Up 1000
+            dirY.on() # Up (CW)
+            pulY.start(duty_cycle)
+            y_running = True
+            
+            target_y_pos = 636 # Top
+
         # Calculate duration for 1000mm
         duration_x = 1000 / speedX_mm_per_s
         duration_y = 1000 / speedY_mm_per_s
@@ -1151,22 +1187,33 @@ def main_logic():
                      pulX.stop()
                      x_running = False
 
-            # Check Y Limit (Up -> Y_MAX)
+            # Check Y Limit
             if y_running:
-                if 'Y_MAX' in limits:
-                    print("Y Limit (Up/Max) hit. Stopping Y.")
-                    pulY.stop()
-                    y_running = False
-                elif time() - start_time > duration_y:
-                     pulY.stop()
-                     y_running = False
+                if origin_arg == "bottom":
+                    # Moving Down -> Check Y_MIN
+                    if 'Y_MIN' in limits:
+                        print("Y Limit (Down/Min) hit. Stopping Y.")
+                        pulY.stop()
+                        y_running = False
+                    elif time() - start_time > duration_y:
+                        pulY.stop()
+                        y_running = False
+                else:
+                    # Moving Up -> Check Y_MAX
+                    if 'Y_MAX' in limits:
+                        print("Y Limit (Up/Max) hit. Stopping Y.")
+                        pulY.stop()
+                        y_running = False
+                    elif time() - start_time > duration_y:
+                        pulY.stop()
+                        y_running = False
             
             sleep(0.01)
         
         stopAllMotor()
         
         originX = 0
-        originY = 636 # Top-Left
+        originY = target_y_pos
         
         print(f"Homing complete. Setting position to ({originX}, {originY})")
 
