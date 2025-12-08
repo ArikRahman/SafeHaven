@@ -297,11 +297,13 @@ def main():
     # Parameters
     n_fft_time = 1024
     # z0 will be iterated
-    dx = 290/400
-    dy = 205/100 # Note: As per original MATLAB code
+    # dx = 290/400
+    # dy = 205/100 # Note: As per original MATLAB code
     
-    # dx = 280/400
-    # dy = 1.0
+
+    #This is our config 12-07
+    dx = 280/400
+    dy = 1.0
     n_fft_space = 1024
 
 
