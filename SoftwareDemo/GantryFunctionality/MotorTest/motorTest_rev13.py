@@ -404,7 +404,7 @@ def move_both(dx, dy, duty=duty_cycle):
 
     start_time = time()
 
-    def wait_with_countdown(duration):
+    def wait_with_countdown(duration, run_x=True, run_y=True):
         end_time = time() + duration
         while True:
             now = time()
@@ -415,10 +415,13 @@ def move_both(dx, dy, duty=duty_cycle):
             # Check limits
             limits = get_triggered_limits()
             hit = False
-            if dx > 0 and 'X_MAX' in limits: hit = True
-            if dx < 0 and 'X_MIN' in limits: hit = True
-            if dy > 0 and 'Y_MAX' in limits: hit = True
-            if dy < 0 and 'Y_MIN' in limits: hit = True
+            # Only check limits for running axes
+            if run_x:
+                if dx > 0 and 'X_MAX' in limits: hit = True
+                if dx < 0 and 'X_MIN' in limits: hit = True
+            if run_y:
+                if dy > 0 and 'Y_MAX' in limits: hit = True
+                if dy < 0 and 'Y_MIN' in limits: hit = True
             
             if hit:
                 print("Limit hit during move_both! Stopping.")
@@ -428,8 +431,8 @@ def move_both(dx, dy, duty=duty_cycle):
 
             # Mimic Arcade Mode: Refresh PWM state continuously
             # This can help dampen resonance or prevent timeouts if any exist
-            if dx != 0: pulX.start(duty)
-            if dy != 0: pulY.start(duty)
+            if run_x and dx != 0: pulX.start(duty)
+            if run_y and dy != 0: pulY.start(duty)
             
             # Sleep briefly to avoid 100% CPU usage, but fast enough to be responsive
             sleep(0.02)
@@ -438,29 +441,29 @@ def move_both(dx, dy, duty=duty_cycle):
     if timeX > 0 and timeY > 0:
         # sleep until the shorter one finishes
         if timeX == timeY:
-            wait_with_countdown(timeX)
+            wait_with_countdown(timeX, run_x=True, run_y=True)
             pulX.stop()
             pulY.stop()
         elif timeX > timeY:
-            wait_with_countdown(timeY)
+            wait_with_countdown(timeY, run_x=True, run_y=True)
             # stop Y
             pulY.stop()
             # finish X
-            wait_with_countdown(timeX - timeY)
+            wait_with_countdown(timeX - timeY, run_x=True, run_y=False)
             pulX.stop()
         else:
             # timeY > timeX
-            wait_with_countdown(timeX)
+            wait_with_countdown(timeX, run_x=True, run_y=True)
             pulX.stop()
-            wait_with_countdown(timeY - timeX)
+            wait_with_countdown(timeY - timeX, run_x=False, run_y=True)
             pulY.stop()
 
     # If we only need to move X or Y
     elif timeX > 0 and timeY == 0:
-        wait_with_countdown(timeX)
+        wait_with_countdown(timeX, run_x=True, run_y=False)
         pulX.stop()
     elif timeY > 0 and timeX == 0:
-        wait_with_countdown(timeY)
+        wait_with_countdown(timeY, run_x=False, run_y=True)
         pulY.stop()
     
     print(f"Move complete.                  ") # Clear line
