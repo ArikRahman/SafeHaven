@@ -63,7 +63,7 @@ def motor_page():
         active_page="motor",
     )
 
-# Support BOTH /motor/run and your old /run URL
+# Support BOTH /motor/run and old /run URL
 @app.route("/motor/run", methods=["POST"])
 @app.route("/run", methods=["POST"])
 def run_motor():
