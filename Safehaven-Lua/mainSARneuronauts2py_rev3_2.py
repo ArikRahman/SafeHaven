@@ -535,7 +535,7 @@ def main():
 
     # Configuration
     data_dir = args.folder
-    X = 400
+    X = 800
     Y = 40
     samples = 512
 
@@ -553,7 +553,7 @@ def main():
     
 
     #This is our config 12-07
-    dx = 36 * 0.018  # = 0.648 mm (Speed * Periodicity)
+    dx = 18 * 0.018  # = 0.324 mm (Speed * Periodicity)
     dy = 1.0
     n_fft_space = 1024
 

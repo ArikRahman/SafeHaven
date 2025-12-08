@@ -49,6 +49,40 @@ To start the full detection and scanning sequence:
 python SoftwareDemo/main.py
 ```
 
+## Changing Scan Speed
+
+To adjust the scanning speed (e.g., slowing down from 36mm/s to 18mm/s), updates are required in the automation script and data processing script. The motor control script (`motorTest_rev13.py`) accepts a speed argument and does not need to be modified directly.
+
+### 1. Automation Script (`Safehaven-Lua/sar_scan_rev15.lua`)
+Update the speed variable, frame count, and return wait time.
+*   **Speed**: Set `speed_mms` to the new value. This value is passed to the motor script automatically.
+*   **Frame Count**: Ensure the total duration covers the scan distance.
+    *   `num_frames = Distance / (Speed * Periodicity)`
+    *   *Example*: `280mm / (18mm/s * 0.018s) ≈ 864 frames` (Round to nearest convenient number, e.g., 800 or 864).
+*   **Return Wait**: Calculate time to return to start.
+    *   `return_wait = (Distance / Speed) * 1000 + Buffer`
+
+```lua
+-- sar_scan_rev15.lua
+local speed_mms = 18 -- This is passed to motorTest_rev13.py
+local num_frames = 800 -- Update based on new speed
+-- Update return wait time (e.g., 17000ms for 18mm/s)
+local return_wait = 17000 
+```
+
+### 2. Data Processing (`Safehaven-Lua/mainSARneuronauts2py_rev3_2.py`)
+Update the reconstruction parameters to match the new data format.
+*   **X Dimension**: Set `X` to the new `num_frames`.
+*   **Step Size (dx)**: Update the spatial step size.
+    *   `dx = Speed (mm/s) * Periodicity (s)`
+    *   *Example*: `18 * 0.018 = 0.324 mm`
+
+```python
+# mainSARneuronauts2py_rev3_2.py
+X = 800 # Must match num_frames from Lua script
+dx = 18 * 0.018 # Update dx calculation
+```
+
 Ensure you are in the root directory or adjust paths accordingly.
 
 ### Hardware Setup

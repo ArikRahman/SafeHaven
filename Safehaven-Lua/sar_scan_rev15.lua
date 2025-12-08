@@ -8,8 +8,8 @@
 local root_path = "C:\\Users\\arikrahman\\Documents\\GitHub\\SafeHaven\\Safehaven-Lua\\"
 local num_y_steps = 40         -- Number of steps in the Y direction
 local frame_periodicity = 18   -- ms
-local num_frames = 400         -- Total frames per scan
--- Frame Duration = 400 * 18ms = 7200ms (7.2s)
+local num_frames = 800         -- Total frames per scan
+-- Frame Duration = 800 * 18ms = 14400ms (14.4s)
 
 -- Gantry Configuration
 local ssh_host = "corban@10.244.182.88"
@@ -17,7 +17,7 @@ local remote_dir = "/home/corban/Documents/GitHub/SafeHaven/SoftwareDemo/GantryF
 local python_script = "motorTest_rev13.py"
 local x_dist_mm = 280
 local y_step_mm = 1
-local speed_mms = 36
+local speed_mms = 18
 
 -- Log file variable (updated in loop)
 local log_file = ""
@@ -212,7 +212,7 @@ while true do
         local return_args = string.format("left=%dmm speed=%dmms", x_dist_mm, speed_mms)
         RunRemoteCommandAsync(return_args)
         
-        local return_wait = 8500
+        local return_wait = 17000
         WriteToLog(string.format("Waiting %d ms for return...\n", return_wait), "black")
         RSTD.Sleep(return_wait)
 
