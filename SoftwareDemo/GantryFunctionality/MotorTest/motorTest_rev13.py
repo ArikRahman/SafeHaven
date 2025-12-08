@@ -26,6 +26,9 @@ import tty
 import termios
 import select
 
+# Global event to signal threads to stop
+shutdown_event = threading.Event()
+
 # Force pin modes for RPi 5 (PWM pins to Alt0, Dir pins to Output)
 # This ensures the pins are correctly muxed for the hardware PWM and GPIO control
 os.system("pinctrl set 12 a0")
@@ -62,6 +65,27 @@ speedX_mm_per_s = (speedX_rev_per_s) * length_per_rev  # Speed in mm/s
 speedY_rev_per_s = f_y / steps_per_rev  # Speed in revolutions per second
 speedY_mm_per_s = (speedY_rev_per_s) * length_per_rev  # Speed in mm/s
 
+
+# Reed Switch Configuration
+REED_PINS = {
+    "X_MIN": 17,
+    "X_MAX": 27,
+    "Y_MIN": 22,
+    "Y_MAX": 23,
+}
+reed_switches = {}
+try:
+    for name, pin in REED_PINS.items():
+        reed_switches[name] = Button(pin, pull_up=True, bounce_time=0.01)
+except Exception:
+    pass
+
+def get_triggered_limits():
+    triggered = []
+    for name, sw in reed_switches.items():
+        if sw.is_pressed:
+            triggered.append(name)
+    return triggered
 
 def print_help():
     """Print usage information for the CLI and exit.
@@ -194,6 +218,21 @@ vectorListDiscrete_inset = apply_margin(vectorListDiscrete, MARGIN_MM)
 vectorListDiscrete_test_inset = apply_margin(vectorListDiscrete_test, MARGIN_MM)
 
 
+def sleep_with_limit_check(duration, axis, direction):
+    # axis: 'x' or 'y'
+    # direction: 1 (positive/max), -1 (negative/min)
+    start = time()
+    while time() - start < duration:
+        limits = get_triggered_limits()
+        if axis == 'x':
+            if direction > 0 and 'X_MAX' in limits: return True # Hit limit
+            if direction < 0 and 'X_MIN' in limits: return True
+        if axis == 'y':
+            if direction > 0 and 'Y_MAX' in limits: return True
+            if direction < 0 and 'Y_MIN' in limits: return True
+        sleep(0.005)
+    return False
+
 def up(dist_mm):
     #these are commands calling, using old library, want to swap out, not direction but everything else
     duration = abs(dist_mm)/speedY_mm_per_s
@@ -201,7 +240,8 @@ def up(dist_mm):
     dirY.on() # Set direction to CW
     pulY.start(duty_cycle)
     print("MOTOR_STARTED", flush=True)
-    sleep(duration) # Seconds
+    if sleep_with_limit_check(duration, 'y', 1):
+        print("Limit hit! Stopping.")
     pulY.stop()
 
 def down(dist_mm):
@@ -210,7 +250,8 @@ def down(dist_mm):
     dirY.off() # Set direction to CCW
     pulY.start(duty_cycle)
     print("MOTOR_STARTED", flush=True)
-    sleep(duration) # Seconds
+    if sleep_with_limit_check(duration, 'y', -1):
+        print("Limit hit! Stopping.")
     pulY.stop()
 
 def right(dist_mm):
@@ -219,7 +260,8 @@ def right(dist_mm):
     dirX.on() # Set direction to CW
     pulX.start(duty_cycle)
     print("MOTOR_STARTED", flush=True)
-    sleep(duration) # Seconds
+    if sleep_with_limit_check(duration, 'x', 1):
+        print("Limit hit! Stopping.")
     pulX.stop()
 
 def left(dist_mm):
@@ -228,7 +270,8 @@ def left(dist_mm):
     dirX.off() # Set direction to CCW
     pulX.start(duty_cycle)
     print("MOTOR_STARTED", flush=True)
-    sleep(duration) # Seconds
+    if sleep_with_limit_check(duration, 'x', -1):
+        print("Limit hit! Stopping.")
     pulX.stop()
 
 def stopX_Motor():
@@ -264,13 +307,15 @@ def monitor_emergency_stop():
         # print(f"Warning: Could not initialize E-Stop button on GPIO {STOP_BUTTON_PIN}: {e}")
         return
 
-    while True:
+    while not shutdown_event.is_set():
         if stop_button.is_pressed:
             print("\n\n!!! EMERGENCY STOP TRIGGERED !!!")
             print("Stopping all motors and exiting...")
             stopAllMotor()
             os._exit(1) # Force exit immediately
         sleep(0.05)
+    
+    stop_button.close()
 
 
 def save_position(currentX, currentY, coords=None, filename='position.txt'):
@@ -367,6 +412,20 @@ def move_both(dx, dy, duty=duty_cycle):
             if remaining_wait <= 0:
                 break
             
+            # Check limits
+            limits = get_triggered_limits()
+            hit = False
+            if dx > 0 and 'X_MAX' in limits: hit = True
+            if dx < 0 and 'X_MIN' in limits: hit = True
+            if dy > 0 and 'Y_MAX' in limits: hit = True
+            if dy < 0 and 'Y_MIN' in limits: hit = True
+            
+            if hit:
+                print("Limit hit during move_both! Stopping.")
+                pulX.stop()
+                pulY.stop()
+                return # Exit wait early
+
             # Mimic Arcade Mode: Refresh PWM state continuously
             # This can help dampen resonance or prevent timeouts if any exist
             if dx != 0: pulX.start(duty)
@@ -537,6 +596,13 @@ def start_motion_xy(dir_x, dir_y):
     dir_x: 1 (right), -1 (left), 0 (stop)
     dir_y: 1 (up), -1 (down), 0 (stop)
     """
+    # Check limits
+    limits = get_triggered_limits()
+    if 'X_MIN' in limits and dir_x < 0: dir_x = 0
+    if 'X_MAX' in limits and dir_x > 0: dir_x = 0
+    if 'Y_MIN' in limits and dir_y < 0: dir_y = 0
+    if 'Y_MAX' in limits and dir_y > 0: dir_y = 0
+
     # X Axis
     if dir_x == 1:
         dirX.on()
@@ -826,11 +892,7 @@ def parse_speed(v):
             return None
     return None
 
-def main():
-    # Start E-Stop Monitor
-    estop_thread = threading.Thread(target=monitor_emergency_stop, daemon=True)
-    estop_thread.start()
-
+def main_logic():
     # Check for silent mode to suppress output
     # We use 'silent' (no dashes) to avoid confusion with uv flags
     if "silent" in sys.argv or "--no-debug" in sys.argv:
@@ -1320,6 +1382,17 @@ def main():
             # Force moves do not record position or update index per request.
             pass
         return
+
+def main():
+    # Start E-Stop Monitor
+    estop_thread = threading.Thread(target=monitor_emergency_stop, daemon=True)
+    estop_thread.start()
+
+    try:
+        main_logic()
+    finally:
+        shutdown_event.set()
+        estop_thread.join(timeout=1.0)
 
 if __name__ == "__main__":
     main()

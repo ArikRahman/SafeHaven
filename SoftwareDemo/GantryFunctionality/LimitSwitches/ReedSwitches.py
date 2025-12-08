@@ -7,12 +7,17 @@
 # Wires are non-polar. Either can go into GND or digital pin
 
 # Run command:
-# python 3 /home/corban/Documents/GitHub/SafeHaven/SoftwareDemo/GantryFunctionality/LimitSwitches/ReedSwitches.py
+# python3 /home/corban/Documents/GitHub/SafeHaven/SoftwareDemo/GantryFunctionality/LimitSwitches/ReedSwitches.py
 
 import time
 import gpiozero
-from MotorTest import motorTest_rev7 as motor
-from GantryFunctionality import RunState
+
+from SoftwareDemo.GantryFunctionality.MotorTest import motorTest_rev7 as motor
+from SoftwareDemo.GantryFunctionality import RunState
+
+# Run command based on motortestrev7
+# cd /home/corban/Documents/GitHub/SafeHaven
+# python3 -m SoftwareDemo.GantryFunctionality.LimitSwitches.ReedSwitches
 
 # GPIO pin assignments
 Reed_Pins = {
