@@ -784,7 +784,7 @@ def move_to_position_arcade_style(targetX, targetY, currentX, currentY):
     return currentX, currentY
 
 
-def facetrack_live_mode(initialX, initialY):
+def facetrack_live_mode(initialX, initialY, duration=None):
     """
     Live face tracking mode.
     Maintains a buffer of the last 5 positions from faceposition.json.
@@ -809,8 +809,14 @@ def facetrack_live_mode(initialX, initialY):
     last_dir_x = 0
     last_dir_y = 0
 
+    start_time = time()
+
     try:
         while True:
+            # Check duration
+            if duration is not None and (time() - start_time > duration):
+                break
+
             # 1. Update Target from JSON
             try:
                 if os.path.exists(json_path):
@@ -1022,6 +1028,18 @@ def main_logic():
     if "facetrack" in sys.argv:
         print("DEBUG: Executing 'facetrack' command (Live Average)")
         
+        # Check for duration
+        duration_s = None
+        for arg in sys.argv:
+            if arg.startswith('--duration='):
+                val = arg.split('=')[1]
+                if val.lower().endswith('s'):
+                    val = val[:-1]
+                try:
+                    duration_s = float(val)
+                except ValueError:
+                    pass
+
         # Determine current position
         pos_info = load_position()
         if pos_info and 'current_pos' in pos_info:
@@ -1040,7 +1058,7 @@ def main_logic():
             currentX, currentY = coords_inset[current_index]
 
         # Run live tracking
-        currentX, currentY = facetrack_live_mode(currentX, currentY)
+        currentX, currentY = facetrack_live_mode(currentX, currentY, duration=duration_s)
         
         save_position(currentX, currentY)
         return

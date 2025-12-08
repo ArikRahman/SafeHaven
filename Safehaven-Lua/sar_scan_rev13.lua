@@ -91,7 +91,7 @@ ar1.CaptureCardConfig_StopRecord()
 RSTD.Sleep(20)
 
 -- 2. Configure Sensor (Profile, Chirp, Frame)
-if (ar1.ProfileConfig(0, 77, 7, 6, 63, 0, 0, 0, 0, 0, 0, 63.343, 0, 512, 9121, 0, 0, 30) == 0) then
+if (ar1.ProfileConfig(0, 77, 7, 6, 63, 0, 0, 0, 0, 0, 0, 63.343, 0, 512, 9121, 0, 0, 24) == 0) then
     WriteToLog("ProfileConfig Success\n", "green")
 else
     WriteToLog("ProfileConfig Failure\n", "red")
