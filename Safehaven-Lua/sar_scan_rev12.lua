@@ -88,7 +88,7 @@ WriteToLog("Starting SAR Scan Revision 11 (Async + Motor First)...\n", "blue")
 -- 1. Stop any running processes
 ar1.StopFrame()
 ar1.CaptureCardConfig_StopRecord()
-RSTD.Sleep(200)
+RSTD.Sleep(20)
 
 -- 2. Configure Sensor (Profile, Chirp, Frame)
 if (ar1.ProfileConfig(0, 77, 7, 6, 63, 0, 0, 0, 0, 0, 0, 63.343, 0, 512, 9121, 0, 0, 30) == 0) then
@@ -133,8 +133,12 @@ for y = 1, num_y_steps do
     WriteToLog("Target File: " .. filename .. "\n", "black")
     
     -- 1. Start Recording (Arm DCA1000)
-    ar1.CaptureCardConfig_StartRecord(filename, 1)
-    RSTD.Sleep(1000) -- Wait for DCA to arm
+    if (ar1.CaptureCardConfig_StartRecord(filename, 1) == 0) then
+        WriteToLog("DCA1000 Armed Successfully.\n", "green")
+    else
+        WriteToLog("DCA1000 Arm Failed!\n", "red")
+    end
+    RSTD.Sleep(2000) -- Wait for DCA to arm
     
     -- 2. Trigger Gantry Motion (X-Axis) - ASYNC
     local move_args = ""
