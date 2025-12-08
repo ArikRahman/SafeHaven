@@ -784,7 +784,7 @@ def move_to_position_arcade_style(targetX, targetY, currentX, currentY):
     return currentX, currentY
 
 
-def facetrack_live_mode(initialX, initialY, duration=None):
+def facetrack_live_mode(initialX, initialY, duration=None, wait_and_see=False):
     """
     Live face tracking mode.
     Maintains a buffer of the last 5 positions from faceposition.json.
@@ -811,8 +811,13 @@ def facetrack_live_mode(initialX, initialY, duration=None):
 
     start_time = time()
     
+    # Wait-and-see state
+    last_move_time = time()
+    
     if duration is not None:
         print(f"Auto-stop enabled: {duration} seconds")
+    if wait_and_see:
+        print("Wait-and-see mode enabled: Will stop after 5 seconds of stability.")
 
     try:
         while True:
@@ -886,6 +891,14 @@ def facetrack_live_mode(initialX, initialY, duration=None):
             # Update last direction state
             last_dir_x = dir_x
             last_dir_y = dir_y
+            
+            # Check stability for wait-and-see
+            if dir_x != 0 or dir_y != 0:
+                last_move_time = time()
+            elif wait_and_see:
+                if time() - last_move_time > 5.0:
+                    print("\nPosition stable for 5 seconds. Stopping.")
+                    break
             
             # 4. Update Position Estimate
             if dir_x != 0:
@@ -1045,6 +1058,11 @@ def main_logic():
                     duration_s = float(val)
                 except ValueError:
                     pass
+        
+        # Check for wait-and-see
+        wait_and_see = False
+        if "--wait-and-see" in sys.argv or "wait-and-see" in sys.argv:
+            wait_and_see = True
 
         # Determine current position
         pos_info = load_position()
@@ -1064,7 +1082,7 @@ def main_logic():
             currentX, currentY = coords_inset[current_index]
 
         # Run live tracking
-        currentX, currentY = facetrack_live_mode(currentX, currentY, duration=duration_s)
+        currentX, currentY = facetrack_live_mode(currentX, currentY, duration=duration_s, wait_and_see=wait_and_see)
         
         save_position(currentX, currentY)
         return
