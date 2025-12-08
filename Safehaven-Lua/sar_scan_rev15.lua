@@ -18,6 +18,7 @@ local python_script = "motorTest_rev13.py"
 local x_dist_mm = 280
 local y_step_mm = 1
 local speed_mms = 18
+local return_speed_mms = 36
 
 -- Log file variable (updated in loop)
 local log_file = ""
@@ -209,10 +210,10 @@ while true do
         
         -- Return X-Axis (Left)
         WriteToLog("Returning LEFT <-\n", "magenta")
-        local return_args = string.format("left=%dmm speed=%dmms", x_dist_mm, speed_mms)
+        local return_args = string.format("left=%dmm speed=%dmms", x_dist_mm, return_speed_mms)
         RunRemoteCommandAsync(return_args)
         
-        local return_wait = 17000
+        local return_wait = 8500
         WriteToLog(string.format("Waiting %d ms for return...\n", return_wait), "black")
         RSTD.Sleep(return_wait)
 

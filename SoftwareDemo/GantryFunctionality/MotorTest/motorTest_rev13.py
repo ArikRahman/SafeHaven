@@ -810,11 +810,15 @@ def facetrack_live_mode(initialX, initialY, duration=None):
     last_dir_y = 0
 
     start_time = time()
+    
+    if duration is not None:
+        print(f"Auto-stop enabled: {duration} seconds")
 
     try:
         while True:
             # Check duration
             if duration is not None and (time() - start_time > duration):
+                print("Duration expired.")
                 break
 
             # 1. Update Target from JSON
@@ -1031,8 +1035,10 @@ def main_logic():
         # Check for duration
         duration_s = None
         for arg in sys.argv:
-            if arg.startswith('--duration='):
-                val = arg.split('=')[1]
+            # Handle --duration=10s or duration=10s
+            clean_arg = arg.lstrip('-')
+            if clean_arg.startswith('duration='):
+                val = clean_arg.split('=')[1]
                 if val.lower().endswith('s'):
                     val = val[:-1]
                 try:
