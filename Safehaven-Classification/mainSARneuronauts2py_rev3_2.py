@@ -528,9 +528,6 @@ def main():
     parser.add_argument('--3d_scatter', dest='scatter3d', action='store_true', help='Generate interactive 3D scatter plot')
     parser.add_argument('--3d_scatter_intensity', dest='scatter3d_intensity', type=float, default=95.0, help='Initial percentile threshold for 3D scatter plot (0-100)')
     parser.add_argument('--plotly', action='store_true', help='Generate interactive Plotly HTML with Z-slider instead of Matplotlib window')
-    parser.add_argument('--mat_plot_lib', action='store_true', help='Force use of Matplotlib for visualization, overriding --plotly')
-    parser.add_argument('--sar_dump', type=str, default=None, help='Directory to dump processed SAR images (Z-slices)')
-    parser.add_argument('--silent', action='store_true', help='Suppress all graphical output and heatmap generation')
     parser.add_argument('--algo', type=str, default='mf', choices=['mf', 'fista', 'bpa'], help="Reconstruction algorithm: 'mf' (Matched Filter), 'fista' (Fast Iterative Shrinkage-Thresholding), or 'bpa' (Back Projection)")
     parser.add_argument('--fista_iters', type=int, default=20, help="Number of FISTA iterations")
     parser.add_argument('--fista_lambda', type=float, default=0.05, help="FISTA regularization ratio (0.0 to 1.0)")
@@ -662,29 +659,6 @@ def main():
         sar_stack.append(np.abs(np.fliplr(sar_image)))
 
     sar_stack = np.array(sar_stack) # Shape (N_z, Y, X)
-
-    # Dump images if requested
-    if args.sar_dump:
-        print(f"Dumping SAR images to {args.sar_dump}...")
-        os.makedirs(args.sar_dump, exist_ok=True)
-        
-        # Normalize for image saving (0-255)
-        # Using global max to preserve relative intensity across Z-slices
-        stack_max = np.max(sar_stack)
-        if stack_max > 0:
-            norm_stack = (sar_stack / stack_max * 255).astype(np.uint8)
-        else:
-            norm_stack = sar_stack.astype(np.uint8)
-
-        for i, z_val in enumerate(z_values):
-            out_path = os.path.join(args.sar_dump, f"sar_z{z_val}.png")
-            # Save as grayscale
-            plt.imsave(out_path, norm_stack[i], cmap='gray')
-        
-        print(f"Saved {len(z_values)} slices to {args.sar_dump}")
-
-    if args.silent:
-        return
 
     # Generate Heatmaps
     print("Generating Heatmaps...")
@@ -861,7 +835,7 @@ def main():
                 pass
 
     # 4. Interactive Slider Plot (or single Z display)
-    if args.plotly and not args.mat_plot_lib:
+    if args.plotly:
         print("Generating Interactive Plotly Slice Viewer...")
         try:
             import plotly.graph_objects as go

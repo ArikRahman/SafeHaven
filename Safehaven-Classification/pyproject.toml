@@ -1,0 +1,13 @@
+[project]
+name = "safehaven-classification"
+version = "0.1.0"
+description = "Weapon classification and dataset generation for SafeHaven"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "numpy",
+    "opencv-python",
+    "torch",
+    "torchvision",
+    "pillow",
+]
