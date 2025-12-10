@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ page_title or "Web Command Runner" }}</title>
+
+  <!-- Bootswatch Morph theme -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.0/dist/morph/bootstrap.min.css">
+
+  <style>
+  pre {
+    background: #111;
+    color: #0f0;
+    padding: 15px;
+    border-radius: 6px;
+    overflow-x: auto;
+    font-size: 14px;
+    white-space: pre-wrap;
+  }
+  .error {
+    background: #330000;
+    color: #ff9999;
+  }
+
+  /* Pill-style navbar links for Motor / Heatmaps */
+  .navbar-pill-link {
+    border-radius: 999px;
+    padding: 0.35rem 1.1rem;
+    margin-right: 0.35rem;
+    transition: background 0.2s ease, box-shadow 0.2s ease,
+                transform 0.1s ease;
+  }
+
+  .navbar-pill-link:hover {
+    background: rgba(255, 255, 255, 0.35);
+    box-shadow: 0 0.25rem 0.6rem rgba(0, 0, 0, 0.18);
+    transform: translateY(-1px);
+  }
+
+  .navbar-pill-link.active {
+    background: #ffffff;
+    color: #0d6efd !important;  /* Morph's primary blue */
+    box-shadow: 0 0.35rem 0.9rem rgba(0, 0, 0, 0.25);
+  }
+</style>
+
+</head>
+
+<body class="bg-light">
+
+  <!-- NAVBAR WITH ROUTES -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="{{ url_for('motor_page') }}">SafeHaven Web Runner</a>
+
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+            data-bs-target="#navbarNav" aria-controls="navbarNav"
+            aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav me-auto">
+
+        <li class="nav-item">
+          <a class="nav-link navbar-pill-link {% if active_page == 'motor' %}active{% endif %}"
+             href="{{ url_for('motor_page') }}">
+            Motor
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link navbar-pill-link {% if active_page == 'heatmaps' %}active{% endif %}"
+             href="{{ url_for('heatmaps_page') }}">
+            Heatmaps
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link navbar-pill-link {% if active_page == 'terminal' %}active{% endif %}"
+             href="{{ url_for('terminal') }}">
+            Terminal
+          </a>
+        </li>
+
+      </ul>
+    </div>
+  </div>
+</nav>
+
+
+  <!-- MAIN CARD -->
+  <div class="container">
+    <div class="p-4 bg-white shadow rounded">
+
+      <h1 class="text-center mb-4">{{ page_title }}</h1>
+
+      <!-- Flash Messages -->
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          <div class="alert alert-danger">
+            {% for msg in messages %}
+              <div>{{ msg }}</div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+
+      <!-- Command Buttons -->
+      <div class="d-flex flex-wrap justify-content-center gap-2 mb-4">
+        <form method="POST" action="{{ url_for(run_endpoint) }}">
+          {% for key, cmd in commands.items() %}
+            <button
+              type="submit"
+              name="command"
+              value="{{ key }}"
+              class="btn btn-primary btn-lg"
+            >
+              {{ key }}
+            </button>
+          {% endfor %}
+        </form>
+      </div>
+
+      <!-- Output Section -->
+      {% if selected_command %}
+        <div class="mt-4">
+          <h3>Command Output</h3>
+
+          <p><strong>Command:</strong> {{ selected_command }}</p>
+          <p><strong>Exit Code:</strong> {{ returncode }}</p>
+
+          {% if output %}
+            <h5>Output:</h5>
+            <pre>{{ output }}</pre>
+          {% endif %}
+
+          {% if error %}
+            <h5>Error:</h5>
+            <pre class="error">{{ error }}</pre>
+          {% endif %}
+        </div>
+      {% endif %}
+
+    </div>
+  </div>
+
+  <!-- Bootstrap JS bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>
