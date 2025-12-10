@@ -128,6 +128,13 @@ def load_data_cube(filename, samples, X, Y, option):
             
             slice_data = full_channel_data[x*samples : (x+1)*samples]
             
+            # Handle truncated data (pad with zeros if file is shorter than expected)
+            if len(slice_data) < samples:
+                print(f"Warning: Truncated data in {filename} at x={x+1}, padding with zeros.")
+                padded = np.zeros(samples, dtype=np.complex128)
+                padded[:len(slice_data)] = slice_data
+                slice_data = padded
+
             # Snake pattern logic
             # MATLAB: if rem(y, 2) == 1 (odd) -> data_cube(:, y, x)
             # else -> data_cube(:, y, X + 1 - x)
@@ -534,12 +541,14 @@ def main():
     parser.add_argument('--algo', type=str, default='mf', choices=['mf', 'fista', 'bpa'], help="Reconstruction algorithm: 'mf' (Matched Filter), 'fista' (Fast Iterative Shrinkage-Thresholding), or 'bpa' (Back Projection)")
     parser.add_argument('--fista_iters', type=int, default=20, help="Number of FISTA iterations")
     parser.add_argument('--fista_lambda', type=float, default=0.05, help="FISTA regularization ratio (0.0 to 1.0)")
+    parser.add_argument('--frames_in_x', type=int, default=800, help='Number of frames in X dimension (default: 800)')
+    parser.add_argument('--frames_in_y', type=int, default=40, help='Number of frames in Y dimension (default: 40)')
     args = parser.parse_args()
 
     # Configuration
     data_dir = args.folder
-    X = 800
-    Y = 40
+    X = args.frames_in_x
+    Y = args.frames_in_y
     samples = 512
 
     def filename_fn(y):

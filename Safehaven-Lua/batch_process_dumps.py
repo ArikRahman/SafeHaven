@@ -1,8 +1,17 @@
 import subprocess
 import os
+import argparse
+
+# Set up argument parser
+parser = argparse.ArgumentParser(description="Batch process SAR dumps.")
+parser.add_argument("--dump", type=int, help="Dump ID to process (e.g., 65)")
+args = parser.parse_args()
 
 # List of dump IDs to process
-dump_ids = [63, 66]
+if args.dump is not None:
+    dump_ids = [args.dump]
+else:
+    dump_ids = [31]
 
 # Base command parameters
 script_name = "mainSARneuronauts2py_rev3_2.py"

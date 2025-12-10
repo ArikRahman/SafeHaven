@@ -94,9 +94,9 @@ class WeaponCNN(nn.Module):
     - Conv Layer 3: 64 filters, 3x3, ReLU
     - Flatten
     - Dense Layer 1: 64 neurons, ReLU
-    - Output Layer: 5 classes (Softmax implied by CrossEntropyLoss in training)
+    - Output Layer: 3 classes (Softmax implied by CrossEntropyLoss in training)
     """
-    def __init__(self, num_classes=5):
+    def __init__(self, num_classes=3):
         super(WeaponCNN, self).__init__()
         
         # Input shape: (Batch, 1, 100, 100) - Assuming grayscale input
@@ -156,7 +156,7 @@ class WeaponCNN(nn.Module):
 # Helper for Inference
 # ==========================================
 
-def predict_weapon(model, image_path, classes=['Grenade', 'Knife', 'Gun', 'IronRod', 'Wrench']):
+def predict_weapon(model, image_path, classes=['Knife', 'MetalPlate', 'Noise', 'Scissors']):
     """
     Predicts the class of a weapon from an image path using the trained model.
     """
@@ -334,7 +334,7 @@ if __name__ == "__main__":
                     classes = [line.strip() for line in f.readlines()]
             else:
                 print("Warning: Class mapping file not found. Using default classes.")
-                classes = ['Grenade', 'Knife', 'Gun', 'IronRod', 'Wrench']
+                classes = ['Knife', 'MetalPlate', 'Noise', 'Scissors']
                 
             model = WeaponCNN(num_classes=len(classes))
             model.load_state_dict(torch.load(args.model_path))
