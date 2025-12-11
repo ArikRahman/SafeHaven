@@ -547,6 +547,19 @@ def main():
 
     # Configuration
     data_dir = args.folder
+
+    # Robust directory check
+    if not os.path.exists(data_dir):
+        # Check relative to script location
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        alt_data_dir = os.path.join(script_dir, data_dir)
+        if os.path.exists(alt_data_dir):
+            print(f"Note: Folder '{data_dir}' not found in CWD. Using '{alt_data_dir}'")
+            data_dir = alt_data_dir
+        else:
+            # If still not found, we'll let the subsequent code fail with a clear error or handle it there
+            pass
+
     X = args.frames_in_x
     Y = args.frames_in_y
     samples = 512

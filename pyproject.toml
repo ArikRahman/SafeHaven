@@ -1,0 +1,27 @@
+[project]
+name = "safehaven"
+version = "0.1.0"
+description = "SafeHaven Project: SAR Imaging, Weapon Classification, and Gantry Control"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "numpy",
+    "matplotlib",
+    "scipy",
+    "opencv-python",
+    "torch",
+    "torchvision",
+    "pillow",
+    "ultralytics",
+    "gpiozero",
+    "rpi-hardware-pwm ; sys_platform == 'linux'",
+]
+
+[[tool.uv.index]]
+name = "pytorch"
+url = "https://download.pytorch.org/whl/cu121"
+explicit = true
+
+[tool.uv.sources]
+torch = { index = "pytorch" }
+torchvision = { index = "pytorch" }
