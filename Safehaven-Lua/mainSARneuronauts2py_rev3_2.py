@@ -128,6 +128,13 @@ def load_data_cube(filename, samples, X, Y, option):
             
             slice_data = full_channel_data[x*samples : (x+1)*samples]
             
+            # Handle truncated data (pad with zeros if file is shorter than expected)
+            if len(slice_data) < samples:
+                print(f"Warning: Truncated data in {filename} at x={x+1}, padding with zeros.")
+                padded = np.zeros(samples, dtype=np.complex128)
+                padded[:len(slice_data)] = slice_data
+                slice_data = padded
+
             # Snake pattern logic
             # MATLAB: if rem(y, 2) == 1 (odd) -> data_cube(:, y, x)
             # else -> data_cube(:, y, X + 1 - x)
@@ -528,15 +535,33 @@ def main():
     parser.add_argument('--3d_scatter', dest='scatter3d', action='store_true', help='Generate interactive 3D scatter plot')
     parser.add_argument('--3d_scatter_intensity', dest='scatter3d_intensity', type=float, default=95.0, help='Initial percentile threshold for 3D scatter plot (0-100)')
     parser.add_argument('--plotly', action='store_true', help='Generate interactive Plotly HTML with Z-slider instead of Matplotlib window')
+    parser.add_argument('--mat_plot_lib', action='store_true', help='Force use of Matplotlib for visualization, overriding --plotly')
+    parser.add_argument('--sar_dump', type=str, default=None, help='Directory to dump processed SAR images (Z-slices)')
+    parser.add_argument('--silent', action='store_true', help='Suppress all graphical output and heatmap generation')
     parser.add_argument('--algo', type=str, default='mf', choices=['mf', 'fista', 'bpa'], help="Reconstruction algorithm: 'mf' (Matched Filter), 'fista' (Fast Iterative Shrinkage-Thresholding), or 'bpa' (Back Projection)")
     parser.add_argument('--fista_iters', type=int, default=20, help="Number of FISTA iterations")
     parser.add_argument('--fista_lambda', type=float, default=0.05, help="FISTA regularization ratio (0.0 to 1.0)")
+    parser.add_argument('--frames_in_x', type=int, default=800, help='Number of frames in X dimension (default: 800)')
+    parser.add_argument('--frames_in_y', type=int, default=40, help='Number of frames in Y dimension (default: 40)')
     args = parser.parse_args()
 
     # Configuration
     data_dir = args.folder
-    X = 800
-    Y = 40
+
+    # Robust directory check
+    if not os.path.exists(data_dir):
+        # Check relative to script location
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        alt_data_dir = os.path.join(script_dir, data_dir)
+        if os.path.exists(alt_data_dir):
+            print(f"Note: Folder '{data_dir}' not found in CWD. Using '{alt_data_dir}'")
+            data_dir = alt_data_dir
+        else:
+            # If still not found, we'll let the subsequent code fail with a clear error or handle it there
+            pass
+
+    X = args.frames_in_x
+    Y = args.frames_in_y
     samples = 512
 
     def filename_fn(y):
@@ -659,6 +684,29 @@ def main():
         sar_stack.append(np.abs(np.fliplr(sar_image)))
 
     sar_stack = np.array(sar_stack) # Shape (N_z, Y, X)
+
+    # Dump images if requested
+    if args.sar_dump:
+        print(f"Dumping SAR images to {args.sar_dump}...")
+        os.makedirs(args.sar_dump, exist_ok=True)
+        
+        # Normalize for image saving (0-255)
+        # Using global max to preserve relative intensity across Z-slices
+        stack_max = np.max(sar_stack)
+        if stack_max > 0:
+            norm_stack = (sar_stack / stack_max * 255).astype(np.uint8)
+        else:
+            norm_stack = sar_stack.astype(np.uint8)
+
+        for i, z_val in enumerate(z_values):
+            out_path = os.path.join(args.sar_dump, f"sar_z{z_val}.png")
+            # Save as grayscale
+            plt.imsave(out_path, norm_stack[i], cmap='gray')
+        
+        print(f"Saved {len(z_values)} slices to {args.sar_dump}")
+
+    if args.silent:
+        return
 
     # Generate Heatmaps
     print("Generating Heatmaps...")
@@ -835,7 +883,7 @@ def main():
                 pass
 
     # 4. Interactive Slider Plot (or single Z display)
-    if args.plotly:
+    if args.plotly and not args.mat_plot_lib:
         print("Generating Interactive Plotly Slice Viewer...")
         try:
             import plotly.graph_objects as go
