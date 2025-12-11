@@ -1,0 +1,7 @@
+name = "safe_haven"
+version = "0.1.0"
+target = "erlang"
+
+[dependencies]
+gleam_stdlib = ">= 0.34.0"
+gleam_erlang = ">= 0.25.0"

@@ -1,0 +1,61 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
+  <div class="container-fluid">
+    <a class="navbar-brand" href={~p"/motor"}>SafeHaven Web Runner</a>
+
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+            data-bs-target="#navbarNav" aria-controls="navbarNav"
+            aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item">
+          <a class={"nav-link navbar-pill-link #{if @active_page == "motor", do: "active"}"} href={~p"/motor"}>
+            Motor
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class={"nav-link navbar-pill-link #{if @active_page == "heatmaps", do: "active"}"} href={~p"/heatmaps"}>
+            Heatmaps
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class={"nav-link navbar-pill-link #{if @active_page == "terminal", do: "active"}"} href={~p"/terminal"}>
+            Terminal
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="p-4 bg-white shadow rounded">
+    <h1 class="text-center mb-4">{@page_title}</h1>
+
+    <div class="terminal-box mb-3" id="terminal-output">
+      {@history}
+    </div>
+
+    <form method="POST" action={~p"/terminal"}>
+      <input type="hidden" name="_csrf_token" value={get_csrf_token()} />
+      <!-- keep history across requests -->
+      <textarea name="history" hidden>{@history}</textarea>
+
+      <div class="input-group">
+        <span class="input-group-text">&gt;</span>
+        <input
+          type="text"
+          name="command"
+          class="form-control terminal-input"
+          placeholder="Type a command (e.g., dir, python script.py)"
+          autofocus
+        >
+        <button type="submit" class="btn btn-primary">
+          Run
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

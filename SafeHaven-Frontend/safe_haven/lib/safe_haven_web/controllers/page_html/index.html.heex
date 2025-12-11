@@ -1,0 +1,74 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
+  <div class="container-fluid">
+    <a class="navbar-brand" href={~p"/motor"}>SafeHaven Web Runner</a>
+
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+            data-bs-target="#navbarNav" aria-controls="navbarNav"
+            aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item">
+          <a class={"nav-link navbar-pill-link #{if @active_page == "motor", do: "active"}"} href={~p"/motor"}>
+            Motor
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class={"nav-link navbar-pill-link #{if @active_page == "heatmaps", do: "active"}"} href={~p"/heatmaps"}>
+            Heatmaps
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class={"nav-link navbar-pill-link #{if @active_page == "terminal", do: "active"}"} href={~p"/terminal"}>
+            Terminal
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="p-4 bg-white shadow rounded">
+
+    <h1 class="text-center mb-4">{@page_title}</h1>
+
+    <div :if={msg = Phoenix.Flash.get(@flash, :error)} class="alert alert-danger">
+      <div>{msg}</div>
+    </div>
+    <div :if={msg = Phoenix.Flash.get(@flash, :info)} class="alert alert-info">
+      <div>{msg}</div>
+    </div>
+
+    <div class="d-flex flex-wrap justify-content-center gap-2 mb-4">
+      <form method="POST" action={@run_endpoint}>
+        <input type="hidden" name="_csrf_token" value={get_csrf_token()} />
+        <%= for {key, _cmd} <- @commands do %>
+          <button type="submit" name="command" value={key} class="btn btn-primary btn-lg">
+            {key}
+          </button>
+        <% end %>
+      </form>
+    </div>
+
+    <div :if={@selected_command} class="mt-4">
+      <h3>Command Output</h3>
+
+      <p><strong>Command:</strong> {@selected_command}</p>
+      <p><strong>Exit Code:</strong> {@returncode}</p>
+
+      <div :if={@output && @output != ""}>
+        <h5>Output:</h5>
+        <pre>{@output}</pre>
+      </div>
+
+      <div :if={@error && @error != ""}>
+        <h5>Error:</h5>
+        <pre class="error">{@error}</pre>
+      </div>
+    </div>
+
+  </div>
+</div>
